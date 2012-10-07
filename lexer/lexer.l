@@ -10,14 +10,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include "tokenconsts.h"
 #include "tokenutil.h"
 
 #define BUF_SIZE (1024*4)
 
 static void print_comment(const char*);
+static void patch_comment(char*);
 static void die(const char*);
 
+static bool eof;
 static char buffer[BUF_SIZE];
 %}
 
@@ -103,7 +106,9 @@ writeln			{return ywriteln;}
 {NUMBER}		{return ynumber;}
 {STRING}		{return ystring;}
 <INITIAL>\(\*		{BEGIN(IN_COMMENT); yymore();}
+<IN_COMMENT><<EOF>>	{eof = true; return yunknown;}
 <IN_COMMENT>[^*]*\*+	{BEGIN(WARNING); yymore();}
+<WARNING><<EOF>>	{eof = true; return yunknown;}
 <WARNING>[^)]		{BEGIN(IN_COMMENT); yymore();}
 <WARNING>\)		{BEGIN(INITIAL); yymore(); print_comment("/*");}
 {WHITESPACE}		{ /* Do nothing */ }
@@ -116,7 +121,7 @@ int main(void)
 	int token;
 	const char *text;
 
-	for (;;) {
+	do {
 		token = yylex();
 		if (!token)
 			break;
@@ -133,7 +138,9 @@ int main(void)
 		} else
 			text = "";
 		printf("%-5d %-15s  %s\n", token, token_name(token), text);
-	}
+	} while(!eof);
+	
+	return 0;
 }
 
 /*
@@ -154,8 +161,27 @@ static void print_comment(const char *comment_delim)
 	memset(buffer, 0, sizeof buffer);
 	strcpy(buffer, "/*");
 	memcpy(buffer+2, yytext + delim_len, yyleng - delim_len * 2);
+	patch_comment(buffer+2);
 	strcat(buffer, "*/");
 	printf("%s\n", buffer);
+}
+
+/*
+ * Search for instances of asterisk-slash in the Pascal comment and munge
+ * them, since those characters terminate a C comment.
+ * @comment - Pointer to a buffer containing the text of the Pascal comment.
+ */
+static void patch_comment(char *comment)
+{
+	char *close_delim;
+	
+	for (;;) {
+		close_delim = strstr(comment, "*/");
+		if (!close_delim)
+			break;
+		*close_delim = '.';
+		comment = close_delim;
+	}
 }
 
 /*

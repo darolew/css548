@@ -38,12 +38,13 @@ testfile harderror.p
 testfile funcerror.p
 testfile arrayerror.p
 testfile errors.p
+testfile lexdata.txt
 
 # edge cases
 testfile caseinsensitive.p
 testfile strings.p
 testfile comments.p
-#testfile untermcomment1.p # needs further consideration
+testfile untermcomment1.p # a bit quirky
 testfile untermcomment2.p
 testfile untermstring1.p
 testfile untermstring2.p
