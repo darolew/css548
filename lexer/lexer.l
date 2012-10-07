@@ -123,9 +123,9 @@ int main(void)
 			if (yyleng >= sizeof buffer)
 				die("string too long for buffer");
 			/* copy in the string, minus the quotation marks */
-		    	memcpy(buffer, yytext+1, yyleng-2);
-		    	buffer[yyleng-2] = '\0';
-		    	text = buffer;
+			memcpy(buffer, yytext+1, yyleng-2);
+			buffer[yyleng-2] = '\0';
+			text = buffer;
 		} else if (token == ynumber || token == yident ||
 		           token == yunknown) {
 			text = yytext;
