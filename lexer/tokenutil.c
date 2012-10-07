@@ -1,6 +1,9 @@
 /*
  * CSS 548; Autumn 2012
  * Aaron Hoffer and Daniel Lewis
+ *
+ * This file creates a map between token ID and token name. Used for printing
+ * output and debugging.
  */
 #include <assert.h>
 #include "tokenutil.h"

@@ -1,7 +1,12 @@
 /*
  * CSS 548; Autumn 2012
  * Aaron Hoffer and Daniel Lewis
+ *
+ * This is a Flex input file. Flex will generate a scanner in C code from this
+ * definition. The tokens defined represents a subset of Pascal and are
+ * phase I of the CSS 548 compiler project.
  */
+ 
 %option noyywrap
 %option yylineno
 %option case-insensitive
@@ -20,7 +25,15 @@ static void print_comment(const char*);
 static void patch_comment(char*);
 static void die(const char*);
 
+/* 
+ * If EOF encountered in the middle of a comment, set this flag so the main 
+ * method can terminate properly.
+ */
 static bool eof;
+
+/* 
+ * Character buffer for comments and strings.
+ */
 static char buffer[BUF_SIZE];
 %}
 
@@ -116,6 +129,11 @@ writeln			{return ywriteln;}
 
 %%
 
+/* 
+ * Test the lexer. Takes the input text and turns it into a token stream. 
+ * Prints the token number, token name, and any data associated with it.
+ * Exit when the input text is exhausted.
+ */
 int main(void)
 {
 	int token;
@@ -152,12 +170,14 @@ static void print_comment(const char *comment_delim)
 	size_t delim_len = strlen(comment_delim);
 	size_t total_len;
 	
+	/* Test the coment does not overflow buffer. */
 	total_len = yyleng;
 	total_len -= delim_len * 2;  /* subtract Pascal deliminators */
 	total_len += 4;              /* add C deliminators */
 	if (total_len >= sizeof buffer)
 		die("comment too long for buffer");
 
+	/* Convert from Pascal style comment to C style and print it. */
 	memset(buffer, 0, sizeof buffer);
 	strcpy(buffer, "/*");
 	memcpy(buffer+2, yytext + delim_len, yyleng - delim_len * 2);
