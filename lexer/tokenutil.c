@@ -1,7 +1,17 @@
+/*
+ * CSS 548; Autumn 2012
+ * Aaron Hoffer and Daniel Lewis
+ */
+#include <assert.h>
 #include "tokenutil.h"
 
+/* The minimum token value */
 #define YMIN 257
 
+/*
+ * A list of all tokens. Listed in the same order as in tokenconsts.h, with
+ * no omissions or duplications.
+ */
 static const char *token_map[] = {
 	"yand", "yarray", "yassign", "ybegin", "ycaret", "ycase", "ycolon",
 	"ycomma", "yconst", "ydispose", "ydiv", "ydivide", "ydo", "ydot", 
@@ -15,7 +25,11 @@ static const char *token_map[] = {
 	"yvar", "ywhile", "ywrite", "ywriteln", "yunknown"
 };
 
+/*
+ * Convert a token value into a token name.
+ */
 const char *token_name(int token)
 {
+	assert(token >= YMIN);
 	return token_map[token - YMIN];
 }

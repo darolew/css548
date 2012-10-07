@@ -1,3 +1,7 @@
+/*
+ * CSS 548; Autumn 2012
+ * Aaron Hoffer and Daniel Lewis
+ */
 %option noyywrap
 %option yylineno
 %option case-insensitive
@@ -9,12 +13,12 @@
 #include "tokenconsts.h"
 #include "tokenutil.h"
 
-#define BUF_SIZE (1024*3)
+#define BUF_SIZE (1024*4)
 
 static void print_comment(const char*);
+static void die(const char*);
 
 static char buffer[BUF_SIZE];
-
 %}
 
 LETTER		[a-z]
@@ -34,6 +38,7 @@ WHITESPACE	[ \n\t\r]
 %x WARNING
 
 %%
+
 and			{return yand;}
 array			{return yarray;}
 ":="			{return yassign;}
@@ -102,44 +107,61 @@ writeln			{return ywriteln;}
 <WARNING>\)		{BEGIN(INITIAL); yymore(); print_comment("/*");}
 {WHITESPACE}		{ /* Do nothing */ }
 .			{return yunknown;}
+
 %%
 
 int main(void)
 {
-	
 	int token;
 	const char *text;
 
 	for (;;) {
 		token = yylex();
-		text = "";
 		if (!token)
 			break;
 		if (token == ystring) {
-			size_t len = strlen(yytext); // TODO: yyleng
-		    	if (len > sizeof buffer) {
-		    		fprintf(stderr, "");
-		    		exit(1);
-		    	}
-		    	memcpy(buffer, yytext+1, len-2);
-		    	buffer[len-2] = '\0';
+			if (yyleng >= sizeof buffer)
+				die("string too long for buffer");
+			/* copy in the string, minus the quotation marks */
+		    	memcpy(buffer, yytext+1, yyleng-2);
+		    	buffer[yyleng-2] = '\0';
 		    	text = buffer;
-		} else if (token == ynumber || token == yident || token == yunknown) {
+		} else if (token == ynumber || token == yident ||
+		           token == yunknown) {
 			text = yytext;
-		}
-		printf("%d %s %s\n", token, token_name(token), text);
+		} else
+			text = "";
+		printf("%-5d %-15s  %s\n", token, token_name(token), text);
 	}
 }
 
-static void print_comment(const char *comment)
+/*
+ * Print out a Pascal comment (stored in yytext) as a C comment.
+ * @comment_delim - The delimiter for this type of Pascal comment: '{' or '(*' 
+ */
+static void print_comment(const char *comment_delim)
 {
-	size_t comment_len = strlen(comment);
+	size_t delim_len = strlen(comment_delim);
+	size_t total_len;
+	
+	total_len = yyleng;
+	total_len -= delim_len * 2;  /* subtract Pascal deliminators */
+	total_len += 4;              /* add C deliminators */
+	if (total_len >= sizeof buffer)
+		die("comment too long for buffer");
 
 	memset(buffer, 0, sizeof buffer);
 	strcpy(buffer, "/*");
-	memcpy(buffer+2, yytext + comment_len, yyleng - comment_len * 2);
+	memcpy(buffer+2, yytext + delim_len, yyleng - delim_len * 2);
 	strcat(buffer, "*/");
 	printf("%s\n", buffer);
 }
 
-
+/*
+ * Abort the lexer program with an error message.
+ */
+static void die(const char *message)
+{
+	fprintf(stderr, "%s\n", message);
+	exit(EXIT_FAILURE);
+}
