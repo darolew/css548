@@ -48,6 +48,7 @@ case			{return ycase;}
 ":"			{return ycolon;}
 ","			{return ycomma;}
 const			{return yconst;}
+dispose			{return ydispose;}
 div			{return ydiv;}
 "/"			{return ydivide;}
 do			{return ydo;}

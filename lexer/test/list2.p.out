@@ -558,7 +558,7 @@
 259   yassign          
 292   ynil             
 307   ysemicolon       
-281   yident           dispose
+266   ydispose         
 285   yleftparen       
 281   yident           current
 306   yrightparen      
