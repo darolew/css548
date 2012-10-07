@@ -1,0 +1,46 @@
+300   yprogram         
+281   yident           harderror
+285   yleftparen       
+281   yident           input
+264   ycomma           
+281   yident           output
+306   yrightparen      
+307   ysemicolon       
+313   ytype            
+281   yident           cellPtr
+275   yequal           
+261   ycaret           
+281   yident           cell
+307   ysemicolon       
+281   yident           anotherPtr
+275   yequal           
+261   ycaret           
+281   yident           junk
+307   ysemicolon       
+/* junk never gets defined */
+281   yident           cell
+275   yequal           
+303   yrecord          
+281   yident           id
+263   ycolon           
+281   yident           integer
+307   ysemicolon       
+281   yident           next
+263   ycolon           
+281   yident           cellPtr
+307   ysemicolon       
+281   yident           junkPtr
+263   ycolon           
+281   yident           anotherPtr
+/* type not defined */
+274   yend             
+307   ysemicolon       
+315   yvar             
+281   yident           list
+263   ycolon           
+281   yident           cellPtr
+307   ysemicolon       
+260   ybegin           
+274   yend             
+270   ydot             
+/* scopeExit example */

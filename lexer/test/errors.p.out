@@ -1,0 +1,143 @@
+300   yprogram         
+281   yident           errors
+285   yleftparen       
+281   yident           input
+264   ycomma           
+281   yident           output
+306   yrightparen      
+307   ysemicolon       
+313   ytype            
+281   yident           student
+275   yequal           
+303   yrecord          
+281   yident           id
+263   ycolon           
+281   yident           integer
+307   ysemicolon       
+281   yident           gpa
+263   ycolon           
+281   yident           real
+274   yend             
+307   ysemicolon       
+315   yvar             
+281   yident           somestudent
+263   ycolon           
+281   yident           student
+307   ysemicolon       
+281   yident           i
+264   ycomma           
+281   yident           j
+263   ycolon           
+281   yident           integer
+307   ysemicolon       
+281   yident           x
+264   ycomma           
+281   yident           y
+264   ycomma           
+281   yident           z
+263   ycolon           
+281   yident           real
+307   ysemicolon       
+260   ybegin           
+/* every line has at least one undefined variable in it */
+301   yread            
+285   yleftparen       
+281   yident           classNum
+306   yrightparen      
+307   ysemicolon       
+281   yident           k
+259   yassign          
+281   yident           n
+290   ymultiply        
+281   yident           m
+307   ysemicolon       
+281   yident           size
+259   yassign          
+295   ynumber          10
+307   ysemicolon       
+281   yident           somestudent
+270   ydot             
+281   yident           gpa
+259   yassign          
+295   ynumber          4.0
+307   ysemicolon       
+277   yfor             
+281   yident           i
+259   yassign          
+295   ynumber          1
+311   yto              
+281   yident           size
+269   ydo              
+281   yident           insert
+285   yleftparen       
+281   yident           list
+264   ycomma           
+281   yident           newrec
+306   yrightparen      
+307   ysemicolon       
+318   ywriteln         
+285   yleftparen       
+309   ystring          Yet another undefined variable:
+264   ycomma           
+281   yident           undefined
+306   yrightparen      
+307   ysemicolon       
+281   yident           displayInfo
+307   ysemicolon       
+/* every line has a type checking error in it */
+281   yident           y
+259   yassign          
+281   yident           i
+289   ymod             
+281   yident           x
+307   ysemicolon       
+281   yident           y
+259   yassign          
+281   yident           x
+289   ymod             
+281   yident           i
+307   ysemicolon       
+281   yident           y
+259   yassign          
+281   yident           i
+267   ydiv             
+281   yident           x
+307   ysemicolon       
+281   yident           y
+259   yassign          
+281   yident           x
+267   ydiv             
+281   yident           i
+307   ysemicolon       
+281   yident           z
+259   yassign          
+281   yident           x
+289   ymod             
+281   yident           y
+307   ysemicolon       
+281   yident           z
+259   yassign          
+281   yident           x
+267   ydiv             
+281   yident           y
+307   ysemicolon       
+281   yident           x
+259   yassign          
+309   ystring          string cannot be assigned to real
+307   ysemicolon       
+281   yident           i
+259   yassign          
+309   ystring          string cannot be assigned to integer
+307   ysemicolon       
+282   yif              
+281   yident           i
+279   ygreater         
+312   ytrue            
+310   ythen            
+317   ywrite           
+285   yleftparen       
+309   ystring          hello world
+306   yrightparen      
+307   ysemicolon       
+274   yend             
+270   ydot             

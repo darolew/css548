@@ -1,0 +1,259 @@
+300   yprogram         
+281   yident           example
+285   yleftparen       
+281   yident           input
+264   ycomma           
+281   yident           output
+306   yrightparen      
+307   ysemicolon       
+/* program example */
+265   yconst           
+281   yident           grades
+275   yequal           
+295   ynumber          5
+307   ysemicolon       
+281   yident           size
+275   yequal           
+295   ynumber          4
+307   ysemicolon       
+313   ytype            
+281   yident           int3D
+275   yequal           
+258   yarray           
+284   yleftbracket     
+295   ynumber          1
+271   ydotdot          
+295   ynumber          5
+264   ycomma           
+295   ynumber          2
+271   ydotdot          
+295   ynumber          3
+264   ycomma           
+295   ynumber          0
+271   ydotdot          
+295   ynumber          2
+305   yrightbracket    
+296   yof              
+281   yident           integer
+307   ysemicolon       
+281   yident           cellPtr
+275   yequal           
+261   ycaret           
+281   yident           cell
+307   ysemicolon       
+281   yident           cell
+275   yequal           
+303   yrecord          
+281   yident           id
+263   ycolon           
+281   yident           integer
+307   ysemicolon       
+281   yident           info
+263   ycolon           
+281   yident           int3D
+307   ysemicolon       
+281   yident           id
+263   ycolon           
+281   yident           real
+307   ysemicolon       
+/* produce error: id exists */
+281   yident           next
+263   ycolon           
+281   yident           cellPtr
+274   yend             
+307   ysemicolon       
+281   yident           Digit
+275   yequal           
+308   yset             
+296   yof              
+295   ynumber          0
+271   ydotdot          
+295   ynumber          9
+307   ysemicolon       
+315   yvar             
+281   yident           list
+263   ycolon           
+281   yident           cellPtr
+307   ysemicolon       
+281   yident           newrec
+263   ycolon           
+281   yident           cellPtr
+307   ysemicolon       
+281   yident           mycount
+263   ycolon           
+281   yident           int3D
+307   ysemicolon       
+281   yident           classNum
+263   ycolon           
+281   yident           integer
+307   ysemicolon       
+299   yprocedure       
+281   yident           proc1
+285   yleftparen       
+315   yvar             
+281   yident           list
+263   ycolon           
+281   yident           cellPtr
+307   ysemicolon       
+/* scopeEntry proc1 */
+315   yvar             
+281   yident           theA
+263   ycolon           
+281   yident           int3D
+307   ysemicolon       
+281   yident           rec
+263   ycolon           
+281   yident           cellPtr
+306   yrightparen      
+307   ysemicolon       
+315   yvar             
+281   yident           mycount
+263   ycolon           
+281   yident           integer
+307   ysemicolon       
+281   yident           x1
+263   ycolon           
+281   yident           integer
+307   ysemicolon       
+281   yident           y
+263   ycolon           
+281   yident           integer
+307   ysemicolon       
+260   ybegin           
+274   yend             
+307   ysemicolon       
+/* scopeExit proc1 */
+299   yprocedure       
+281   yident           proc2
+307   ysemicolon       
+/* scopeEntry proc2 */
+315   yvar             
+281   yident           mycount
+263   ycolon           
+281   yident           int3D
+307   ysemicolon       
+281   yident           x2
+263   ycolon           
+281   yident           integer
+307   ysemicolon       
+281   yident           y
+263   ycolon           
+281   yident           integer
+307   ysemicolon       
+281   yident           z
+263   ycolon           
+281   yident           integer
+307   ysemicolon       
+281   yident           y
+263   ycolon           
+281   yident           integer
+307   ysemicolon       
+/* produce error: y exists */
+299   yprocedure       
+281   yident           proc2a
+307   ysemicolon       
+/* scopeEntry proc2a */
+315   yvar             
+281   yident           mycount
+263   ycolon           
+281   yident           int3D
+307   ysemicolon       
+281   yident           x2a
+263   ycolon           
+281   yident           integer
+307   ysemicolon       
+281   yident           y
+263   ycolon           
+281   yident           integer
+307   ysemicolon       
+281   yident           z
+263   ycolon           
+281   yident           integer
+307   ysemicolon       
+299   yprocedure       
+281   yident           proc2b
+307   ysemicolon       
+/* scopeEntry proc2b */
+315   yvar             
+281   yident           x2b
+263   ycolon           
+281   yident           integer
+307   ysemicolon       
+281   yident           y
+263   ycolon           
+281   yident           integer
+307   ysemicolon       
+299   yprocedure       
+281   yident           proc2c
+307   ysemicolon       
+/* scopeEntry proc2c */
+265   yconst           
+281   yident           someConst
+275   yequal           
+295   ynumber          10
+307   ysemicolon       
+281   yident           theConst
+275   yequal           
+295   ynumber          20
+307   ysemicolon       
+315   yvar             
+281   yident           x2c
+263   ycolon           
+281   yident           integer
+307   ysemicolon       
+281   yident           y
+263   ycolon           
+281   yident           integer
+307   ysemicolon       
+281   yident           x2c
+263   ycolon           
+281   yident           integer
+307   ysemicolon       
+/* produce error: x2c exists */
+278   yfunction        
+281   yident           func2d
+285   yleftparen       
+/* scopeEntry func2d */
+281   yident           newrec
+263   ycolon           
+281   yident           cellPtr
+306   yrightparen      
+263   ycolon           
+281   yident           integer
+307   ysemicolon       
+315   yvar             
+281   yident           a
+263   ycolon           
+258   yarray           
+284   yleftbracket     
+295   ynumber          5
+271   ydotdot          
+295   ynumber          10
+305   yrightbracket    
+296   yof              
+281   yident           real
+307   ysemicolon       
+260   ybegin           
+274   yend             
+307   ysemicolon       
+/* scopeExit func2d */
+260   ybegin           
+274   yend             
+307   ysemicolon       
+/* scopeExit proc2c */
+260   ybegin           
+274   yend             
+307   ysemicolon       
+/* scopeExit proc2b */
+260   ybegin           
+274   yend             
+307   ysemicolon       
+/* scopeExit proc2a */
+260   ybegin           
+274   yend             
+307   ysemicolon       
+/* scopeExit proc2 */
+260   ybegin           
+274   yend             
+270   ydot             
+/* scopeExit example */

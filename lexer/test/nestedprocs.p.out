@@ -1,0 +1,232 @@
+300   yprogram         
+281   yident           nesting
+285   yleftparen       
+281   yident           input
+264   ycomma           
+281   yident           output
+306   yrightparen      
+307   ysemicolon       
+/*** Demonstrate nesting of procedures.  ***/
+315   yvar             
+281   yident           i
+264   ycomma           
+281   yident           j
+264   ycomma           
+281   yident           k
+263   ycolon           
+281   yident           integer
+307   ysemicolon       
+/* ***************************    procA    ********************************** */
+299   yprocedure       
+281   yident           procA
+307   ysemicolon       
+315   yvar             
+281   yident           i
+264   ycomma           
+281   yident           j
+263   ycolon           
+281   yident           integer
+307   ysemicolon       
+299   yprocedure       
+281   yident           procA2
+307   ysemicolon       
+315   yvar             
+281   yident           i
+263   ycolon           
+281   yident           integer
+307   ysemicolon       
+260   ybegin           
+318   ywriteln         
+285   yleftparen       
+309   ystring          in procA2
+306   yrightparen      
+307   ysemicolon       
+281   yident           i
+259   yassign          
+295   ynumber          120
+307   ysemicolon       
+281   yident           j
+259   yassign          
+295   ynumber          121
+307   ysemicolon       
+318   ywriteln         
+285   yleftparen       
+309   ystring          i=
+264   ycomma           
+281   yident           i
+264   ycomma           
+309   ystring            j=
+264   ycomma           
+281   yident           j
+264   ycomma           
+309   ystring            k=
+264   ycomma           
+281   yident           k
+306   yrightparen      
+307   ysemicolon       
+274   yend             
+307   ysemicolon       
+299   yprocedure       
+281   yident           procA3
+307   ysemicolon       
+315   yvar             
+281   yident           i
+264   ycomma           
+281   yident           j
+263   ycolon           
+281   yident           integer
+307   ysemicolon       
+260   ybegin           
+318   ywriteln         
+285   yleftparen       
+309   ystring          in procA3
+306   yrightparen      
+307   ysemicolon       
+281   yident           i
+259   yassign          
+295   ynumber          130
+307   ysemicolon       
+281   yident           j
+259   yassign          
+295   ynumber          131
+307   ysemicolon       
+281   yident           k
+259   yassign          
+295   ynumber          132
+307   ysemicolon       
+318   ywriteln         
+285   yleftparen       
+309   ystring          i=
+264   ycomma           
+281   yident           i
+264   ycomma           
+309   ystring            j=
+264   ycomma           
+281   yident           j
+264   ycomma           
+309   ystring            k=
+264   ycomma           
+281   yident           k
+306   yrightparen      
+307   ysemicolon       
+274   yend             
+307   ysemicolon       
+260   ybegin           
+318   ywriteln         
+285   yleftparen       
+309   ystring          in procA
+306   yrightparen      
+307   ysemicolon       
+281   yident           i
+259   yassign          
+295   ynumber          10
+307   ysemicolon       
+281   yident           j
+259   yassign          
+295   ynumber          11
+307   ysemicolon       
+281   yident           k
+259   yassign          
+295   ynumber          12
+307   ysemicolon       
+318   ywriteln         
+285   yleftparen       
+309   ystring          i=
+264   ycomma           
+281   yident           i
+264   ycomma           
+309   ystring            j=
+264   ycomma           
+281   yident           j
+264   ycomma           
+309   ystring            k=
+264   ycomma           
+281   yident           k
+306   yrightparen      
+307   ysemicolon       
+281   yident           procA2
+307   ysemicolon       
+281   yident           procA3
+307   ysemicolon       
+274   yend             
+307   ysemicolon       
+/* ***************************    procB    ********************************** */
+299   yprocedure       
+281   yident           procB
+307   ysemicolon       
+315   yvar             
+281   yident           i
+263   ycolon           
+281   yident           integer
+307   ysemicolon       
+260   ybegin           
+318   ywriteln         
+285   yleftparen       
+309   ystring          in procB
+306   yrightparen      
+307   ysemicolon       
+281   yident           i
+259   yassign          
+295   ynumber          20
+307   ysemicolon       
+281   yident           j
+259   yassign          
+295   ynumber          21
+307   ysemicolon       
+318   ywriteln         
+285   yleftparen       
+309   ystring          i=
+264   ycomma           
+281   yident           i
+264   ycomma           
+309   ystring            j=
+264   ycomma           
+281   yident           j
+264   ycomma           
+309   ystring            k=
+264   ycomma           
+281   yident           k
+306   yrightparen      
+307   ysemicolon       
+274   yend             
+307   ysemicolon       
+/* **************************    main      ********************************** */
+260   ybegin           
+318   ywriteln         
+285   yleftparen       
+309   ystring          in main
+306   yrightparen      
+307   ysemicolon       
+281   yident           i
+259   yassign          
+295   ynumber          1
+307   ysemicolon       
+281   yident           j
+259   yassign          
+295   ynumber          2
+307   ysemicolon       
+281   yident           k
+259   yassign          
+295   ynumber          3
+307   ysemicolon       
+318   ywriteln         
+285   yleftparen       
+309   ystring          i=
+264   ycomma           
+281   yident           i
+264   ycomma           
+309   ystring            j=
+264   ycomma           
+281   yident           j
+264   ycomma           
+309   ystring            k=
+264   ycomma           
+281   yident           k
+306   yrightparen      
+307   ysemicolon       
+281   yident           procA
+307   ysemicolon       
+281   yident           procB
+307   ysemicolon       
+274   yend             
+270   ydot             

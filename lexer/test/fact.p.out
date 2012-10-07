@@ -1,0 +1,91 @@
+300   yprogram         
+281   yident           factorial
+285   yleftparen       
+281   yident           input
+264   ycomma           
+281   yident           output
+306   yrightparen      
+307   ysemicolon       
+265   yconst           
+281   yident           number
+275   yequal           
+295   ynumber          5
+307   ysemicolon       
+315   yvar             
+281   yident           result
+263   ycolon           
+281   yident           integer
+307   ysemicolon       
+/* demonstrate that a function name is how a function returns its value */
+278   yfunction        
+281   yident           fact
+285   yleftparen       
+281   yident           n
+263   ycolon           
+281   yident           integer
+306   yrightparen      
+263   ycolon           
+281   yident           integer
+307   ysemicolon       
+315   yvar             
+281   yident           i
+264   ycomma           
+281   yident           answer
+263   ycolon           
+281   yident           integer
+307   ysemicolon       
+260   ybegin           
+281   yident           fact
+259   yassign          
+295   ynumber          1
+307   ysemicolon       
+281   yident           answer
+259   yassign          
+295   ynumber          1
+307   ysemicolon       
+282   yif              
+281   yident           n
+279   ygreater         
+295   ynumber          1
+310   ythen            
+277   yfor             
+281   yident           i
+259   yassign          
+295   ynumber          2
+311   yto              
+281   yident           n
+269   ydo              
+281   yident           answer
+259   yassign          
+281   yident           answer
+290   ymultiply        
+281   yident           i
+307   ysemicolon       
+281   yident           fact
+259   yassign          
+281   yident           answer
+307   ysemicolon       
+274   yend             
+307   ysemicolon       
+260   ybegin           
+/* main program */
+281   yident           result
+259   yassign          
+281   yident           fact
+285   yleftparen       
+281   yident           number
+306   yrightparen      
+307   ysemicolon       
+318   ywriteln         
+285   yleftparen       
+309   ystring          Factorial of 
+264   ycomma           
+281   yident           number
+264   ycomma           
+309   ystring           is 
+264   ycomma           
+281   yident           result
+306   yrightparen      
+307   ysemicolon       
+274   yend             
+270   ydot             

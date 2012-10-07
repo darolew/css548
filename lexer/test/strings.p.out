@@ -1,0 +1,22 @@
+309   ystring          
+309   ystring          
+309   ystring          hello, world
+309   ystring          hello, world
+309   ystring          hello, 'world'
+309   ystring          hello, "world"
+309   ystring          hello, 'world
+309   ystring          hello, "world
+309   ystring          hello,
+world
+309   ystring          hello,
+world
+309   ystring          (* not a comment *)
+309   ystring          (* not a comment *)
+309   ystring          { not a comment }
+309   ystring          { not a comment }
+309   ystring          while
+309   ystring          if
+309   ystring          ;
+309   ystring          while
+309   ystring          if
+309   ystring          ;
