@@ -78,10 +78,10 @@
  * 
  */
 
+ #include <stdio.h>
  
 /* declarations section */
-
-extern void yyerror(char *);
+void yyerror(char const *);
 
 
 
@@ -1904,6 +1904,14 @@ yyreturn:
 
 
 /* program section */
+void yyerror(const char *s) {
+   fprintf(stderr, "%s\n", s);
+}
+
+int main() {
+   int result = yyparse();
+   return result;
+}
 
 
 
