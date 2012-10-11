@@ -2,27 +2,28 @@
 # Aaron Hoffer and Daniel Lewis
 # Generate parser using Yacc and compile it with gcc.
 
-OBJ = parser.tab.o lex.yy.o 
-H = parser.tab.h tokenconsts.h
-CC=gcc
+OBJ = y.tab.o lex.yy.o 
+H   = y.tab.h tokenconsts.h
+CC  = gcc
 
 all: $(OBJ) $H                   
-	$(CC) $(OBJ) -o a.out -fl -ly
+	# $(CC) $(OBJ) -o a.out -lfl -ly
+	$(CC) $(OBJ) -o a.out -lfl
 
 main.o: main.cpp                   
 	$(CC) -c  main.cpp
 
 lex.yy.o: $H lex.yy.c                
-	$(CC) -c lex.yy.c -lfl
+	$(CC) -c lex.yy.c
 
 lex.yy.c: $H lexer.l                 
 	flex lexer.l                   
 
-parser.tab.o: parser.tab.c               
-	$(CC) -c parser.tab.c -ly
+y.tab.o: y.tab.c               
+	$(CC) -c y.tab.c
 
-parser.tab.c: parser.y                   
-	yacc -d -v parser.y              
+y.tab.c: parser.y                   
+	yacc -dv parser.y
 
 clean:
-	rm -f parser lex.yy.c parser.tab.h parser.tab.c *.o *.output
+	rm -f parser lex.yy.c y.tab.h y.tab.c *.o *.output
