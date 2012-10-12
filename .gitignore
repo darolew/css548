@@ -1,0 +1,6 @@
+.gitignore
+*.o
+*.tab.*
+a.out
+*.output
+
