@@ -16,7 +16,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "tokenconsts.h"
+#include "y.tab.h"
 
 #define BUF_SIZE (1024*4)
 
@@ -30,6 +30,12 @@ static bool eof;
  * Character buffer for comments and strings.
  */
 static char buffer[BUF_SIZE];
+
+/* 
+ * Capture a token's attribute value so it can be used  by the parser.
+ */
+void capture();
+
 %}
 
 LETTER		[a-z]
@@ -109,10 +115,10 @@ var			{return yvar;}
 while			{return ywhile;}
 write			{return ywrite;}
 writeln			{return ywriteln;}
-{ID}			{return yident;}
+{ID}			{/*fprintf(stderr, "**ID**\n");*/ capture(); return yident;}
 {BCOMMENT}		{}
-{NUMBER}		{return ynumber;}
-{STRING}		{return ystring;}
+{NUMBER}		{/*fprintf(stderr, "**NUMBER**\n");*/ capture(); return ynumber;}
+{STRING}		{/*fprintf(stderr, "**STRING**\n");*/ capture(); return ystring;}
 <INITIAL>\(\*		{BEGIN(IN_COMMENT); yymore();}
 <IN_COMMENT><<EOF>>	{eof = true; return yunknown;}
 <IN_COMMENT>[^*]*\*+	{BEGIN(WARNING); yymore();}
@@ -124,3 +130,13 @@ writeln			{return ywriteln;}
 
 %%
 
+/* 
+ * Capture a token's attribute value so it can be used  by the parser.
+ */
+void capture() {
+
+  /*Copy yytext because it can be changed bcefore we use it.*/
+  yylval.str = strdup(yytext);
+  /*fprintf(stderr, "%s\n", yylval.str);*/
+  
+}
