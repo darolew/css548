@@ -3,4 +3,5 @@
 *.tab.*
 a.out
 *.output
+lex.yy.c
 

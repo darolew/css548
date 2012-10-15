@@ -20,6 +20,11 @@
 
 #define BUF_SIZE (1024*4)
 
+/* Method declarations */
+static void print_comment(const char*);
+static void patch_comment(char*);
+static void die(const char*);
+
 /* 
  * If EOF encountered in the middle of a comment, set this flag so the main 
  * method can terminate properly.
@@ -49,7 +54,8 @@ NUMBER		{INT}|{REAL}
 STRINGDQ	\"[^"]*\"
 STRINGSQ	\'[^']*\'
 STRING		{STRINGDQ}|{STRINGSQ}
-WHITESPACE	[ \n\t\r]
+NEWLINE		\n
+WHITESPACE	[ \t\r]
 
 %x IN_COMMENT
 %x WARNING
@@ -125,6 +131,7 @@ writeln			{return ywriteln;}
 <WARNING><<EOF>>	{eof = true; return yunknown;}
 <WARNING>[^)]		{BEGIN(IN_COMMENT); yymore();}
 <WARNING>\)		{BEGIN(INITIAL); yymore(); }
+{NEWLINE}		{printf("\n"); /*for phase 2*/}
 {WHITESPACE}		{ /* Do nothing */ }
 .			{return yunknown;}
 
@@ -139,4 +146,57 @@ void capture() {
   yylval.str = strdup(yytext);
   /*fprintf(stderr, "%s\n", yylval.str);*/
   
+}
+
+
+/*
+ * Print out a Pascal comment (stored in yytext) as a C comment.
+ * @comment_delim - The delimiter for this type of Pascal comment: '{' or '(*' 
+ */
+static void print_comment(const char *comment_delim)
+{
+	size_t delim_len = strlen(comment_delim);
+	size_t total_len;
+	
+	/* Test the coment does not overflow buffer. */
+	total_len = yyleng;
+	total_len -= delim_len * 2;  /* subtract Pascal deliminators */
+	total_len += 4;              /* add C deliminators */
+	if (total_len >= sizeof buffer)
+		die("comment too long for buffer");
+
+	/* Convert from Pascal style comment to C style and print it. */
+	memset(buffer, 0, sizeof buffer);
+	strcpy(buffer, "/*");
+	memcpy(buffer+2, yytext + delim_len, yyleng - delim_len * 2);
+	patch_comment(buffer+2);
+	strcat(buffer, "*/");
+	printf("%s\n", buffer);
+}
+
+/*
+ * Search for instances of asterisk-slash in the Pascal comment and munge
+ * them, since those characters terminate a C comment.
+ * @comment - Pointer to a buffer containing the text of the Pascal comment.
+ */
+static void patch_comment(char *comment)
+{
+	char *close_delim;
+	
+	for (;;) {
+		close_delim = strstr(comment, "*/");
+		if (!close_delim)
+			break;
+		*close_delim = '.';
+		comment = close_delim;
+	}
+}
+
+/*
+ * Abort the lexer program with an error message.
+ */
+static void die(const char *message)
+{
+	fprintf(stderr, "%s\n", message);
+	exit(EXIT_FAILURE);
 }

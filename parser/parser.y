@@ -12,7 +12,7 @@
 #include <stdio.h>
 
 /* Macro for printing identifiers */
-#define PRINTID(X) (printf("%s\n", X))
+#define PRINTID(X) (printf("%s ", X))
 
 /* declarations section */
 void yyerror(char const *);
@@ -285,4 +285,3 @@ int main() {
    int result = yyparse();
    return result;
 }
-
