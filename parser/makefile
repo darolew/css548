@@ -3,15 +3,12 @@
 # Generate parser using Yacc and compile it with gcc.
 
 OBJ = y.tab.o lex.yy.o 
-H   = y.tab.h tokenconsts.h
+H   = y.tab.h
 CC  = gcc
 
 all: $(OBJ) $H                   
 	@$(CC) $(OBJ) -o a.out -lfl
 	@echo Done
-
-main.o: main.cpp                   
-	@$(CC) -c  main.cpp
 
 lex.yy.o: $H lex.yy.c                
 	@$(CC) -c lex.yy.c
