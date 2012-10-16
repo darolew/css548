@@ -26,6 +26,11 @@ static void patch_comment(char*);
 static void die(const char*);
 
 /* 
+ * Capture a token's attribute value so it can be used  by the parser.
+ */
+static void capture(void);
+
+/* 
  * If EOF encountered in the middle of a comment, set this flag so the main 
  * method can terminate properly.
  */
@@ -36,10 +41,6 @@ static bool eof;
  */
 static char buffer[BUF_SIZE];
 
-/* 
- * Capture a token's attribute value so it can be used  by the parser.
- */
-void capture();
 
 %}
 
@@ -122,7 +123,7 @@ while			{return ywhile;}
 write			{return ywrite;}
 writeln			{return ywriteln;}
 {ID}			{/*fprintf(stderr, "**ID**\n");*/ capture(); return yident;}
-{BCOMMENT}		{}
+{BCOMMENT}		{print_comment("{");}
 {NUMBER}		{/*fprintf(stderr, "**NUMBER**\n");*/ capture(); return ynumber;}
 {STRING}		{/*fprintf(stderr, "**STRING**\n");*/ capture(); return ystring;}
 <INITIAL>\(\*		{BEGIN(IN_COMMENT); yymore();}
@@ -130,7 +131,7 @@ writeln			{return ywriteln;}
 <IN_COMMENT>[^*]*\*+	{BEGIN(WARNING); yymore();}
 <WARNING><<EOF>>	{eof = true; return yunknown;}
 <WARNING>[^)]		{BEGIN(IN_COMMENT); yymore();}
-<WARNING>\)		{BEGIN(INITIAL); yymore(); }
+<WARNING>\)		{BEGIN(INITIAL); yymore(); print_comment("(*");}
 {NEWLINE}		{printf("\n"); /*for phase 2*/}
 {WHITESPACE}		{ /* Do nothing */ }
 .			{return yunknown;}
@@ -140,14 +141,12 @@ writeln			{return ywriteln;}
 /* 
  * Capture a token's attribute value so it can be used  by the parser.
  */
-void capture() {
-
-  /*Copy yytext because it can be changed bcefore we use it.*/
-  yylval.str = strdup(yytext);
-  /*fprintf(stderr, "%s\n", yylval.str);*/
-  
+static void capture(void)
+{
+	/* Copy yytext because it can be changed before we use it. */
+	yylval.str = strdup(yytext);
+	/*fprintf(stderr, "[yylval] %s\n", yylval.str);*/
 }
-
 
 /*
  * Print out a Pascal comment (stored in yytext) as a C comment.
@@ -171,7 +170,7 @@ static void print_comment(const char *comment_delim)
 	memcpy(buffer+2, yytext + delim_len, yyleng - delim_len * 2);
 	patch_comment(buffer+2);
 	strcat(buffer, "*/");
-	printf("%s\n", buffer);
+	printf("%s", buffer);
 }
 
 /*

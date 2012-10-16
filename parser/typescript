@@ -1,0 +1,160 @@
+Script started on Mon 15 Oct 2012 09:20:15 PM PDT
+]0;darolew@uw1-320-13:~/css548/git/parser[darolew@uw1-320-13 parser]$ make
+yacc: 1 shift/reduce conflict
+Done
+]0;darolew@uw1-320-13:~/css548/git/parser[darolew@uw1-320-13 parser]$ ./a.out < list.p
+linkedlist input output 
+
+
+
+
+
+
+
+grades 
+avgPosition 
+size 
+
+
+integerArray avgPosition integer 
+
+cellPtr cell 
+cell 
+id integer 
+info integerArray 
+next cellPtr 
+
+
+
+list newrec cellPtr 
+mycount classNum integer 
+
+
+
+
+
+insert list cellPtr newrec cellPtr 
+
+current cellPtr 
+found boolean 
+
+
+current list 
+found 
+list 
+
+newrec next list 
+list newrec 
+
+newrec id list id 
+
+newrec next list 
+list newrec 
+
+
+
+current found 
+
+current next 
+
+newrec next 
+current next newrec 
+found 
+
+newrec id current next id 
+
+newrec next current next 
+current next newrec 
+found 
+
+current current next 
+
+
+
+
+
+
+
+
+average newrec cellPtr integer 
+
+i sum integer 
+
+
+sum 
+i grades 
+sum sum newrec info i 
+average sum grades 
+
+
+
+
+
+
+makeNewrec newrec cellPtr 
+
+i integer 
+
+
+newrec 
+newrec id 
+i grades 
+newrec info i 
+
+
+
+
+
+
+
+displayInfo list cellPtr 
+
+i integer 
+current cellPtr 
+
+
+current list 
+list 
+
+
+i grades 
+
+
+
+i grades 
+i 
+
+i grades 
+
+
+
+current 
+
+current id 
+i grades 
+current info i 
+
+current current next 
+
+
+
+
+
+
+
+
+
+classNum 
+list 
+mycount size 
+
+makeNewrec newrec 
+insert list newrec 
+
+classNum 
+displayInfo list 
+
+
+]0;darolew@uw1-320-13:~/css548/git/parser[darolew@uw1-320-13 parser]$ exit
+
+Script done on Mon 15 Oct 2012 09:20:27 PM PDT

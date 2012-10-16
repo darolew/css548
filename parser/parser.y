@@ -11,8 +11,10 @@
 
 #include <stdio.h>
 
-/* Macro for printing identifiers */
-#define PRINTID(X) (printf("%s ", X))
+/* Macro for printing identifiers. Also frees the memory allocated by
+ * strdup() in the lexer. 
+ */
+#define PRINTID(X) {printf("%s ", (X).str); free((X).str); (X).str = NULL;}
 
 /* declarations section */
 void yyerror(char const *);
@@ -42,7 +44,7 @@ void yyerror(char const *);
 
 CompilationUnit    :  ProgramModule        
                    ;
-ProgramModule      :  yprogram yident ProgramParameters ysemicolon Block ydot {PRINTID($2);} 
+ProgramModule      :  yprogram yident {PRINTID($2);} ProgramParameters ysemicolon Block ydot
                    ;
 ProgramParameters  :  yleftparen  IdentList  yrightparen
                    ;
@@ -77,9 +79,9 @@ VariableDeclBlock  :  /*** empty ***/
 VariableDeclList   :  VariableDecl ysemicolon
                    |  VariableDeclList VariableDecl ysemicolon
                    ;  
-ConstantDef        :  yident yequal ConstExpression {PRINTID($1);}
+ConstantDef        :  yident {PRINTID($1);}  yequal ConstExpression
                    ;
-TypeDef            :  yident yequal  Type {PRINTID($1);}
+TypeDef            :  yident {PRINTID($1);}  yequal  Type
                    ;
 VariableDecl       :  IdentList  ycolon  Type
                    ;
@@ -115,7 +117,7 @@ RecordType         :  yrecord  FieldListSequence  yend
                    ;
 SetType            :  yset  yof  Subrange
                    ;
-PointerType        :  ycaret  yident {PRINTID($2);}
+PointerType        :  ycaret  yident  {PRINTID($2);}
                    ;
 FieldListSequence  :  FieldList  
                    |  FieldListSequence  ysemicolon  FieldList
@@ -143,7 +145,7 @@ Statement          :  Assignment
 Assignment         :  Designator yassign Expression
                    ;
 ProcedureCall      :  yident {PRINTID($1);}
-                   |  yident ActualParameters {PRINTID($2);}
+                   |  yident {PRINTID($1);} ActualParameters
                    ;
 IfStatement        :  yif  Expression  ythen  Statement  ElsePart
                    ;
@@ -164,8 +166,8 @@ WhileStatement     :  ywhile  Expression  ydo  Statement
                    ;
 RepeatStatement    :  yrepeat  StatementSequence  yuntil  Expression
                    ;
-ForStatement       :  yfor  yident yassign  Expression  WhichWay  Expression
-                            ydo  Statement {PRINTID($2);}
+ForStatement       :  yfor  yident  {PRINTID($2);}  yassign  Expression  WhichWay  Expression
+                            ydo  Statement
                    ;
 WhichWay           :  yto  |  ydownto
                    ;
@@ -182,7 +184,7 @@ IOStatement        :  yread  yleftparen  DesignatorList  yrightparen
 DesignatorList     :  Designator  
                    |  DesignatorList  ycomma  Designator 
                    ;
-Designator         :  yident DesignatorStuff {PRINTID($1);}
+Designator         :  yident {PRINTID($1);} DesignatorStuff
                    ;
 DesignatorStuff    :  /*** empty ***/
                    |  DesignatorStuff  theDesignatorStuff
@@ -196,8 +198,8 @@ ActualParameters   :  yleftparen  ExpList  yrightparen
 ExpList            :  Expression   
                    |  ExpList  ycomma  Expression       
                    ;
-MemoryStatement    :  ynew  yleftparen  yident yrightparen {PRINTID($3);}
-                   |  ydispose yleftparen  yident yrightparen {PRINTID($3);}
+MemoryStatement    :  ynew  yleftparen  yident  {PRINTID($3);} yrightparen
+                   |  ydispose yleftparen  yident  {PRINTID($3);} yrightparen
                    ;
 
 /***************************  Expression Stuff  ******************************/
@@ -225,7 +227,7 @@ Factor             :  ynumber
                    |  Setvalue
                    |  FunctionCall
                    ;
-FunctionCall       :  yident ActualParameters {PRINTID($1);}
+FunctionCall       :  yident {PRINTID($1);} ActualParameters
                    ;
 Setvalue           :  yleftbracket ElementList  yrightbracket
                    |  yleftbracket yrightbracket
@@ -245,13 +247,13 @@ SubprogDeclList    :  /*** empty ***/
                    ;
 ProcedureDecl      :  ProcedureHeading  ysemicolon  Block 
                    ;
-FunctionDecl       :  FunctionHeading  ycolon  yident ysemicolon  Block {PRINTID($3);}
+FunctionDecl       :  FunctionHeading  ycolon  yident {PRINTID($3);} ysemicolon  Block
                    ;
 ProcedureHeading   :  yprocedure  yident {PRINTID($2);}
-                   |  yprocedure  yident FormalParameters {PRINTID($2);}
+                   |  yprocedure  yident {PRINTID($2);} FormalParameters
                    ;
 FunctionHeading    :  yfunction  yident {PRINTID($2);}
-                   |  yfunction  yident FormalParameters {PRINTID($2);}
+                   |  yfunction  yident {PRINTID($2);} FormalParameters
                    ;
 FormalParameters   :  yleftparen FormalParamList yrightparen 
                    ;
