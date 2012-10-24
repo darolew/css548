@@ -4,7 +4,7 @@
 
 OBJ = y.tab.o lex.yy.o 
 H   = y.tab.h
-CC  = gcc
+CC  = g++
 
 all: $(OBJ) $H                   
 	@$(CC) $(OBJ) -o a.out -lfl

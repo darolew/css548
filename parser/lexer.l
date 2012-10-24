@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <cctype>
 #include "y.tab.h"
 
 #define BUF_SIZE (1024*4)

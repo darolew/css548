@@ -24,6 +24,9 @@
 /* declarations section */
 void yyerror(char const *);
 
+/* Include forward declarations so g++ does not complain. */
+int yyparse();
+int yylex();
 
 %}
 
@@ -292,3 +295,5 @@ int main() {
    int result = yyparse();
    return result;
 }
+
+
