@@ -11,10 +11,15 @@
 
 #include <stdio.h>
 
+/* Macro for releasing memory allocated by strdup() in the lexer.
+ * X represents the union of lvals.
+ */
+#define FREE(X) {free((X).str); (X).str = NULL;}
+
 /* Macro for printing identifiers. Also frees the memory allocated by
  * strdup() in the lexer. 
  */
-#define PRINTID(X) {printf("%s ", (X).str); free((X).str); (X).str = NULL;}
+#define PRINTID(X) {printf("%s ", (X).str); FREE(X)}
 
 /* declarations section */
 void yyerror(char const *);
@@ -90,10 +95,10 @@ VariableDecl       :  IdentList  ycolon  Type
 
 ConstExpression    :  UnaryOperator ConstFactor
                    |  ConstFactor
-                   |  ystring
+                   |  ystring {FREE($1);}
                    ;
 ConstFactor        :  yident {PRINTID($1);}
-                   |  ynumber
+                   |  ynumber {FREE($1);}
                    |  ytrue
                    |  yfalse
                    |  ynil
@@ -111,7 +116,7 @@ SubrangeList       :  /*** empty ***/
                    |  SubrangeList ycomma Subrange 
                    ;
 Subrange           :  ConstFactor ydotdot ConstFactor
-                   |  ystring ydotdot  ystring
+                   |  ystring {FREE($1);} ydotdot  ystring {FREE($3);}
                    ;
 RecordType         :  yrecord  FieldListSequence  yend
                    ;
@@ -216,11 +221,11 @@ TermExpr           :  Term
 Term               :  Factor  
                    |  Term  MultOperator  Factor
                    ;
-Factor             :  ynumber
+Factor             :  ynumber {FREE($1);}
                    |  ytrue
                    |  yfalse
                    |  ynil
-                   |  ystring
+                   |  ystring {FREE($1);}
                    |  Designator
                    |  yleftparen  Expression  yrightparen
                    |  ynot Factor
