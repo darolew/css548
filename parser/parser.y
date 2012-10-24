@@ -25,7 +25,6 @@
 void yyerror(char const *);
 
 /* Include forward declarations so g++ does not complain. */
-int yyparse();
 int yylex();
 
 %}
@@ -289,11 +288,6 @@ Relation           :  yequal  | ynotequal | yless | ygreater
 /* program section */
 void yyerror(const char *s) {
    fprintf(stderr, "%s\n", s);
-}
-
-int main() {
-   int result = yyparse();
-   return result;
 }
 
 

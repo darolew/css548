@@ -2,13 +2,16 @@
 # Aaron Hoffer and Daniel Lewis
 # Generate parser using Yacc and compile it with gcc.
 
-OBJ = y.tab.o lex.yy.o 
+OBJ = y.tab.o lex.yy.o main.o
 H   = y.tab.h
 CC  = g++
 
 all: $(OBJ) $H                   
 	@$(CC) $(OBJ) -o a.out -lfl
 	@echo Done
+
+main.o: $H main.cpp                
+	@$(CC) -c main.cpp
 
 lex.yy.o: $H lex.yy.c                
 	@$(CC) -c lex.yy.c
