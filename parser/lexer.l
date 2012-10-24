@@ -145,6 +145,12 @@ static void capture(void)
 {
 	/* Copy yytext because it can be changed before we use it. */
 	yylval.str = strdup(yytext);
+
+	/* Convert string to lower case */
+	char * ptr = yylval.str;
+	for(; *ptr; ++ptr)
+		*ptr = tolower(*ptr);
+
 	/*fprintf(stderr, "[yylval] %s\n", yylval.str);*/
 }
 
@@ -157,7 +163,7 @@ static void print_comment(const char *comment_delim)
 	size_t delim_len = strlen(comment_delim);
 	size_t total_len;
 	
-	/* Test the coment does not overflow buffer. */
+	/* Test the comment does not overflow buffer. */
 	total_len = yyleng;
 	total_len -= delim_len * 2;  /* subtract Pascal deliminators */
 	total_len += 4;              /* add C deliminators */
