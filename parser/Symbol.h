@@ -2,6 +2,7 @@
 #define SYMBOL
 
 #include <string> 
+#include "Type.h"
 
 using namespace std;
 
@@ -12,8 +13,9 @@ using namespace std;
 class Symbol {
 
 public:
-
-string name;
+	Symbol(string id, Type* t) : ident(id), type(t) {}
+	string ident;
+	Type* type;
 
 };
 

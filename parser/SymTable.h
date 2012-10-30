@@ -16,12 +16,15 @@ using namespace std;
 
 class SymTable {
 
-typedef map<string, Symbol> table;
+typedef map<string, Symbol*> Table;
 
 private:
-list<table> scopes;
+list<Table*> scopes;
 
 public:
+//Constructor
+SymTable();
+
 //Create a new table and push it onto the back of the list.
 void beginScope();
 
@@ -29,11 +32,13 @@ void beginScope();
 void endScope();
 
 //Insert a pair into the table that is on the back of the list.
-void insert(string key, Symbol value);
+//Return true if insert suceeded. Return false if insert failed.
+//Insert will fail if symbol is already defined in the current scope.
+bool insert(string key, Symbol *value);
 
 //Search through all the tables in the list, starting with the last one, 
 //and look for the key. 
-string lookup(string key);
+Symbol *lookup(string key);
 
 };
 
