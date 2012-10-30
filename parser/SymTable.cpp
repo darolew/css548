@@ -1,9 +1,10 @@
+#include <cstdlib>
 #include "SymTable.h"
 #include "BaseType.h"
 #include "Variable.h"
 #include "Const.h"
-
 #include <iostream>
+
 
 //Push a new scope onto the stack.
 void SymTable::beginScope() 
@@ -13,6 +14,8 @@ void SymTable::beginScope()
 
 void  SymTable::endScope() 
 {
+  assert_stack();
+    
 	Table *temp = scopes.front();
 	scopes.pop_front();
 	delete temp;
@@ -20,6 +23,8 @@ void  SymTable::endScope()
 
 bool  SymTable::insert(string key, Symbol *value) 
 {
+  assert_stack();
+
 	Table *current = scopes.front(); 
 
 	bool alreadyExists = current->count(key) != 0;
@@ -41,6 +46,9 @@ bool SymTable::insert(Symbol *value)
 //return null.
 Symbol *SymTable::lookup(string key) 
 {
+
+  assert_stack();
+
 	for (list<Table*>::iterator it = scopes.begin(); it != scopes.end(); it++) {
 		Table *next = *it;
 		if (next->count(key)) 
@@ -62,16 +70,11 @@ SymTable::SymTable()
 
 	insert(new BaseType("integer", ynumber, "int"));
 	insert(new BaseType("real", ynumber, "double"));
-	insert(new BaseType("string", ystring, "char *"));
+	
+	//TODO: I assume char is a value type of a single char.
+	//How do we represents string literals?
+	insert(new BaseType("char", ystring, "char"));
 
-	//Silly tests to make sure constructors work.
-	new Const("myConst", "5");
-	string typeName = "integer";
-	Symbol *sym = lookup(typeName);
-	if (sym != NULL) {
-		Variable *v = (Variable *) new Variable("x", (Type *) sym);
-		cerr << "Created " << v->identifier << " of type " << v->type->identifier << endl;
-	}
 /*
 	insert("write", ywrite, "TODO:writefunction");
 	insert("writeln", ywrite, "TODO:writefunction");
@@ -84,3 +87,20 @@ SymTable::SymTable()
 	insert("dispose", NULL);
 */
 }
+
+
+bool SymTable::empty() 
+{
+  return scopes.empty();
+}
+
+//Prevent seg faults.
+void SymTable::assert_stack() 
+{
+  if (empty()) {
+    cerr << "\nFATAL ERROR SymTable::assert_stack\n\n";
+    exit(EXIT_FAILURE);
+  }
+}
+
+

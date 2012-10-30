@@ -22,26 +22,32 @@ private:
 list<Table*> scopes;
 
 public:
-//Constructor
-SymTable();
+  //Constructor
+  SymTable();
 
-//Create a new table and push it onto the back of the list.
-void beginScope();
+  //Create a new table and push it onto the back of the list.
+  void beginScope();
 
-//Pop (and discard) the table on the back of the list.
-void endScope();
+  //Pop (and discard) the table on the back of the list.
+  void endScope();
 
-//Insert a pair into the table that is on the back of the list.
-//Return true if insert suceeded. Return false if insert failed.
-//Insert will fail if symbol is already defined in the current scope.
-bool insert(string key, Symbol *value);
+  //Insert a pair into the table that is on the back of the list.
+  //Return true if insert suceeded. Return false if insert failed.
+  //Insert will fail if symbol is already defined in the current scope.
+  bool insert(string key, Symbol *value);
 
-//Convenience method. Uses the symbols identifier as the key.
-bool insert(Symbol *value);
+  //Convenience method. Uses the symbols identifier as the key.
+  bool insert(Symbol *value);
 
-//Search through all the tables in the list, starting with the last one, 
-//and look for the key. 
-Symbol *lookup(string key);
+  //Search through all the tables in the list, starting with the last one, 
+  //and look for the key. 
+  Symbol *lookup(string key);
+
+  //Return true if there are no scope objects on the stack.
+  bool empty();
+
+private:
+  void assert_stack();
 
 };
 

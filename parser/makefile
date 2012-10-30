@@ -2,26 +2,23 @@
 # Aaron Hoffer and Daniel Lewis
 # Generate parser using Yacc and compile it with gcc.
 
-OBJ = y.tab.o lex.yy.o main.o Symbol.o SymTable.o
+OBJ = y.tab.o lex.yy.o main.o SymTable.o
 H   = y.tab.h SymTable.h Symbol.h BaseType.h TypeDef.h Type.h
-CC  = g++
+CC  = g++ 
 
 all: $(OBJ) $H                   
 	@clear
-	@$(CC) $(OBJ) -o a.out -lfl
+	@$(CC) $(OBJ) -g -o a.out -lfl
 	@echo Done
 
 main.o: $H main.cpp                
-	@$(CC) -c main.cpp
-
-Symbol.o: $H Symbol.cpp
-	@$(CC) -c Symbol.cpp
+	@$(CC) -g -c main.cpp
 
 SymTable.o: $H SymTable.cpp
-	@$(CC) -c SymTable.cpp
+	@$(CC) -g -c SymTable.cpp
 
 lex.yy.o: $H lex.yy.c                
-	@$(CC) -c lex.yy.c
+	@$(CC) -g -c lex.yy.c
 
 lex.yy.c: $H lexer.l                 
 	@flex lexer.l                   
