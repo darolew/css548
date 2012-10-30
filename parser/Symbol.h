@@ -2,7 +2,7 @@
 #define SYMBOL
 
 #include <string> 
-#include "Type.h"
+#include "y.tab.h"
 
 using namespace std;
 
@@ -13,9 +13,9 @@ using namespace std;
 class Symbol {
 
 public:
-	Symbol(string id, Type* t) : ident(id), type(t) {}
-	string ident;
-	Type* type;
+	Symbol(string id, int token) : identifier(id), token(token) {}
+	string identifier;
+	int token;
 
 };
 

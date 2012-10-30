@@ -2,15 +2,16 @@
 #define BASETYPE_H
 
 #include <string.h>
+#include "Type.h"
+
 using namespace std;
 
-class BaseType {
+class BaseType : public Type {
 
 public:
-	BaseType(string pName, string cName) : pascalName(pName), cName(cName) {}
+	BaseType(string ident, int token, string cName) : Type(ident, token), cName(cName) {}
 
 private:
-	string pascalName;
 	string cName;
 };
 

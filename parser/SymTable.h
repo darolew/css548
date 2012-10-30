@@ -36,6 +36,9 @@ void endScope();
 //Insert will fail if symbol is already defined in the current scope.
 bool insert(string key, Symbol *value);
 
+//Convenience method. Uses the symbols identifier as the key.
+bool insert(Symbol *value);
+
 //Search through all the tables in the list, starting with the last one, 
 //and look for the key. 
 Symbol *lookup(string key);
