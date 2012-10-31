@@ -20,13 +20,14 @@ typedef map<string, Symbol*> Table;
 
 private:
 list<Table*> scopes;
+list<string> scopeNames;
 
 public:
   //Constructor
   SymTable();
 
   //Create a new table and push it onto the back of the list.
-  void beginScope();
+  void beginScope(string="Unnamed");
 
   //Pop (and discard) the table on the back of the list.
   void endScope();
@@ -46,9 +47,13 @@ public:
   //Return true if there are no scope objects on the stack.
   bool empty();
 
+  //Destructor
+  ~SymTable();
+  
 private:
   void assert_stack();
-
+  void printST();
+  void printLine(string);
 };
 
 #endif

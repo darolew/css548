@@ -1,8 +1,6 @@
-#include <stdio.h>
 #include "SymTable.h"
-
+#include <stdio.h>
 #include <iostream>
-
 
 extern int yyparse();
 
@@ -12,7 +10,8 @@ int main() {
   SymTable s;
   p = s.lookup("integer");
   cerr << endl << p->identifier << endl;
-  s.beginScope();
+  p = s.lookup("GARBAGE");
+  s.beginScope("blah");
   p = s.lookup("true");
   cerr << endl << p->identifier << endl;
   s.endScope();
@@ -21,6 +20,7 @@ int main() {
   
   return 0;
 
+//THE REAL MAIN METHOD
 /*
   int result = yyparse();
   return result;

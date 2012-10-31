@@ -7,18 +7,25 @@
 
 
 //Push a new scope onto the stack.
-void SymTable::beginScope() 
+void SymTable::beginScope(string name) 
 {
-	scopes.push_front(new Table());
+  scopeNames.push_front(name);
+  scopes.push_front(new Table());
+  cerr << "\nENTER " << name << endl;
+  printLine("-");
+
 }
 
 void  SymTable::endScope() 
 {
   assert_stack();
     
-	Table *temp = scopes.front();
-	scopes.pop_front();
-	delete temp;
+  Table *temp = scopes.front();
+  scopes.pop_front();
+  delete temp;
+  cerr << "\nEXIT " << scopeNames.front() << endl;
+  printLine("=");
+  scopeNames.pop_front();
 }
 
 bool  SymTable::insert(string key, Symbol *value) 
@@ -46,21 +53,22 @@ bool SymTable::insert(Symbol *value)
 //return null.
 Symbol *SymTable::lookup(string key) 
 {
-
   assert_stack();
 
-	for (list<Table*>::iterator it = scopes.begin(); it != scopes.end(); it++) {
-		Table *next = *it;
-		if (next->count(key)) 
-			return (*next)[key];
-	}
-	return NULL;
+  for (list<Table*>::iterator it = scopes.begin();
+    it != scopes.end(); it++) 
+  {
+    Table *next = *it;
+    if (next->count(key)) 
+      return (*next)[key];
+  }
+  return NULL;
 }
 
 SymTable::SymTable() 
 {
 	//Start standard identifier.
-	beginScope();
+	beginScope("Standard Identifier Table");
 	
 	//TODO: When generating code, "#include <stdbool.h>" so
 	// C recognizes true/false
@@ -88,6 +96,19 @@ SymTable::SymTable()
 */
 }
 
+//When the SymTable class goes out of scope (if it was on the stack)
+//or deleted (if it was on the heap), the list objects will be deleted
+//because they were created on the stack when the SymTable constructor
+//was called. 
+//When an STL class like list is deleted, it will call the desctructor
+//on every object still in the list. No explicit cleanup is needed.
+//At least, that is what the C++ spec says. :-)
+SymTable::~SymTable() 
+{
+  //Get rid of the SIT.
+  assert_stack();
+  endScope();
+}
 
 bool SymTable::empty() 
 {
@@ -103,4 +124,14 @@ void SymTable::assert_stack()
   }
 }
 
+void SymTable::printST() 
+{
 
+}
+
+void SymTable::printLine(string divider)  
+{
+  for(int i=0; i<75; ++i)
+    cerr << divider;
+  cerr << endl;
+}
