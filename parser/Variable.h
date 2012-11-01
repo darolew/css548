@@ -10,8 +10,8 @@ using namespace std;
 class Variable: public Symbol {
 
 public:
-	Variable(string id, AbstractType * _type) : Symbol(id, yvar), _type(_type) {}
-	AbstractType* _type;
+	Variable(string id, Symbol * _type) : Symbol(id), _type(_type) {}
+	Symbol* _type;
 
 };
 

@@ -26,19 +26,21 @@ void  SymTable::endScope()
   scopeNames.pop_front();
 }
 
-bool  SymTable::insert(Symbol *value) 
+bool  SymTable::insert(Symbol *symbol) 
 {
   assert_stack();
-
-	string key = value->identifier;
+	cerr << "inserting " << symbol->toString();
+	string key = symbol->identifier;
 	Table *current = scopes.front(); 
 
 	bool alreadyExists = current->count(key) != 0;
-	if (alreadyExists)
+	if (alreadyExists) {
+		cerr << "\n\tInsert failed. Symbol name already exists in current scope.\n";
 		return false;
+	}
 
-	(*current)[key] = value;
-	cerr << value->toString() << endl; 
+	(*current)[key] = symbol;
+	cerr << "\t Insert succeeded.\n"; 
 	return true;
 }
 

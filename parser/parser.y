@@ -9,6 +9,12 @@
  * 
  */
 
+ #include "AbstractType.h"
+ #include "SymTable.h"
+ #include "Variable.h"
+ 
+ #include <iostream>
+ 
 /* Macro for releasing memory allocated by strdup() in the lexer.
  * X represents the union of lvals.
  */
@@ -25,6 +31,13 @@ void yyerror(char const *);
 /* Include forward declarations so g++ does not complain. */
 int yylex();
 
+/* EXTERN */
+extern SymTable symTable;
+
+struct IdList {
+list<string> l;
+};
+
 %}
 
 /* definition section */
@@ -32,11 +45,16 @@ int yylex();
 %start  CompilationUnit
 %token  yand yarray yassign ybegin ycaret ycase ycolon ycomma yconst ydispose 
         ydiv ydivide ydo ydot ydotdot ydownto yelse yend yequal yfalse
-        yfor yfunction ygreater ygreaterequal yident yif yin yleftbracket
+        yfor yfunction ygreater ygreaterequal yif yin yleftbracket
         yleftparen yless ylessequal yminus ymod ymultiply ynew ynil ynot 
         ynotequal ynumber yof yor yplus yprocedure yprogram yread yreadln  
         yrecord yrepeat yrightbracket yrightparen ysemicolon yset ystring
         ythen yto ytrue ytype yuntil yvar ywhile ywrite ywriteln yunknown
+		
+%token <str> yident		
+%type <idlistPtr> IdentList
+%type <str> Type
+
 /*
 %type CompilationUnit ProgramModule ProgramParameters IdentList Block
 	    Declarations ConstantDefBlock ConstantDefList TypeDefBlock
@@ -55,6 +73,7 @@ int yylex();
 */
 %union {
   char *str;
+  struct IdList* idlistPtr;
  };
  
 %%
@@ -68,8 +87,10 @@ ProgramModule:  yprogram yident ProgramParameters ysemicolon Block ydot
                    ;
 ProgramParameters  :  yleftparen  IdentList  yrightparen
                    ;
-IdentList          :  yident
-                   |  IdentList ycomma yident
+IdentList          :  yident { struct IdList* ptr = new IdList(); 
+								(ptr->l).push_front($1);
+								$$ = ptr;} 
+                   |  IdentList ycomma yident { ($1->l).push_front($3); $$=$1; }
                    ; 
 
 /**************************  Declarations section ***************************/
@@ -103,7 +124,29 @@ ConstantDef        :  yident yequal ConstExpression
                    ;
 TypeDef            :  yident yequal  Type
                    ;
-VariableDecl       :  IdentList  ycolon  Type 
+VariableDecl       :  IdentList  ycolon  Type { 
+									/* I don't think I like the object-oriented programming interface for
+									 * for this application. Would it make more sense to have an "addVariable"
+									 * method on the SymTable class? For example:
+									 *
+									 *      addVaraible(list<string> ids, string type_name)
+									 * 
+									 * Let SymTable do the lookup on the type_name. 
+									 * 
+									 * How do we handle tricky type like array or record? 
+									 * For example, to construct an array type we
+									 * would need to create a data structure in %union for Subrange and pass it
+									 * back to the ArrayType non-terminal when we create the the ArrayType.
+									 * then ArrayType gets inserted into the symbol table? Or do we hang ArrayType
+									 * off the Variable object and insert the variable into the symbol table? 
+									 * Damn. It just gets deeper and deeper....
+									 *
+									 * As far as I can tell it is a BIG mistake to create a symbol table without first 
+									 * createing the abstract syntax tree.
+									 */
+								 for (list<string>::iterator it = $1->l.begin(); it != $1->l.end(); it++) 
+									symTable.insert(new Variable(*it, symTable.lookup($3)));
+					}
                    ;
 
 /***************************  Const/Type Stuff  ******************************/
@@ -118,7 +161,7 @@ ConstFactor        :  yident
                    |  yfalse
                    |  ynil
                    ;
-Type               :  yident 
+Type               :  yident { symTable.insert(new AbstractType($1)); $$=$1;}
                    |  ArrayType 
                    |  PointerType 
                    |  RecordType 
