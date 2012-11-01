@@ -2,7 +2,6 @@
 #define SYMBOL
 
 #include <string> 
-#include "y.tab.h"
 
 using namespace std;
 
@@ -14,6 +13,12 @@ class Symbol {
 
 public:
 	Symbol(string id, int token) : identifier(id), token(token) {}
+	Symbol(string id) : identifier(id) {}
+	virtual string toString()
+	{
+		return identifier;
+	}
+	
 	string identifier;
 	int token;
 

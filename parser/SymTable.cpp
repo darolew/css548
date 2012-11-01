@@ -1,8 +1,6 @@
 #include <cstdlib>
 #include "SymTable.h"
 #include "BaseType.h"
-#include "Variable.h"
-#include "Const.h"
 #include <iostream>
 
 
@@ -28,10 +26,11 @@ void  SymTable::endScope()
   scopeNames.pop_front();
 }
 
-bool  SymTable::insert(string key, Symbol *value) 
+bool  SymTable::insert(Symbol *value) 
 {
   assert_stack();
 
+	string key = value->identifier;
 	Table *current = scopes.front(); 
 
 	bool alreadyExists = current->count(key) != 0;
@@ -39,13 +38,8 @@ bool  SymTable::insert(string key, Symbol *value)
 		return false;
 
 	(*current)[key] = value;
+	cerr << value->toString() << endl; 
 	return true;
-}
-
-
-bool SymTable::insert(Symbol *value) 
-{
-	return insert(value->identifier, value);
 }
 
 //Drill down through the list of scopes, front to back, and look
@@ -53,8 +47,6 @@ bool SymTable::insert(Symbol *value)
 //return null.
 Symbol *SymTable::lookup(string key) 
 {
-  assert_stack();
-
   for (list<Table*>::iterator it = scopes.begin();
     it != scopes.end(); it++) 
   {
@@ -72,16 +64,16 @@ SymTable::SymTable()
 	
 	//TODO: When generating code, "#include <stdbool.h>" so
 	// C recognizes true/false
-	insert(new BaseType("true", ytrue, "true"));
-	insert(new BaseType("false", yfalse, "false"));
-	insert(new BaseType("boolean", yunknown, "bool"));
+	insert(new BaseType("true", 0, "true"));
+	insert(new BaseType("false", 0, "false"));
+	insert(new BaseType("boolean", 0, "bool"));
 
-	insert(new BaseType("integer", ynumber, "int"));
-	insert(new BaseType("real", ynumber, "double"));
+	insert(new BaseType("integer", 0, "int"));
+	insert(new BaseType("real", 0, "double"));
 	
 	//TODO: I assume char is a value type of a single char.
 	//How do we represents string literals?
-	insert(new BaseType("char", ystring, "char"));
+	insert(new BaseType("char", 0, "char"));
 
 /*
 	insert("write", ywrite, "TODO:writefunction");

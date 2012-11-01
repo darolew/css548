@@ -2,10 +2,12 @@
 #include <stdio.h>
 #include <iostream>
 
+SymTable symTable;
+
 extern int yyparse();
 
 int main() {
-
+/*
   Symbol *p;
   SymTable s;
   p = s.lookup("integer");
@@ -19,12 +21,12 @@ int main() {
   cerr << endl << p->identifier << endl;
   
   return 0;
-
+*/
 //THE REAL MAIN METHOD
-/*
+
   int result = yyparse();
   return result;
-*/
+
 
 }
 

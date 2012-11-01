@@ -9,8 +9,6 @@
  * 
  */
 
-#include <stdio.h>
-
 /* Macro for releasing memory allocated by strdup() in the lexer.
  * X represents the union of lvals.
  */
@@ -29,10 +27,6 @@ int yylex();
 
 %}
 
-%union {
-  char *str;
-}
-
 /* definition section */
 
 %start  CompilationUnit
@@ -43,21 +37,40 @@ int yylex();
         ynotequal ynumber yof yor yplus yprocedure yprogram yread yreadln  
         yrecord yrepeat yrightbracket yrightparen ysemicolon yset ystring
         ythen yto ytrue ytype yuntil yvar ywhile ywrite ywriteln yunknown
-
+/*
+%type CompilationUnit ProgramModule ProgramParameters IdentList Block
+	    Declarations ConstantDefBlock ConstantDefList TypeDefBlock
+	    ConstantDefList TypeDefBlock TypeDefList VariableDeclBlock 
+	    VariableDeclList ConstantDef TypeDef VariableDecl ConstExpression
+	    ConstFactor Type ArrayType SubrangeList Subrange RecordType SetType
+	    PointerType FieldListSequence FieldList StatementSequence Statements
+	    Assignment ProcedureCall IfStatement ElsePart CaseStatement CaseList
+	    Case CaseLabelList WhileStatement RepeatStatement ForStatement WhichWay
+	  IOStatement DesignatorList Designator DesignatorStuff theDesignatorStuff
+	  ActualParameters ExpList MemoryStatement Expression SimpleExpression
+	  TermExpr Term Factor FunctionCall Setvalue ElementList Element SubprogDeclList
+	  ProcedureDecl FunctionDecl ProcedureHeading FunctionHeading FormalParameters
+	  FormalParamList OneFormalParam UnaryOperator MultOperator AddOperator
+	  Relation
+*/
+%union {
+  char *str;
+ };
+ 
 %%
 /* rules section */
 
 /**************************  Pascal program **********************************/
 
-CompilationUnit    :  ProgramModule        
+CompilationUnit:  ProgramModule
                    ;
-ProgramModule      :  yprogram yident {PRINTID($2);} ProgramParameters ysemicolon Block ydot
+ProgramModule:  yprogram yident ProgramParameters ysemicolon Block ydot
                    ;
 ProgramParameters  :  yleftparen  IdentList  yrightparen
                    ;
-IdentList          :  yident {PRINTID($1);}
-                   |  IdentList ycomma yident {PRINTID($3);}
-                   ;
+IdentList          :  yident
+                   |  IdentList ycomma yident
+                   ; 
 
 /**************************  Declarations section ***************************/
 
@@ -86,30 +99,30 @@ VariableDeclBlock  :  /*** empty ***/
 VariableDeclList   :  VariableDecl ysemicolon
                    |  VariableDeclList VariableDecl ysemicolon
                    ;  
-ConstantDef        :  yident {PRINTID($1);}  yequal ConstExpression
+ConstantDef        :  yident yequal ConstExpression
                    ;
-TypeDef            :  yident {PRINTID($1);}  yequal  Type
+TypeDef            :  yident yequal  Type
                    ;
-VariableDecl       :  IdentList  ycolon  Type
+VariableDecl       :  IdentList  ycolon  Type 
                    ;
 
 /***************************  Const/Type Stuff  ******************************/
 
 ConstExpression    :  UnaryOperator ConstFactor
                    |  ConstFactor
-                   |  ystring {FREE($1);}
+                   |  ystring 
                    ;
-ConstFactor        :  yident {PRINTID($1);}
-                   |  ynumber {FREE($1);}
+ConstFactor        :  yident 
+                   |  ynumber 
                    |  ytrue
                    |  yfalse
                    |  ynil
                    ;
-Type               :  yident {PRINTID($1);}
-                   |  ArrayType
-                   |  PointerType
-                   |  RecordType
-                   |  SetType
+Type               :  yident 
+                   |  ArrayType 
+                   |  PointerType 
+                   |  RecordType 
+                   |  SetType 
                    ;
 ArrayType          :  yarray yleftbracket Subrange SubrangeList 
                       yrightbracket  yof Type
@@ -118,13 +131,13 @@ SubrangeList       :  /*** empty ***/
                    |  SubrangeList ycomma Subrange 
                    ;
 Subrange           :  ConstFactor ydotdot ConstFactor
-                   |  ystring {FREE($1);} ydotdot  ystring {FREE($3);}
+                   |  ystring  ydotdot  ystring 
                    ;
 RecordType         :  yrecord  FieldListSequence  yend
                    ;
 SetType            :  yset  yof  Subrange
                    ;
-PointerType        :  ycaret  yident  {PRINTID($2);}
+PointerType        :  ycaret  yident 
                    ;
 FieldListSequence  :  FieldList  
                    |  FieldListSequence  ysemicolon  FieldList
@@ -151,8 +164,8 @@ Statement          :  Assignment
                    ;
 Assignment         :  Designator yassign Expression
                    ;
-ProcedureCall      :  yident {PRINTID($1);}
-                   |  yident {PRINTID($1);} ActualParameters
+ProcedureCall      :  yident
+                   |  yident ActualParameters
                    ;
 IfStatement        :  yif  Expression  ythen  Statement  ElsePart
                    ;
@@ -173,7 +186,7 @@ WhileStatement     :  ywhile  Expression  ydo  Statement
                    ;
 RepeatStatement    :  yrepeat  StatementSequence  yuntil  Expression
                    ;
-ForStatement       :  yfor  yident  {PRINTID($2);}  yassign  Expression  WhichWay  Expression
+ForStatement       :  yfor  yident yassign  Expression  WhichWay  Expression
                             ydo  Statement
                    ;
 WhichWay           :  yto  |  ydownto
@@ -191,12 +204,12 @@ IOStatement        :  yread  yleftparen  DesignatorList  yrightparen
 DesignatorList     :  Designator  
                    |  DesignatorList  ycomma  Designator 
                    ;
-Designator         :  yident {PRINTID($1);} DesignatorStuff
+Designator         :  yident DesignatorStuff
                    ;
 DesignatorStuff    :  /*** empty ***/
                    |  DesignatorStuff  theDesignatorStuff
                    ;
-theDesignatorStuff :  ydot yident {PRINTID($2);}
+theDesignatorStuff :  ydot yident
                    |  yleftbracket ExpList yrightbracket 
                    |  ycaret 
                    ;
@@ -205,8 +218,8 @@ ActualParameters   :  yleftparen  ExpList  yrightparen
 ExpList            :  Expression   
                    |  ExpList  ycomma  Expression       
                    ;
-MemoryStatement    :  ynew  yleftparen  yident  {PRINTID($3);} yrightparen
-                   |  ydispose yleftparen  yident  {PRINTID($3);} yrightparen
+MemoryStatement    :  ynew  yleftparen  yident yrightparen
+                   |  ydispose yleftparen  yident yrightparen
                    ;
 
 /***************************  Expression Stuff  ******************************/
@@ -223,18 +236,18 @@ TermExpr           :  Term
 Term               :  Factor  
                    |  Term  MultOperator  Factor
                    ;
-Factor             :  ynumber {FREE($1);}
+Factor             :  ynumber
                    |  ytrue
                    |  yfalse
                    |  ynil
-                   |  ystring {FREE($1);}
+                   |  ystring 
                    |  Designator
                    |  yleftparen  Expression  yrightparen
                    |  ynot Factor
                    |  Setvalue
                    |  FunctionCall
                    ;
-FunctionCall       :  yident {PRINTID($1);} ActualParameters
+FunctionCall       :  yident ActualParameters
                    ;
 Setvalue           :  yleftbracket ElementList  yrightbracket
                    |  yleftbracket yrightbracket
@@ -254,21 +267,21 @@ SubprogDeclList    :  /*** empty ***/
                    ;
 ProcedureDecl      :  ProcedureHeading  ysemicolon  Block 
                    ;
-FunctionDecl       :  FunctionHeading  ycolon  yident {PRINTID($3);} ysemicolon  Block
+FunctionDecl       :  FunctionHeading  ycolon  yident ysemicolon  Block
                    ;
-ProcedureHeading   :  yprocedure  yident {PRINTID($2);}
-                   |  yprocedure  yident {PRINTID($2);} FormalParameters
+ProcedureHeading   :  yprocedure  yident
+                   |  yprocedure  yident FormalParameters
                    ;
-FunctionHeading    :  yfunction  yident {PRINTID($2);}
-                   |  yfunction  yident {PRINTID($2);} FormalParameters
+FunctionHeading    :  yfunction  yident 
+                   |  yfunction  yident FormalParameters
                    ;
 FormalParameters   :  yleftparen FormalParamList yrightparen 
                    ;
 FormalParamList    :  OneFormalParam 
                    |  FormalParamList ysemicolon OneFormalParam
                    ;
-OneFormalParam     :  yvar  IdentList  ycolon  yident {PRINTID($4);}
-                   |  IdentList  ycolon  yident {PRINTID($3);}
+OneFormalParam     :  yvar  IdentList  ycolon  yident
+                   |  IdentList  ycolon  yident
                    ;
 
 /***************************  More Operators  ********************************/
@@ -287,7 +300,5 @@ Relation           :  yequal  | ynotequal | yless | ygreater
 
 /* program section */
 void yyerror(const char *s) {
-   fprintf(stderr, "%s\n", s);
+   /*fprintf(stderr, "%s\n", s);*/
 }
-
-

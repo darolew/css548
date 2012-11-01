@@ -2,15 +2,16 @@
 #define VARIABLE_H
 
 #include <string> 
-#include "Type.h"
+#include "AbstractType.h"
 using namespace std;
 
-
+//NOTE: "type" is a C++ reservered word. "_type" is not.
+ 
 class Variable: public Symbol {
 
 public:
-	Variable(string id, Type * type) : Symbol(id, yvar), type(type) {}
-	Type* type;
+	Variable(string id, AbstractType * _type) : Symbol(id, yvar), _type(_type) {}
+	AbstractType* _type;
 
 };
 

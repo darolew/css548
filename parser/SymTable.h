@@ -1,5 +1,5 @@
-#ifndef SYMTABLE
-#define SYMTABLE
+#ifndef SYMTABLE_H
+#define SYMTABLE_H
 
 /* 
  * Data structures for managing symbols and scope 
@@ -22,7 +22,7 @@ private:
 list<Table*> scopes;
 list<string> scopeNames;
 
-public:
+public: 
   //Constructor
   SymTable();
 
@@ -32,12 +32,9 @@ public:
   //Pop (and discard) the table on the back of the list.
   void endScope();
 
-  //Insert a pair into the table that is on the back of the list.
+  //Insert a symbol into the table. 
   //Return true if insert suceeded. Return false if insert failed.
   //Insert will fail if symbol is already defined in the current scope.
-  bool insert(string key, Symbol *value);
-
-  //Convenience method. Uses the symbols identifier as the key.
   bool insert(Symbol *value);
 
   //Search through all the tables in the list, starting with the last one, 
