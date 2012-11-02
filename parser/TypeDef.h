@@ -6,13 +6,14 @@
 
 using namespace std;
 
-class TypeDef : AbstractType {
+class TypeDef : public AbstractType {
 
 public:
+    TypeDef(string alias, AbstractType *type)
+        : AbstractType(alias), type(type) {}
 
 private:
-	string alais;
-	BaseType* type;
+	AbstractType *type;
 };
 
 #endif

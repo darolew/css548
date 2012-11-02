@@ -8,12 +8,15 @@
  * definition. 
  * 
  */
+#include <iostream>
+#include <stdio.h> 
 
- #include "AbstractType.h"
- #include "SymTable.h"
- #include "Variable.h"
+#include "Array.h"
+#include "SymTable.h"
+#include "Variable.h"
+#include "Const.h"
+#include "TypeDef.h"
  
- #include <iostream>
  
 /* Macro for releasing memory allocated by strdup() in the lexer.
  * X represents the union of lvals.
@@ -31,29 +34,29 @@ void yyerror(char const *);
 /* Include forward declarations so g++ does not complain. */
 int yylex();
 
-/* EXTERN */
 extern SymTable symTable;
 
-struct IdList {
-list<string> l;
-};
+list<string> idList;
+list<Range> rangeList;
+
 
 %}
 
 /* definition section */
 
 %start  CompilationUnit
-%token  yand yarray yassign ybegin ycaret ycase ycolon ycomma yconst ydispose 
-        ydiv ydivide ydo ydot ydotdot ydownto yelse yend yequal yfalse
+%token  yand yarray yassign ybegin ycaret ycase ycolon ycomma yconst  
+        ydiv ydivide ydo ydot ydotdot ydownto yelse yend yequal 
         yfor yfunction ygreater ygreaterequal yif yin yleftbracket
-        yleftparen yless ylessequal yminus ymod ymultiply ynew ynil ynot 
-        ynotequal ynumber yof yor yplus yprocedure yprogram yread yreadln  
-        yrecord yrepeat yrightbracket yrightparen ysemicolon yset ystring
-        ythen yto ytrue ytype yuntil yvar ywhile ywrite ywriteln yunknown
+        yleftparen yless ylessequal yminus ymod ymultiply ynot 
+        ynotequal ynumber yof yor yplus yprocedure yprogram  
+        yrecord yrepeat yrightbracket yrightparen ysemicolon yset
+        ythen yto ytype yuntil yvar ywhile
 		
-%token <str> yident		
-%type <idlistPtr> IdentList
-%type <str> Type
+%token <str> yident ynumber ynil ydispose ynew yread yreadln ystring ytrue yfalse ywrite ywriteln yunknown
+
+%type <str> Type ConstExpression
+%type <term> ConstFactor
 
 /*
 %type CompilationUnit ProgramModule ProgramParameters IdentList Block
@@ -72,9 +75,9 @@ list<string> l;
 	  Relation
 */
 %union {
-  char *str;
-  struct IdList* idlistPtr;
- };
+    char *str;
+    struct Terminal *term;
+};
  
 %%
 /* rules section */
@@ -85,12 +88,17 @@ CompilationUnit:  ProgramModule
                    ;
 ProgramModule:  yprogram yident ProgramParameters ysemicolon Block ydot
                    ;
-ProgramParameters  :  yleftparen  IdentList  yrightparen
+ProgramParameters  :  yleftparen  IdentList2  yrightparen
                    ;
-IdentList          :  yident { struct IdList* ptr = new IdList(); 
-								(ptr->l).push_front($1);
-								$$ = ptr;} 
-                   |  IdentList ycomma yident { ($1->l).push_front($3); $$=$1; }
+IdentList2         :  yident | IdentList2 ycomma yident
+IdentList          :  yident
+                   {
+                       idList.push_front($1);
+                   } 
+                   |  IdentList ycomma yident
+                   {
+                       idList.push_front($3);
+                   }
                    ; 
 
 /**************************  Declarations section ***************************/
@@ -121,32 +129,49 @@ VariableDeclList   :  VariableDecl ysemicolon
                    |  VariableDeclList VariableDecl ysemicolon
                    ;  
 ConstantDef        :  yident yequal ConstExpression
+                   {
+                       symTable.insert(new Const($1, $3));
+                   }
                    ;
-TypeDef            :  yident yequal  Type
+BasicTypeDef       :  yident yequal yident
+                   {
+                       Symbol *sym = symTable.lookup($3);
+                       if(!sym || !sym->isType()) {
+                           fprintf(stderr, "error: '%s' is not a type\n", $3);
+                           exit(1);
+                       }
+                       symTable.insert(new TypeDef($1, (AbstractType*)sym));
+                   }
+/*ArrayType          :  yarray yleftbracket Subrange SubrangeList 
+                      yrightbracket  yof Type*/
+ArrayTypeDef       :  yident yequal yarray yleftbracket Subrange SubrangeList yrightbracket yof yident
+                   {
+                       Symbol *sym = symTable.lookup($9);
+                       if(!sym || !sym->isType()) {
+                           fprintf(stderr, "error: '%s' is not a type\n", $9);
+                           exit(1);
+                       }
+                       symTable.insert(new Array($1, rangeList, (AbstractType*)sym));
+                       rangeList.erase(rangeList.begin(), rangeList.end());
+                   }
+PointerTypeDef     :
+RecordTypeDef      :
+SetTypeDef         :
+TypeDef            :  BasicTypeDef
+                   |  ArrayTypeDef
                    ;
-VariableDecl       :  IdentList  ycolon  Type { 
-									/* I don't think I like the object-oriented programming interface for
-									 * for this application. Would it make more sense to have an "addVariable"
-									 * method on the SymTable class? For example:
-									 *
-									 *      addVaraible(list<string> ids, string type_name)
-									 * 
-									 * Let SymTable do the lookup on the type_name. 
-									 * 
-									 * How do we handle tricky type like array or record? 
-									 * For example, to construct an array type we
-									 * would need to create a data structure in %union for Subrange and pass it
-									 * back to the ArrayType non-terminal when we create the the ArrayType.
-									 * then ArrayType gets inserted into the symbol table? Or do we hang ArrayType
-									 * off the Variable object and insert the variable into the symbol table? 
-									 * Damn. It just gets deeper and deeper....
-									 *
-									 * As far as I can tell it is a BIG mistake to create a symbol table without first 
-									 * createing the abstract syntax tree.
-									 */
-								 for (list<string>::iterator it = $1->l.begin(); it != $1->l.end(); it++) 
-									symTable.insert(new Variable(*it, symTable.lookup($3)));
-					}
+VariableDecl       :  IdentList  ycolon  Type
+                   {
+                       while (!idList.empty()) {
+                           Symbol *type = symTable.lookup($3);
+                           if (0 && !type) {
+                               fprintf(stderr, "error: '%s' is not a type\n", $3);
+                               exit(1);
+                           }
+                           symTable.insert(new Variable(idList.front(), type));
+                           idList.pop_front();
+                       } 
+                   }
                    ;
 
 /***************************  Const/Type Stuff  ******************************/
@@ -156,12 +181,25 @@ ConstExpression    :  UnaryOperator ConstFactor
                    |  ystring 
                    ;
 ConstFactor        :  yident 
-                   |  ynumber 
-                   |  ytrue
-                   |  yfalse
+                   {
+                       $$ = new Terminal;
+                       $$->str = $1;
+                       $$->token = yident;
+                   }
+                   |  ynumber
+                   {
+                       $$ = new Terminal;
+                       $$->str = $1;
+                       $$->token = ynumber;
+                   }
                    |  ynil
+                   {
+                       $$ = new Terminal;
+                       $$->str = $1;
+                       $$->token = ynil;
+                   }
                    ;
-Type               :  yident { symTable.insert(new AbstractType($1)); $$=$1;}
+Type               :  yident /*{ symTable.insert(new AbstractType($1)); $$=$1;}*/
                    |  ArrayType 
                    |  PointerType 
                    |  RecordType 
@@ -174,6 +212,12 @@ SubrangeList       :  /*** empty ***/
                    |  SubrangeList ycomma Subrange 
                    ;
 Subrange           :  ConstFactor ydotdot ConstFactor
+                   {
+                       Range range;
+                       range.low = *$1;
+                       range.high = *$3;
+                       rangeList.push_front(range);
+                   }
                    |  ystring  ydotdot  ystring 
                    ;
 RecordType         :  yrecord  FieldListSequence  yend
@@ -185,7 +229,7 @@ PointerType        :  ycaret  yident
 FieldListSequence  :  FieldList  
                    |  FieldListSequence  ysemicolon  FieldList
                    ;
-FieldList          :  IdentList  ycolon  Type
+FieldList          :  IdentList  ycolon  Type { idList.erase(idList.begin(), idList.end()); }
                    ;
 
 /***************************  Statements  ************************************/
@@ -323,8 +367,8 @@ FormalParameters   :  yleftparen FormalParamList yrightparen
 FormalParamList    :  OneFormalParam 
                    |  FormalParamList ysemicolon OneFormalParam
                    ;
-OneFormalParam     :  yvar  IdentList  ycolon  yident
-                   |  IdentList  ycolon  yident
+OneFormalParam     :  yvar  IdentList  ycolon  yident { idList.erase(idList.begin(), idList.end()); }
+                   |  IdentList  ycolon  yident { idList.erase(idList.begin(), idList.end()); }
                    ;
 
 /***************************  More Operators  ********************************/
@@ -343,5 +387,5 @@ Relation           :  yequal  | ynotequal | yless | ygreater
 
 /* program section */
 void yyerror(const char *s) {
-   /*fprintf(stderr, "%s\n", s);*/
+    fprintf(stderr, "%s\n", s);
 }

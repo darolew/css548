@@ -9,7 +9,8 @@ using namespace std;
 class BaseType : public AbstractType {
 
 public:
-	BaseType(string ident, int token, string cName) : AbstractType(ident, token), cName(cName) {}
+	BaseType(string ident, int token, string cName)
+	    : AbstractType(ident, token), cName(cName) {}
 
 private:
 	string cName;

@@ -10,7 +10,6 @@ using namespace std;
  */
 
 class Symbol {
-
 public:
 	Symbol(string id, int token) : identifier(id), token(token) {}
 	Symbol(string id) : identifier(id) {}
@@ -19,9 +18,11 @@ public:
 		return identifier;
 	}
 	
+	virtual bool isType() {
+	    return false;
+	}
 	string identifier;
 	int token;
-
 };
 
 #endif

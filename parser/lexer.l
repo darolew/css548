@@ -73,7 +73,7 @@ case			{return ycase;}
 ":"			{return ycolon;}
 ","			{return ycomma;}
 const			{return yconst;}
-dispose			{return ydispose;}
+dispose			{return ydispose;} //
 div			{return ydiv;}
 "/"			{return ydivide;}
 do			{return ydo;}
@@ -83,7 +83,6 @@ downto			{return ydownto;}
 else			{return yelse;}
 end			{return yend;}
 "="			{return yequal;}
-false			{return yfalse;}
 for			{return yfor;}
 function		{return yfunction;}
 ">"			{return ygreater;}
@@ -97,7 +96,7 @@ in			{return yin;}
 "-"			{return yminus;}
 mod			{return ymod;}
 "*"			{return ymultiply;}
-new			{return ynew;}
+new			{return ynew;} //
 nil			{return ynil;}
 not			{return ynot;}
 "<>"			{return ynotequal;}
@@ -106,8 +105,8 @@ or			{return yor;}
 "+"			{return yplus;}
 procedure		{return yprocedure;}
 program			{return yprogram;}
-read			{return yread;}
-readln			{return yreadln;}
+read			{return yread;} //
+readln			{return yreadln;} //
 record			{return yrecord;}
 repeat			{return yrepeat;}
 "]"			{return yrightbracket;}
@@ -116,13 +115,12 @@ repeat			{return yrepeat;}
 set			{return yset;}
 then			{return ythen;}
 to			{return yto;}
-true			{return ytrue;}
 type			{return ytype;}
 until			{return yuntil;}
 var			{return yvar;}
 while			{return ywhile;}
-write			{return ywrite;}
-writeln			{return ywriteln;}
+write			{return ywrite;} //
+writeln			{return ywriteln;} //
 {ID}			{/*fprintf(stderr, "**ID**\n");*/ capture(); return yident;}
 {BCOMMENT}		{print_comment("{");}
 {NUMBER}		{/*fprintf(stderr, "**NUMBER**\n");*/ capture(); return ynumber;}

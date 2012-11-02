@@ -3,15 +3,12 @@
 # Generate parser using Yacc and compile it with gcc.
 
 OBJ = y.tab.o lex.yy.o main.o SymTable.o
-H   = y.tab.h SymTable.h Symbol.h BaseType.h TypeDef.h AbstractType.h Variable.h
+H   = y.tab.h SymTable.h Symbol.h BaseType.h TypeDef.h AbstractType.h Variable.h Const.h Array.h
 CC  = g++ 
 
-all: start clean $(OBJ) $H                   
+all: $(OBJ) $H
 	@$(CC) $(OBJ) -g -o a.out -lfl
 	@echo Done
-
-start:
-	@echo "**********************************"	
 		
 main.o: $H main.cpp                
 	@$(CC) -g -c main.cpp
@@ -32,4 +29,4 @@ y.tab.c: parser.y
 	@yacc -dv parser.y
 
 clean:
-	@rm -f parser lex.yy.c y.tab.h y.tab.c *.o *.output
+	@rm -f a.out lex.yy.c y.tab.h y.tab.c *.o *.output

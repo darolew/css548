@@ -16,41 +16,41 @@ using namespace std;
 
 class SymTable {
 
-typedef map<string, Symbol*> Table;
+    typedef map<string, Symbol*> Table;
 
 private:
-list<Table*> scopes;
-list<string> scopeNames;
+    list<Table*> scopes;
+    list<string> scopeNames;
 
 public: 
-  //Constructor
-  SymTable();
+    //Constructor
+    SymTable();
 
-  //Create a new table and push it onto the back of the list.
-  void beginScope(string="Unnamed");
+    //Create a new table and push it onto the back of the list.
+    void beginScope(string="Unnamed");
 
-  //Pop (and discard) the table on the back of the list.
-  void endScope();
+    //Pop (and discard) the table on the back of the list.
+    void endScope();
 
-  //Insert a symbol into the table. 
-  //Return true if insert suceeded. Return false if insert failed.
-  //Insert will fail if symbol is already defined in the current scope.
-  bool insert(Symbol *value);
+    //Insert a symbol into the table. 
+    //Return true if insert suceeded. Return false if insert failed.
+    //Insert will fail if symbol is already defined in the current scope.
+    bool insert(Symbol *value);
 
-  //Search through all the tables in the list, starting with the last one, 
-  //and look for the key. 
-  Symbol *lookup(string key);
+    //Search through all the tables in the list, starting with the last one, 
+    //and look for the key. 
+    Symbol *lookup(string key);
 
-  //Return true if there are no scope objects on the stack.
-  bool empty();
+    //Return true if there are no scope objects on the stack.
+    bool empty();
 
-  //Destructor
-  ~SymTable();
+    //Destructor
+    ~SymTable();
   
 private:
-  void assert_stack();
-  void printST();
-  void printLine(string);
+    void assert_stack();
+    void printST();
+    void printLine(string);
 };
 
 #endif

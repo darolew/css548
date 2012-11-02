@@ -7,11 +7,15 @@ using namespace std;
 
 
 class Const: public Symbol {
-
 public:
-	Const(string id, string value) : Symbol(id, yconst), value(value) {}
+	Const(string id, string value) : Symbol(id), value(value) {}
 	string value;
-
+	
+	virtual string toString()
+	{
+		return identifier + "," + value;
+	}
+	
 };
 
 #endif
