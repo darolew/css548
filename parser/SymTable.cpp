@@ -63,19 +63,16 @@ SymTable::SymTable()
 	//Start standard identifier.
 	beginScope("Standard Identifier Table");
 	
-	insert(new BaseType("true", 0, "true"));
-	insert(new BaseType("false", 0, "false"));
-	insert(new BaseType("boolean", 0, "bool"));
-
-	insert(new BaseType("integer", 0, "int"));
-	insert(new BaseType("real", 0, "double"));
+	insert(new BaseType("boolean", "bool"));
+	insert(new BaseType("integer", "int"));
+	insert(new BaseType("real", "double"));
 	
 	//TODO: Using char as an array index.
-	insert(new BaseType("char", 0, "string"));
+	insert(new BaseType("char", "string"));
 
 /*
-	insert("writeln", ywrite, "TODO:writefunction");
-	insert("write", ywrite, "TODO:writefunction");
+	insert("writeln", "TODO:writefunction");
+	insert("write", "TODO:writefunction");
 	insert("read", NULL);
 	insert("readln", NULL);
 	insert("new", NULL);

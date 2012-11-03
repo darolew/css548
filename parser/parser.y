@@ -16,7 +16,8 @@
 #include "Variable.h"
 #include "Const.h"
 #include "TypeDef.h"
- 
+#include "PointerType.h" 
+
  
 /* Macro for releasing memory allocated by strdup() in the lexer.
  * X represents the union of lvals.
@@ -39,7 +40,6 @@ extern SymTable symTable;
 list<string> idList;
 list<Range> rangeList;
 
-
 %}
 
 /* definition section */
@@ -55,8 +55,8 @@ list<Range> rangeList;
 		
 %token <str> yident ynumber ynil ydispose ynew yread yreadln ystring ytrue yfalse ywrite ywriteln yunknown
 
-%type <str> Type ConstExpression
-%type <term> ConstFactor
+%type <str> Type 
+%type <term> ConstFactor ConstExpression
 
 /*
 %type CompilationUnit ProgramModule ProgramParameters IdentList Block
@@ -130,7 +130,7 @@ VariableDeclList   :  VariableDecl ysemicolon
                    ;  
 ConstantDef        :  yident yequal ConstExpression
                    {
-                       symTable.insert(new Const($1, $3));
+                       symTable.insert(new Const($1, $3->str));
                    }
                    ;
 BasicTypeDef       :  yident yequal yident
@@ -154,13 +154,30 @@ ArrayTypeDef       :  yident yequal yarray yleftbracket Subrange SubrangeList yr
                        symTable.insert(new Array($1, rangeList, (Type*)sym));
                        rangeList.erase(rangeList.begin(), rangeList.end());
                    }
-PointerTypeDef     :
+PointerTypeDef     :  yident yequal ycaret  yident
+                   {
+                       Symbol *sym = symTable.lookup($4);
+					   //TODO: Do not check for undefined type here. Mabye
+					   //check for undefined pointer types in the 
+					   //SymTable::endScope() method.
+                       /*if(!sym || !sym->isType()) {
+                           fprintf(stderr, "error: '%s' is not a type\n", $4);
+                           exit(1);
+						
+                       }
+					   */
+                       symTable.insert(new PointerType($1, (Type*)sym));
+                   }
+				   ;
 RecordTypeDef      :
+                   ;
 SetTypeDef         :
+                   ;
 TypeDef            :  BasicTypeDef
                    |  ArrayTypeDef
+				   |  PointerTypeDef
                    ;
-VariableDecl       :  IdentList  ycolon  Type
+VariableDecl       :  IdentList ycolon  Type
                    {
                        while (!idList.empty()) {
                            Symbol *type = symTable.lookup($3);
@@ -176,9 +193,13 @@ VariableDecl       :  IdentList  ycolon  Type
 
 /***************************  Const/Type Stuff  ******************************/
 
-ConstExpression    :  UnaryOperator ConstFactor
-                   |  ConstFactor
+ConstExpression    :  UnaryOperator ConstFactor //TODO: Capture unary operator
+                   |  ConstFactor 
                    |  ystring 
+				   {  $$ = new Terminal;
+				      $$->str = $1;
+					  $$->token = ystring;
+				   }
                    ;
 ConstFactor        :  yident 
                    {

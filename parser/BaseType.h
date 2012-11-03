@@ -9,10 +9,9 @@ using namespace std;
 class BaseType : public Type {
 
 public:
-	BaseType(string ident, int token, string cName)
-	    : Type(ident, token), cName(cName) {}
+	BaseType(string ident, string cName)
+	    : Type(ident), cName(cName) {}
 
-private:
 	string cName;
 };
 
