@@ -129,44 +129,23 @@ VariableDeclList   :  VariableDecl ysemicolon
                    |  VariableDeclList VariableDecl ysemicolon
                    ;  
 ConstantDef        :  yident yequal ConstExpression
-                   {
-                       symTable.insert(new Const($1, $3->str));
-                   }
+                   { symTable.insert(new Const($1, $3->str)); }
                    ;
-BasicTypeDef       :  yident yequal yident
-                   {
-                       Symbol *sym = symTable.lookup($3);
-                       if(!sym || !sym->isType()) {
-                           fprintf(stderr, "error: '%s' is not a type\n", $3);
-                           exit(1);
-                       }
-                       symTable.insert(new TypeDef($1, (Type*)sym));
-                   }
-/*ArrayType          :  yarray yleftbracket Subrange SubrangeList 
+BasicTypeDef       :  yident yequal yident 
+                   { symTable.insert(new TypeDef($1, $3)); }
+/*ArrayType        :  yarray yleftbracket Subrange SubrangeList 
                       yrightbracket  yof Type*/
 ArrayTypeDef       :  yident yequal yarray yleftbracket Subrange SubrangeList yrightbracket yof yident
                    {
-                       Symbol *sym = symTable.lookup($9);
-                       if(!sym || !sym->isType()) {
-                           fprintf(stderr, "error: '%s' is not a type\n", $9);
-                           exit(1);
-                       }
-                       symTable.insert(new Array($1, rangeList, (Type*)sym));
+                       symTable.insert(new Array($1, rangeList, $9));
                        rangeList.erase(rangeList.begin(), rangeList.end());
                    }
 PointerTypeDef     :  yident yequal ycaret  yident
                    {
-                       Symbol *sym = symTable.lookup($4);
 					   //TODO: Do not check for undefined type here. Mabye
 					   //check for undefined pointer types in the 
 					   //SymTable::endScope() method.
-                       /*if(!sym || !sym->isType()) {
-                           fprintf(stderr, "error: '%s' is not a type\n", $4);
-                           exit(1);
-						
-                       }
-					   */
-                       symTable.insert(new PointerType($1, (Type*)sym));
+                       symTable.insert(new PointerType($1, $4));
                    }
 				   ;
 RecordTypeDef      :
@@ -180,12 +159,7 @@ TypeDef            :  BasicTypeDef
 VariableDecl       :  IdentList ycolon  Type
                    {
                        while (!idList.empty()) {
-                           Symbol *type = symTable.lookup($3);
-                           if (0 && !type) {
-                               fprintf(stderr, "error: '%s' is not a type\n", $3);
-                               exit(1);
-                           }
-                           symTable.insert(new Variable(idList.front(), type));
+                            symTable.insert(new Variable(idList.front(), $3));
                            idList.pop_front();
                        } 
                    }

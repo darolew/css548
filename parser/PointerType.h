@@ -1,18 +1,14 @@
 #ifndef POINTERTYPE_H
 #define POINTERTYPE_H
 
-#include "Type.h"
+#include "OfType.h"
 
-class PointerType : public Type {
+
+class PointerType : public OfType {
 public:
-    PointerType(string id, Type* pointerType) : Type(id), 
-	    pointerType(pointerType)  {}
-	
-	Type* pointerType;
-   	
-	virtual bool isType() {
-	    return true;
-	}
+    PointerType(string id, string typeName) : OfType(id, typeName) {}
+    virtual bool insertInto(SymTable &);
+
 };
 
 #endif

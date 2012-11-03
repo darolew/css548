@@ -1,8 +1,7 @@
 #include <cstdlib>
-#include "SymTable.h"
 #include "BaseType.h"
+#include "SymTable.h"
 #include <iostream>
-
 
 //Push a new scope onto the stack.
 void SymTable::beginScope(string name) 
@@ -28,19 +27,7 @@ void SymTable::endScope()
 bool SymTable::insert(Symbol *symbol) 
 {
     assert_stack();
-	cerr << "inserting " << symbol->toString() << endl;
-	string key = symbol->identifier;
-	Table *current = scopes.front(); 
-
-	bool alreadyExists = current->count(key) != 0;
-	if (alreadyExists) {
-//		cerr << "\n\tInsert failed. Symbol name already exists in current scope.\n";
-		return false;
-	}
-
-	(*current)[key] = symbol;
-//	cerr << "\tInsert succeeded.\n"; 
-	return true;
+	return symbol->insertInto(*this);
 }
 
 //Drill down through the list of scopes, front to back, and look
@@ -86,7 +73,6 @@ SymTable::SymTable()
 //was called. 
 //When an STL class like list is deleted, it will call the desctructor
 //on every object still in the list. No explicit cleanup is needed.
-//At least, that is what the C++ spec says. :-)
 SymTable::~SymTable() 
 {
 	//Get rid of the SIT.
@@ -118,4 +104,9 @@ void SymTable::printLine(string divider)
 	for(int i=0; i<75; ++i)
     	cerr << divider;
   	cerr << endl;
+}
+
+Table& SymTable::front() 
+{
+    return *scopes.front();
 }

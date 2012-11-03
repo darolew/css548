@@ -1,9 +1,14 @@
-#ifndef SYMBOL
-#define SYMBOL
+#ifndef SYMBOL_
+#define SYMBOL_
 
+#include <map>
 #include <string> 
+#include <iostream>
 
 using namespace std;
+class Symbol;
+typedef map<string, Symbol*> Table;
+class SymTable;
 
 /* Class to hold a symbol's attributes
  *
@@ -24,8 +29,9 @@ public:
 	    return false;
 	}
 	
+	virtual bool insertInto(SymTable &);
+	
 	string identifier;
 };
 
 #endif
-

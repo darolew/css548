@@ -7,7 +7,8 @@ class Type : public Symbol {
 public:
     Type(string id) : Symbol(id) {}
 	
-   	virtual bool isType() {
+   	virtual bool isType() 
+	{
 	    return true;
 	}
 

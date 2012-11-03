@@ -4,7 +4,7 @@
 #include <list>
 #include <string.h>
 #include <sstream>
-#include "Type.h"
+#include "OfType.h"
 
 using namespace std;
 
@@ -18,14 +18,13 @@ typedef struct {
     Terminal high;
 } Range;
 
-class Array : public Type {
+class Array : public OfType {
 
 public:
-	Array(string ident, list<Range> ranges, Type *elementType)
-	    : Type(ident)
+	Array(string ident, list<Range> ranges, string typeName)
+	    : OfType(ident, typeName)
 	{
 	    this->ranges = ranges;
-	    this->elementType = elementType;
 	}
 	
 	virtual string toString(void)
@@ -34,13 +33,12 @@ public:
 	    ss << identifier << "[";
         for (list<Range>::iterator it = ranges.begin(); it != ranges.end(); it++)
             ss << it->low.str << ".." << it->high.str << ",";
-        ss << "] of " << elementType->toString();
+        ss << "] of " << type->toString();
 	    return ss.str();
 	}
 
 private:
     list<Range> ranges;
-    Type *elementType;
 };
 
 #endif

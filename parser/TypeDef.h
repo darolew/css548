@@ -2,18 +2,15 @@
 #define TYPEDEF_H
 
 #include <string.h>
-#include "Type.h"
+#include "OfType.h"
 
 using namespace std;
 
-class TypeDef : public Type {
+class TypeDef : public OfType {
 
 public:
-    TypeDef(string alias, Type *type)
-        : Type(alias), type(type) {}
+    TypeDef(string alias, string typeName) : OfType(alias, typeName) {}
 
-private:
-	Type *type;
 };
 
 #endif

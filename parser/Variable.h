@@ -2,16 +2,19 @@
 #define VARIABLE_H
 
 #include <string> 
-#include "Type.h"
+#include "OfType.h"
 using namespace std;
+class SymTable;
 
-//NOTE: "type" is a C++ reservered word. "_type" is not.
- 
-class Variable: public Symbol {
+class Variable: public OfType {
 
 public:
-	Variable(string id, Symbol *_type) : Symbol(id), _type(_type) {}
-	Symbol *_type;
+	Variable(string id, string typeName) : OfType(id, typeName) {}
+		
+   	virtual bool isType() 
+	{
+	    return false;
+	}
 };
 
 #endif

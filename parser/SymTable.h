@@ -11,12 +11,11 @@
 #include <string> 
 #include <list>
 #include "Symbol.h"
+#include "Variable.h"
 
 using namespace std;
 
 class SymTable {
-
-    typedef map<string, Symbol*> Table;
 
 private:
     list<Table*> scopes;
@@ -35,7 +34,8 @@ public:
     //Insert a symbol into the table. 
     //Return true if insert suceeded. Return false if insert failed.
     //Insert will fail if symbol is already defined in the current scope.
-    bool insert(Symbol *value);
+    bool insert(Symbol *);
+   // bool insert(Variable *);
 
     //Search through all the tables in the list, starting with the last one, 
     //and look for the key. 
@@ -44,6 +44,9 @@ public:
     //Return true if there are no scope objects on the stack.
     bool empty();
 
+	//Return top of the stack
+	Table& front();
+	
     //Destructor
     ~SymTable();
   
