@@ -2,7 +2,7 @@
 #define VARIABLE_H
 
 #include <string> 
-#include "AbstractType.h"
+#include "Type.h"
 using namespace std;
 
 //NOTE: "type" is a C++ reservered word. "_type" is not.

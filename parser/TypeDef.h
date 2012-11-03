@@ -2,18 +2,18 @@
 #define TYPEDEF_H
 
 #include <string.h>
-#include "AbstractType.h"
+#include "Type.h"
 
 using namespace std;
 
-class TypeDef : public AbstractType {
+class TypeDef : public Type {
 
 public:
-    TypeDef(string alias, AbstractType *type)
-        : AbstractType(alias), type(type) {}
+    TypeDef(string alias, Type *type)
+        : Type(alias), type(type) {}
 
 private:
-	AbstractType *type;
+	Type *type;
 };
 
 #endif

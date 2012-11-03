@@ -2,15 +2,15 @@
 #define BASETYPE_H
 
 #include <string.h>
-#include "AbstractType.h"
+#include "Type.h"
 
 using namespace std;
 
-class BaseType : public AbstractType {
+class BaseType : public Type {
 
 public:
 	BaseType(string ident, int token, string cName)
-	    : AbstractType(ident, token), cName(cName) {}
+	    : Type(ident, token), cName(cName) {}
 
 private:
 	string cName;

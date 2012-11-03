@@ -4,7 +4,7 @@
 #include <list>
 #include <string.h>
 #include <sstream>
-#include "AbstractType.h"
+#include "Type.h"
 
 using namespace std;
 
@@ -18,11 +18,11 @@ typedef struct {
     Terminal high;
 } Range;
 
-class Array : public AbstractType {
+class Array : public Type {
 
 public:
-	Array(string ident, list<Range> ranges, AbstractType *elementType)
-	    : AbstractType(ident)
+	Array(string ident, list<Range> ranges, Type *elementType)
+	    : Type(ident)
 	{
 	    this->ranges = ranges;
 	    this->elementType = elementType;
@@ -40,7 +40,7 @@ public:
 
 private:
     list<Range> ranges;
-    AbstractType *elementType;
+    Type *elementType;
 };
 
 #endif

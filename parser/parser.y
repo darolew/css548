@@ -140,7 +140,7 @@ BasicTypeDef       :  yident yequal yident
                            fprintf(stderr, "error: '%s' is not a type\n", $3);
                            exit(1);
                        }
-                       symTable.insert(new TypeDef($1, (AbstractType*)sym));
+                       symTable.insert(new TypeDef($1, (Type*)sym));
                    }
 /*ArrayType          :  yarray yleftbracket Subrange SubrangeList 
                       yrightbracket  yof Type*/
@@ -151,7 +151,7 @@ ArrayTypeDef       :  yident yequal yarray yleftbracket Subrange SubrangeList yr
                            fprintf(stderr, "error: '%s' is not a type\n", $9);
                            exit(1);
                        }
-                       symTable.insert(new Array($1, rangeList, (AbstractType*)sym));
+                       symTable.insert(new Array($1, rangeList, (Type*)sym));
                        rangeList.erase(rangeList.begin(), rangeList.end());
                    }
 PointerTypeDef     :
@@ -199,7 +199,7 @@ ConstFactor        :  yident
                        $$->token = ynil;
                    }
                    ;
-Type               :  yident /*{ symTable.insert(new AbstractType($1)); $$=$1;}*/
+Type               :  yident /*{ symTable.insert(new Type($1)); $$=$1;}*/
                    |  ArrayType 
                    |  PointerType 
                    |  RecordType 
