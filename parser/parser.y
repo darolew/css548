@@ -107,14 +107,14 @@ Declarations        : ConstantDefBlock
                       SubprogDeclList  
                     ;
 PointerCheck        : /*** empty ***/
-					{
-						while (!ptrList.empty()) {
-							PointerType *ptrType = ptrList.front();
-							ptrType->addType();
-							ptrList.pop_front();
+                    {
+                        while (!ptrList.empty()) {
+                            PointerType *ptrType = ptrList.front();
+                            ptrType->addType();
+                            ptrList.pop_front();
                         }
-					}
-					;
+                    }
+                    ;
 ConstantDefBlock    : /*** empty ***/
                     | yconst ConstantDefList
                     ;
@@ -150,9 +150,9 @@ ArrayTypeDef        : yident yequal yarray yleftbracket Subrange SubrangeList
                     }
 PointerTypeDef      : yident yequal ycaret yident
                     {
-                    	PointerType *ptrType = new PointerType($1, $4);
-                    	ptrList.push_front(ptrType);
-                    	symTable.insert(ptrType);
+                        PointerType *ptrType = new PointerType($1, $4);
+                        ptrList.push_front(ptrType);
+                        symTable.insert(ptrType);
                     }
                     ;
 RecordTypeDef       :

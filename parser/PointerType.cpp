@@ -15,14 +15,15 @@ bool PointerType::insertInto(SymTable &symTable)
     return Symbol::insertInto(symTable);
 }
 
-//
+//Add the type to which the PointerType points. This must be done
+//after all the types for the scope have been declared.
 void PointerType::addType()
 {
-	Symbol *sym = symTable.lookup(typeName);
+    Symbol *sym = symTable.lookup(typeName);
     if (!sym || !sym->isType()) {
         cerr << "error: " << typeName << " is not a type\n";
         exit(1);
     }
 
-	type = (Type*)sym;
+    type = (Type*)sym;
 }

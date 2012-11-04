@@ -12,7 +12,7 @@ class PointerType : public OfType {
 public:
     PointerType(string id, string typeName) : OfType(id, typeName) {}
     virtual bool insertInto(SymTable &);
-	void addType();
+    void addType();
 };
 
 #endif
