@@ -1,12 +1,14 @@
+// CSS 548; Autumn 2012
+// Aaron Hoffer and Daniel Lewis
+//
+// TODO: Write description of this file.
 #include "PointerType.h"
 #include "SymTable.h"
 
-//Pointer types are a little special. They are allowed to be 
-//declared before before the type type they point to has been
-//declared.
-//This method skips the the symbol checking in the superclass method.
+//Pointer types are special: they are allowed to be declared before
+//the type they point to has been declared. Thus, this method skips
+//the symbol checking of the superclass method.
 bool PointerType::insertInto(SymTable &symTable)
 {
-
     return Symbol::insertInto(symTable);
 }

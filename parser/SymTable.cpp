@@ -1,7 +1,11 @@
-#include <cstdlib>
+// CSS 548; Autumn 2012
+// Aaron Hoffer and Daniel Lewis
+//
+// TODO: Write description of this file.
+#include <iostream>
+#include <stdlib.h>
 #include "BaseType.h"
 #include "SymTable.h"
-#include <iostream>
 
 //Push a new scope onto the stack.
 void SymTable::beginScope(string name) 
@@ -27,7 +31,7 @@ void SymTable::endScope()
 bool SymTable::insert(Symbol *symbol) 
 {
     assert_stack();
-	return symbol->insertInto(*this);
+    return symbol->insertInto(*this);
 }
 
 //Drill down through the list of scopes, front to back, and look
@@ -35,35 +39,36 @@ bool SymTable::insert(Symbol *symbol)
 //return null.
 Symbol *SymTable::lookup(string key) 
 {
-    for (list<Table*>::iterator it = scopes.begin();
-         it != scopes.end(); it++) 
-    {
+    list<Table*>::iterator it = scopes.begin();
+    for (; it != scopes.end(); it++) {
         Table *next = *it;
         if (next->count(key)) 
-          return (*next)[key];
+            return (*next)[key];
     }
     return NULL;
 }
 
 SymTable::SymTable() 
 {
-	//Start standard identifier.
-	beginScope("Standard Identifier Table");
-	
-	insert(new BaseType("boolean", "bool"));
-	insert(new BaseType("integer", "int"));
-	insert(new BaseType("real", "double"));
-	
-	//TODO: Using char as an array index.
-	insert(new BaseType("char", "string"));
+    //Start standard identifier.
+    beginScope("Standard Identifier Table");
+    
+    insert(new BaseType("boolean", "bool"));
+    insert(new BaseType("integer", "int"));
+    insert(new BaseType("real", "double"));
+    
+    //TODO: Using char as an array index.
+    insert(new BaseType("char", "string"));
 
 /*
-	insert("writeln", "TODO:writefunction");
-	insert("write", "TODO:writefunction");
-	insert("read", NULL);
-	insert("readln", NULL);
-	insert("new", NULL);
-	insert("dispose", NULL);
+    insert("writeln", "TODO:writefunction");
+    insert("write", "TODO:writefunction");
+    insert("read", NULL);
+    insert("readln", NULL);
+    insert("new", NULL);
+    insert("dispose", NULL);
+    insert("true", NULL);
+    insert("false", NULL);
 */
 }
 
@@ -75,23 +80,23 @@ SymTable::SymTable()
 //on every object still in the list. No explicit cleanup is needed.
 SymTable::~SymTable() 
 {
-	//Get rid of the SIT.
-	assert_stack();
-	endScope();
+    //Get rid of the SIT.
+    assert_stack();
+    endScope();
 }
 
 bool SymTable::empty() 
 {
-	return scopes.empty();
+    return scopes.empty();
 }
 
 //Prevent seg faults.
 void SymTable::assert_stack() 
 {
-	if (empty()) {
-    	cerr << "\nFATAL ERROR SymTable::assert_stack\n\n";
-    	exit(EXIT_FAILURE);
-	}
+    if (empty()) {
+        cerr << "\nFATAL ERROR SymTable::assert_stack\n\n";
+        exit(EXIT_FAILURE);
+    }
 }
 
 void SymTable::printST() 
@@ -101,9 +106,9 @@ void SymTable::printST()
 
 void SymTable::printLine(string divider)  
 {
-	for(int i=0; i<75; ++i)
-    	cerr << divider;
-  	cerr << endl;
+    for(int i=0; i<75; ++i)
+        cerr << divider;
+    cerr << endl;
 }
 
 Table& SymTable::front() 

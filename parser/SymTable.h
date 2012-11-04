@@ -1,23 +1,18 @@
+// CSS 548; Autumn 2012
+// Aaron Hoffer and Daniel Lewis
+//
+// Data structures for managing symbols and scope.
 #ifndef SYMTABLE_H
 #define SYMTABLE_H
-
-/* 
- * Data structures for managing symbols and scope 
- * Aaron Hoffer and Daniel Lewis
- * CSS 548, Autumn 2012
- */
 
 #include <map>
 #include <string> 
 #include <list>
 #include "Symbol.h"
 #include "Variable.h"
-
 using namespace std;
 
 class SymTable {
-
-private:
     list<Table*> scopes;
     list<string> scopeNames;
 
@@ -35,7 +30,7 @@ public:
     //Return true if insert suceeded. Return false if insert failed.
     //Insert will fail if symbol is already defined in the current scope.
     bool insert(Symbol *);
-   // bool insert(Variable *);
+    // bool insert(Variable *);
 
     //Search through all the tables in the list, starting with the last one, 
     //and look for the key. 
@@ -44,9 +39,9 @@ public:
     //Return true if there are no scope objects on the stack.
     bool empty();
 
-	//Return top of the stack
-	Table& front();
-	
+    //Return top of the stack
+    Table& front();
+    
     //Destructor
     ~SymTable();
   

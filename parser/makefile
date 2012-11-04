@@ -3,10 +3,12 @@
 # Generate parser using Yacc and compile it with gcc.
 
 OBJ = y.tab.o lex.yy.o main.o SymTable.o Symbol.o PointerType.o OfType.o
-H   = y.tab.h SymTable.h Symbol.h BaseType.h TypeDef.h Type.h Variable.h Const.h Array.h PointerType.h OfType.h
+H   = y.tab.h SymTable.h Symbol.h BaseType.h TypeDef.h Type.h \
+		Variable.h Const.h Array.h PointerType.h OfType.h
 CC  = g++ 
 
-all: print $(OBJ) $H
+#all: print $(OBJ) $H
+all: $(OBJ) $H
 	@$(CC) $(OBJ) -g -o a.out -lfl
 	@echo Done
 		

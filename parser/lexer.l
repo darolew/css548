@@ -6,7 +6,6 @@
  * definition. The tokens defined represents a subset of Pascal and are
  * phase I of the CSS 548 compiler project.
  */
- 
 %option noyywrap
 %option yylineno
 %option case-insensitive
@@ -16,7 +15,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include <cctype>
+#include <ctype.h>
 #include "y.tab.h"
 
 #define BUF_SIZE (1024*4)
@@ -26,9 +25,7 @@ static void print_comment(const char*);
 static void patch_comment(char*);
 static void die(const char*);
 
-/* 
- * Capture a token's attribute value so it can be used  by the parser.
- */
+/* Capture a token's attribute value so it can be used by the parser. */
 static void capture(void);
 
 /* 
@@ -37,103 +34,101 @@ static void capture(void);
  */
 static bool eof;
 
-/* 
- * Character buffer for comments and strings.
- */
+/* Character buffer for comments and strings. */
 static char buffer[BUF_SIZE];
 
 
 %}
 
-LETTER		[a-z]
-DIGIT		[0-9]
-ID		{LETTER}({LETTER}|{DIGIT})*
-BCOMMENT	\{[^}]*\}
-INT		{DIGIT}+
-EXP		[Ee][+-]?{INT}
-REAL		{INT}\.{INT}{EXP}?
-NUMBER		{INT}|{REAL}
-STRINGDQ	\"[^"]*\"
-STRINGSQ	\'[^']*\'
-STRING		{STRINGDQ}|{STRINGSQ}
-NEWLINE		\n
-WHITESPACE	[ \t\r]
+LETTER      [a-z]
+DIGIT       [0-9]
+ID          {LETTER}({LETTER}|{DIGIT})*
+BCOMMENT    \{[^}]*\}
+INT         {DIGIT}+
+EXP         [Ee][+-]?{INT}
+REAL        {INT}\.{INT}{EXP}?
+NUMBER      {INT}|{REAL}
+STRINGDQ    \"[^"]*\"
+STRINGSQ    \'[^']*\'
+STRING      {STRINGDQ}|{STRINGSQ}
+NEWLINE     \n
+WHITESPACE  [ \t\r]
 
 %x IN_COMMENT
 %x WARNING
 
 %%
 
-and			{return yand;}
-array			{return yarray;}
-":="			{return yassign;}
-begin			{return ybegin;}
-"^"			{return ycaret;}
-case			{return ycase;}
-":"			{return ycolon;}
-","			{return ycomma;}
-const			{return yconst;}
-dispose			{return ydispose;} //
-div			{return ydiv;}
-"/"			{return ydivide;}
-do			{return ydo;}
-"."			{return ydot;}
-".."			{return ydotdot;}
-downto			{return ydownto;}
-else			{return yelse;}
-end			{return yend;}
-"="			{return yequal;}
-for			{return yfor;}
-function		{return yfunction;}
-">"			{return ygreater;}
-">="			{return ygreaterequal;}
-if			{return yif;}
-in			{return yin;}
-"["			{return yleftbracket;}
-"("			{return yleftparen;}
-"<"			{return yless;}
-"<="			{return ylessequal;}
-"-"			{return yminus;}
-mod			{return ymod;}
-"*"			{return ymultiply;}
-new			{return ynew;} //
-nil			{return ynil;}
-not			{return ynot;}
-"<>"			{return ynotequal;}
-of			{return yof;}
-or			{return yor;}
-"+"			{return yplus;}
-procedure		{return yprocedure;}
-program			{return yprogram;}
-read			{return yread;} //
-readln			{return yreadln;} //
-record			{return yrecord;}
-repeat			{return yrepeat;}
-"]"			{return yrightbracket;}
-")"			{return yrightparen;}
-";"			{return ysemicolon;}
-set			{return yset;}
-then			{return ythen;}
-to			{return yto;}
-type			{return ytype;}
-until			{return yuntil;}
-var			{return yvar;}
-while			{return ywhile;}
-write			{return ywrite;} //
-writeln			{return ywriteln;} //
-{ID}			{/*fprintf(stderr, "**ID**\n");*/ capture(); return yident;}
-{BCOMMENT}		{print_comment("{");}
-{NUMBER}		{/*fprintf(stderr, "**NUMBER**\n");*/ capture(); return ynumber;}
-{STRING}		{/*fprintf(stderr, "**STRING**\n");*/ capture(); return ystring;}
-<INITIAL>\(\*		{BEGIN(IN_COMMENT); yymore();}
-<IN_COMMENT><<EOF>>	{eof = true; return yunknown;}
-<IN_COMMENT>[^*]*\*+	{BEGIN(WARNING); yymore();}
-<WARNING><<EOF>>	{eof = true; return yunknown;}
-<WARNING>[^)]		{BEGIN(IN_COMMENT); yymore();}
-<WARNING>\)		{BEGIN(INITIAL); yymore(); print_comment("(*");}
-{NEWLINE}		{printf("\n"); /*for phase 2*/}
-{WHITESPACE}		{ /* Do nothing */ }
-.			{return yunknown;}
+and                     {return yand;}
+array                   {return yarray;}
+":="                    {return yassign;}
+begin                   {return ybegin;}
+"^"                     {return ycaret;}
+case                    {return ycase;}
+":"                     {return ycolon;}
+","                     {return ycomma;}
+const                   {return yconst;}
+dispose                 {return ydispose;} // TODO: remove
+div                     {return ydiv;}
+"/"                     {return ydivide;}
+do                      {return ydo;}
+"."                     {return ydot;}
+".."                    {return ydotdot;}
+downto                  {return ydownto;}
+else                    {return yelse;}
+end                     {return yend;}
+"="                     {return yequal;}
+for                     {return yfor;}
+function                {return yfunction;}
+">"                     {return ygreater;}
+">="                    {return ygreaterequal;}
+if                      {return yif;}
+in                      {return yin;}
+"["                     {return yleftbracket;}
+"("                     {return yleftparen;}
+"<"                     {return yless;}
+"<="                    {return ylessequal;}
+"-"                     {return yminus;}
+mod                     {return ymod;}
+"*"                     {return ymultiply;}
+new                     {return ynew;} // TODO: remove
+nil                     {return ynil;}
+not                     {return ynot;}
+"<>"                    {return ynotequal;}
+of                      {return yof;}
+or                      {return yor;}
+"+"                     {return yplus;}
+procedure               {return yprocedure;}
+program                 {return yprogram;}
+read                    {return yread;} // TODO: remove
+readln                  {return yreadln;} // TODO: remove
+record                  {return yrecord;}
+repeat                  {return yrepeat;}
+"]"                     {return yrightbracket;}
+")"                     {return yrightparen;}
+";"                     {return ysemicolon;}
+set                     {return yset;}
+then                    {return ythen;}
+to                      {return yto;}
+type                    {return ytype;}
+until                   {return yuntil;}
+var                     {return yvar;}
+while                   {return ywhile;}
+write                   {return ywrite;} // TODO: remove
+writeln                 {return ywriteln;} // TODO: remove
+{ID}                    {capture(); return yident;}
+{BCOMMENT}              {print_comment("{");}
+{NUMBER}                {capture(); return ynumber;}
+{STRING}                {capture(); return ystring;}
+<INITIAL>\(\*           {BEGIN(IN_COMMENT); yymore();}
+<IN_COMMENT><<EOF>>     {eof = true; return yunknown;}
+<IN_COMMENT>[^*]*\*+    {BEGIN(WARNING); yymore();}
+<WARNING><<EOF>>        {eof = true; return yunknown;}
+<WARNING>[^)]           {BEGIN(IN_COMMENT); yymore();}
+<WARNING>\)             {BEGIN(INITIAL); yymore(); print_comment("(*");}
+{NEWLINE}               {printf("\n");}
+{WHITESPACE}            {/* Do nothing */}
+.                       {return yunknown;}
 
 %%
 
@@ -142,15 +137,15 @@ writeln			{return ywriteln;} //
  */
 static void capture(void)
 {
-	/* Copy yytext because it can be changed before we use it. */
-	yylval.str = strdup(yytext);
+    /* Copy yytext because it can be changed before we use it. */
+    yylval.str = strdup(yytext);
 
-	/* Convert string to lower case */
-	char * ptr = yylval.str;
-	for(; *ptr; ++ptr)
-		*ptr = tolower(*ptr);
+    /* Convert string to lower case */
+    char *ptr = yylval.str;
+    for(; *ptr; ++ptr)
+        *ptr = tolower(*ptr);
 
-	/*fprintf(stderr, "[yylval] %s\n", yylval.str);*/
+    /*fprintf(stderr, "[yylval] %s\n", yylval.str);*/
 }
 
 /*
@@ -159,23 +154,23 @@ static void capture(void)
  */
 static void print_comment(const char *comment_delim)
 {
-	size_t delim_len = strlen(comment_delim);
-	size_t total_len;
-	
-	/* Test the comment does not overflow buffer. */
-	total_len = yyleng;
-	total_len -= delim_len * 2;  /* subtract Pascal deliminators */
-	total_len += 4;              /* add C deliminators */
-	if (total_len >= sizeof buffer)
-		die("comment too long for buffer");
+    size_t delim_len = strlen(comment_delim);
+    size_t total_len;
+    
+    /* Test the comment does not overflow buffer. */
+    total_len = yyleng;
+    total_len -= delim_len * 2;  /* subtract Pascal deliminators */
+    total_len += 4;              /* add C deliminators */
+    if (total_len >= sizeof buffer)
+        die("comment too long for buffer");
 
-	/* Convert from Pascal style comment to C style and print it. */
-	memset(buffer, 0, sizeof buffer);
-	strcpy(buffer, "/*");
-	memcpy(buffer+2, yytext + delim_len, yyleng - delim_len * 2);
-	patch_comment(buffer+2);
-	strcat(buffer, "*/");
-	printf("%s", buffer);
+    /* Convert from Pascal style comment to C style and print it. */
+    memset(buffer, 0, sizeof buffer);
+    strcpy(buffer, "/*");
+    memcpy(buffer+2, yytext + delim_len, yyleng - delim_len * 2);
+    patch_comment(buffer+2);
+    strcat(buffer, "*/");
+    printf("%s", buffer);
 }
 
 /*
@@ -185,15 +180,15 @@ static void print_comment(const char *comment_delim)
  */
 static void patch_comment(char *comment)
 {
-	char *close_delim;
-	
-	for (;;) {
-		close_delim = strstr(comment, "*/");
-		if (!close_delim)
-			break;
-		*close_delim = '.';
-		comment = close_delim;
-	}
+    char *close_delim;
+    
+    for (;;) {
+        close_delim = strstr(comment, "*/");
+        if (!close_delim)
+            break;
+        *close_delim = '.';
+        comment = close_delim;
+    }
 }
 
 /*
@@ -201,6 +196,6 @@ static void patch_comment(char *comment)
  */
 static void die(const char *message)
 {
-	fprintf(stderr, "%s\n", message);
-	exit(EXIT_FAILURE);
+    fprintf(stderr, "%s\n", message);
+    exit(EXIT_FAILURE);
 }

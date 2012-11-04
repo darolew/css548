@@ -1,10 +1,12 @@
+// CSS 548; Autumn 2012
+// Aaron Hoffer and Daniel Lewis
+//
+// TODO: Write description of this file.
 #include "SymTable.h"
-#include <stdio.h>
-#include <iostream>
 
 SymTable symTable;
 
-extern int yyparse();
+int yyparse();
 
 int main()
 {

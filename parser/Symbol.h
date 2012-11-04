@@ -1,37 +1,39 @@
-#ifndef SYMBOL_
-#define SYMBOL_
+// CSS 548; Autumn 2012
+// Aaron Hoffer and Daniel Lewis
+//
+// Class to hold a symbol's attributes.
+#ifndef SYMBOL_H
+#define SYMBOL_H
 
+#include <iostream>
 #include <map>
 #include <string> 
-#include <iostream>
-
 using namespace std;
+
 class Symbol;
 typedef map<string, Symbol*> Table;
 class SymTable;
 
-/* Class to hold a symbol's attributes
- *
- */
-
- 
 class Symbol {
 public:
-	Symbol(string id) : identifier(id) {}
-	
-	virtual string toString()
-	{
-		return identifier;
-	}
-	
-	virtual bool isType() 
-	{
-	    return false;
-	}
-	
-	virtual bool insertInto(SymTable &);
-	
-	string identifier;
+    string identifier;
+
+    Symbol(string id)
+    {
+        this->identifier = id;
+    }
+    
+    virtual string toString()
+    {
+        return identifier;
+    }
+    
+    virtual bool isType() 
+    {
+        return false;
+    }
+    
+    virtual bool insertInto(SymTable &);
 };
 
 #endif
