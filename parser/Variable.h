@@ -17,6 +17,14 @@ public:
     {
         return false;
     }
+    
+    virtual string toString(void)
+    {
+        if (!typeName.empty())
+            return identifier + " : " + typeName;
+        
+        return identifier + " : " + "<unknown_type>";
+    }
 };
 
 #endif

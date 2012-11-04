@@ -14,7 +14,8 @@
 #include "Variable.h"
 #include "Const.h"
 #include "TypeDef.h"
-#include "PointerType.h" 
+#include "PointerType.h"
+#include "RecordType.h"
 
 /* Macro for releasing memory allocated by strdup() in the lexer.
  * X represents the union of lvals.
@@ -35,6 +36,7 @@ extern SymTable symTable;
 list<string> idList;
 list<Range> rangeList;
 list<PointerType*> ptrList;
+list<Variable*> fieldList;
 
 %}
 
@@ -155,13 +157,18 @@ PointerTypeDef      : yident yequal ycaret yident
                         symTable.insert(ptrType);
                     }
                     ;
-RecordTypeDef       :
+RecordTypeDef       : yident yequal yrecord FieldListSequence yend
+                    {
+                        symTable.insert(new RecordType($1, fieldList));
+                        fieldList.erase(fieldList.begin(), fieldList.end());
+                    }
                     ;
 SetTypeDef          :
                     ;
 TypeDef             : BasicTypeDef
                     | ArrayTypeDef
                     | PointerTypeDef
+                    | RecordTypeDef
                     ;
 /*VariableDecl        : IdentList ycolon Type*/ /* TODO: Support complicated types */
 VariableDecl        : IdentList ycolon yident
@@ -233,7 +240,15 @@ PointerType         : ycaret yident
 FieldListSequence   : FieldList  
                     | FieldListSequence ysemicolon FieldList
                     ;
-FieldList           : IdentList ycolon Type { idList.erase(idList.begin(), idList.end()); }
+/* FieldList           : IdentList ycolon Type */
+FieldList           : IdentList ycolon yident
+                    {
+                        while (!idList.empty()) {
+                            Variable *field = new Variable(idList.front(), $3);
+                            fieldList.push_front(field);
+                            idList.pop_front();
+                        } 
+                    }
                     ;
 
 /***************************  Statements  ************************************/
