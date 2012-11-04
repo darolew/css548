@@ -10,10 +10,10 @@ using namespace std;
 class SymTable;
 
 class OfType : public Type {
-    string typeName;
     
 public:
     Type *type;
+    string typeName;
 
     OfType(string id, string typeName) : Type(id)
     {

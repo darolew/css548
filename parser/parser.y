@@ -34,6 +34,7 @@ extern SymTable symTable;
 
 list<string> idList;
 list<Range> rangeList;
+list<PointerType*> ptrList;
 
 %}
 
@@ -98,13 +99,22 @@ IdentList           :  yident
 
 /**************************  Declarations section ***************************/
 
-Block               : Declarations ybegin StatementSequence yend
+Block               : Declarations PointerCheck ybegin StatementSequence yend
                     ;
 Declarations        : ConstantDefBlock
                       TypeDefBlock
                       VariableDeclBlock
                       SubprogDeclList  
                     ;
+PointerCheck        : /*** empty ***/
+					{
+						while (!ptrList.empty()) {
+							PointerType *ptrType = ptrList.front();
+							ptrType->addType();
+							ptrList.pop_front();
+                        }
+					}
+					;
 ConstantDefBlock    : /*** empty ***/
                     | yconst ConstantDefList
                     ;
@@ -140,9 +150,9 @@ ArrayTypeDef        : yident yequal yarray yleftbracket Subrange SubrangeList
                     }
 PointerTypeDef      : yident yequal ycaret yident
                     {
-                        //TODO: Check for pointers to undefined types, maybe
-                        //in the SymTable::endScope() method.
-                        symTable.insert(new PointerType($1, $4));
+                    	PointerType *ptrType = new PointerType($1, $4);
+                    	ptrList.push_front(ptrType);
+                    	symTable.insert(ptrType);
                     }
                     ;
 RecordTypeDef       :
