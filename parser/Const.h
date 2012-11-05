@@ -7,20 +7,21 @@
 
 #include <string> 
 #include "Symbol.h"
+#include "Range.h"
 using namespace std;
 
 class Const: public Symbol {
-    string value;
+    Terminal term;
 
 public:
-    Const(string id, string value) : Symbol(id)
+    Const(string id, Terminal term) : Symbol(id)
     {
-        this->value = value;
+        this->term = term;
     }
 
     virtual string toString()
     {
-        return identifier + "," + value;
+        return identifier + "," + term.str;
     }
 };
 

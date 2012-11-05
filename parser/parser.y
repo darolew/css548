@@ -9,13 +9,15 @@
 #include <iostream>
 #include <stdio.h> 
 
-#include "Array.h"
+#include "ArrayType.h"
 #include "SymTable.h"
 #include "Variable.h"
+#include "Function.h"
 #include "Const.h"
-#include "TypeDef.h"
+#include "NamedType.h"
 #include "PointerType.h"
 #include "RecordType.h"
+#include "SetType.h"
 
 /* Macro for releasing memory allocated by strdup() in the lexer.
  * X represents the union of lvals.
@@ -33,10 +35,18 @@ int yylex(); /* needed by g++ */
 
 extern SymTable symTable;
 
+typedef struct {
+    PointerType *ptrType;
+    string *pointee;
+} Ptrinfo;
+
 list<string> idList;
 list<Range> rangeList;
-list<PointerType*> ptrList;
+list<Ptrinfo> ptrList;
 list<Variable*> fieldList;
+Function *currFunction;
+
+AbstractType *currType;
 
 %}
 
@@ -46,14 +56,18 @@ list<Variable*> fieldList;
 %token  yand yarray yassign ybegin ycaret ycase ycolon ycomma yconst ydiv
         ydivide ydo ydot ydotdot ydownto yelse yend yequal yfor yfunction
         ygreater ygreaterequal yif yin yleftbracket yleftparen yless
-        ylessequal yminus ymod ymultiply ynot ynotequal ynumber yof yor
-        yplus yprocedure yprogram yrecord yrepeat yrightbracket yrightparen
+        ylessequal /*yminus*/ ymod ymultiply ynot ynotequal ynumber yof yor
+        /*yplus*/ yprocedure yprogram yrecord yrepeat yrightbracket yrightparen
         ysemicolon yset ythen yto ytype yuntil yvar ywhile
         
-%token <str> yident ynumber ynil ydispose ynew yread yreadln ystring ytrue yfalse ywrite ywriteln yunknown
+%token <str> yident ynumber ynil ydispose ynew yread yreadln ystring ytrue
+             yfalse ywrite ywriteln yunknown
 
-/* %type <str> Type */
+%token <tkn> yplus yminus
+
 %type <term> ConstFactor ConstExpression
+%type <tkn> UnaryOperator
+
 
 /*
 %type   CompilationUnit ProgramModule ProgramParameters IdentList Block
@@ -75,6 +89,7 @@ list<Variable*> fieldList;
 %union {
     char *str;
     struct Terminal *term;
+    int tkn;
 };
  
 %%
@@ -111,8 +126,8 @@ Declarations        : ConstantDefBlock
 PointerCheck        : /*** empty ***/
                     {
                         while (!ptrList.empty()) {
-                            PointerType *ptrType = ptrList.front();
-                            ptrType->addType();
+                            Ptrinfo pi = ptrList.front();
+                            pi.ptrType->addType(*pi.pointee);
                             ptrList.pop_front();
                         }
                     }
@@ -134,47 +149,33 @@ VariableDeclBlock   : /*** empty ***/
                     ;
 VariableDeclList    : VariableDecl ysemicolon
                     | VariableDeclList VariableDecl ysemicolon
-                    ;  
+                    ;
 ConstantDef         : yident yequal ConstExpression
                     {
-                        symTable.insert(new Const($1, $3->str));
+                        symTable.insert(new Const($1, *$3));
                     }
                     ;
-BasicTypeDef        : yident yequal yident 
+TypeDef             : yident yequal NPType
                     {
-                        symTable.insert(new TypeDef($1, $3));
+                        NamedType *td = new NamedType($1, currType);
+                        symTable.insert(td);
                     }
-ArrayTypeDef        : yident yequal yarray yleftbracket Subrange SubrangeList
-                      yrightbracket yof yident
-                    {
-                        symTable.insert(new Array($1, rangeList, $9));
-                        rangeList.erase(rangeList.begin(), rangeList.end());
-                    }
+                    | PointerTypeDef
+                    ;
 PointerTypeDef      : yident yequal ycaret yident
                     {
-                        PointerType *ptrType = new PointerType($1, $4);
-                        ptrList.push_front(ptrType);
-                        symTable.insert(ptrType);
+                        Ptrinfo pi;
+                        pi.ptrType = new PointerType($1);
+                        pi.pointee = new string($4);
+                        ptrList.push_front(pi);
+                        symTable.insert(pi.ptrType);
                     }
                     ;
-RecordTypeDef       : yident yequal yrecord FieldListSequence yend
-                    {
-                        symTable.insert(new RecordType($1, fieldList));
-                        fieldList.erase(fieldList.begin(), fieldList.end());
-                    }
-                    ;
-SetTypeDef          :
-                    ;
-TypeDef             : BasicTypeDef
-                    | ArrayTypeDef
-                    | PointerTypeDef
-                    | RecordTypeDef
-                    ;
-/*VariableDecl        : IdentList ycolon Type*/ /* TODO: Support complicated types */
-VariableDecl        : IdentList ycolon yident
+VariableDecl        : IdentList ycolon Type
                     {
                         while (!idList.empty()) {
-                            symTable.insert(new Variable(idList.front(), $3));
+                            string name = idList.front();
+                            symTable.insert(new Variable(name, currType));
                             idList.pop_front();
                         } 
                     }
@@ -182,13 +183,18 @@ VariableDecl        : IdentList ycolon yident
 
 /***************************  Const/Type Stuff  ******************************/
 
-ConstExpression     : UnaryOperator ConstFactor /* TODO: Capture unary operator */
+ConstExpression     : UnaryOperator ConstFactor
+                    {
+                        $$ = $2;
+                        $$->unaryOp = $1;                    
+                    }
                     | ConstFactor 
                     | ystring 
                     {
                         $$ = new Terminal;
                         $$->str = $1;
                         $$->token = ystring;
+                        $$->unaryOp = 0;
                     }
                     ;
 ConstFactor         : yident 
@@ -196,28 +202,47 @@ ConstFactor         : yident
                         $$ = new Terminal;
                         $$->str = $1;
                         $$->token = yident;
+                        $$->unaryOp = 0;
                     }
                     | ynumber
                     {
                         $$ = new Terminal;
                         $$->str = $1;
                         $$->token = ynumber;
+                        $$->unaryOp = 0;
                     }
                     | ynil
                     {
                         $$ = new Terminal;
                         $$->str = $1;
                         $$->token = ynil;
+                        $$->unaryOp = 0;
                     }
                     ;
 Type                : yident
+                    {
+                        currType = symTable.lookupType($1);
+                    }
                     | ArrayType 
                     | PointerType 
                     | RecordType 
                     | SetType 
                     ;
+NPType              : yident
+                    {
+                        currType = symTable.lookupType($1);
+                    }
+                    | ArrayType 
+                    | RecordType 
+                    | SetType 
+                    ;
 ArrayType           : yarray yleftbracket Subrange SubrangeList 
                       yrightbracket yof Type
+                    {
+                        AbstractType *elementType = currType;
+                        currType = new ArrayType(elementType, rangeList);
+                        rangeList.erase(rangeList.begin(), rangeList.end());
+                    }
                     ;
 SubrangeList        : /*** empty ***/
                     | SubrangeList ycomma Subrange 
@@ -232,19 +257,29 @@ Subrange            : ConstFactor ydotdot ConstFactor
                     | ystring ydotdot ystring 
                     ;
 RecordType          : yrecord FieldListSequence yend
+                    {
+                        currType = new RecordType(fieldList);
+                        fieldList.erase(fieldList.begin(), fieldList.end());
+                    }
                     ;
 SetType             : yset yof Subrange
+                    {
+                        currType = new SetType(rangeList.front());
+                        rangeList.pop_front();
+                    }
                     ;
-PointerType         : ycaret yident 
+PointerType         : ycaret yident
+                    {
+                        currType = symTable.lookupType($2);
+                    }
                     ;
-FieldListSequence   : FieldList  
+FieldListSequence   : FieldList
                     | FieldListSequence ysemicolon FieldList
                     ;
-/* FieldList           : IdentList ycolon Type */
-FieldList           : IdentList ycolon yident
+FieldList           : IdentList ycolon Type
                     {
                         while (!idList.empty()) {
-                            Variable *field = new Variable(idList.front(), $3);
+                            Variable *field = new Variable(idList.front(), currType);
                             fieldList.push_front(field);
                             idList.pop_front();
                         } 
@@ -329,7 +364,6 @@ MemoryStatement     : ynew yleftparen yident yrightparen
                     ;
 
 /***************************  Expression Stuff  ******************************/
-
 Expression          : SimpleExpression  
                     | SimpleExpression Relation SimpleExpression 
                     ;
@@ -367,32 +401,87 @@ Element             : ConstExpression
 
 /***************************  Subprogram Stuff  ******************************/
 
-SubprogDeclList     :  /*** empty ***/
+SubprogDeclList     : /*** empty ***/
                     | SubprogDeclList ProcedureDecl ysemicolon  
                     | SubprogDeclList FunctionDecl ysemicolon
                     ;
-ProcedureDecl       : ProcedureHeading ysemicolon Block 
+ProcedureDecl       : CreateFunc ProcedureHeading ysemicolon
+                    {
+                        symTable.insert(currFunction);
+                    }
+                      Block 
+                    {
+                        symTable.endScope();
+                    }
                     ;
-FunctionDecl        : FunctionHeading ycolon yident ysemicolon Block
+CreateFunc          : /*** empty ***/
+                    {
+                        currFunction = new Function();
+                    }
+                    ; 
+FunctionDecl        : CreateFunc FunctionHeading ycolon yident ysemicolon 
+                    {
+                        AbstractType *returnType = symTable.lookupType($4);
+                        currFunction->returnType = returnType;
+                        symTable.insert(currFunction);  
+                    }
+                    Block
+                    {
+                        symTable.endScope();
+                    }
                     ;
 ProcedureHeading    : yprocedure yident
+                    {
+                        symTable.beginScope($2);
+                        currFunction->identifier=$2;
+                    }
                     | yprocedure yident FormalParameters
+                    {
+                        symTable.beginScope($2);
+                        currFunction->identifier=$2;                        
+                    }
                     ;
 FunctionHeading     : yfunction yident 
+                    {
+                        symTable.beginScope($2);
+                        currFunction->identifier=$2;
+                    }
                     | yfunction yident FormalParameters
+                    {
+                        symTable.beginScope($2);
+                        currFunction->identifier=$2;
+                    }
                     ;
 FormalParameters    : yleftparen FormalParamList yrightparen 
                     ;
 FormalParamList     : OneFormalParam 
                     | FormalParamList ysemicolon OneFormalParam
                     ;
-OneFormalParam      : yvar IdentList ycolon yident { idList.erase(idList.begin(), idList.end()); }
-                    | IdentList ycolon yident { idList.erase(idList.begin(), idList.end()); }
+OneFormalParam      : yvar IdentList ycolon yident 
+                    {
+                        while (!idList.empty()) {
+                            string name = idList.front();
+                            AbstractType *formalType = symTable.lookupType($4);
+                            Variable *formalParam = new Variable(name, formalType);
+                            currFunction->params.push_front(formalParam);
+                            idList.pop_front();
+                        } 
+                    }
+                    | IdentList ycolon yident 
+                    {     
+                        while (!idList.empty()) {
+                            string name = idList.front();
+                            AbstractType *formalType = symTable.lookupType($3);
+                            Variable *formalParam = new Variable(name, formalType);
+                            currFunction->params.push_front(formalParam);
+                            idList.pop_front();
+                        } 
+                    }
                     ;
 
 /***************************  More Operators  ********************************/
 
-UnaryOperator       : yplus | yminus
+UnaryOperator       : yplus { printf("yplus: %d\n", $1); $$ = $1; } | yminus { printf("yminus: %d\n", $1); $$ = $1; }
                     ;
 MultOperator        : ymultiply | ydivide | ydiv | ymod | yand 
                     ;

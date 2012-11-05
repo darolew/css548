@@ -5,23 +5,22 @@
 #ifndef VARIABLE_H
 #define VARIABLE_H
 
-#include "OfType.h"
+#include "AbstractType.h"
 using namespace std;
 
-class Variable: public OfType {
+class Variable: public Symbol {
+    AbstractType *type;
 
 public:
-    Variable(string id, string typeName) : OfType(id, typeName) {}
-        
-    virtual bool isType() 
+    Variable(string id, AbstractType *type) : Symbol(id)
     {
-        return false;
+        this->type = type;
     }
     
     virtual string toString(void)
     {
-        if (!typeName.empty())
-            return identifier + " : " + typeName;
+        if (type)
+            return identifier + " : " + type->toString();
         
         return identifier + " : " + "<unknown_type>";
     }

@@ -2,6 +2,8 @@
 // Aaron Hoffer and Daniel Lewis
 //
 // TODO: Write description of this file.
+#include <iostream>
+#include <stdlib.h>
 #include "Symbol.h"
 #include "SymTable.h"
 
@@ -12,11 +14,16 @@ bool Symbol::insertInto(SymTable &symTable)
 
     bool alreadyExists = table.count(identifier) != 0;
     if (alreadyExists) {
-        //cerr << "\n\tInsert failed. Symbol name already exists in current scope.\n";
-        return false;
+        cerr << "error: " << identifier << " already exists at this scope\n";
+        //exit(1);
     }
 
     table[identifier] = this;
     //cerr << "\tInsert succeeded.\n"; 
     return true;
+}
+
+string Symbol::toString()
+{
+        return identifier;
 }

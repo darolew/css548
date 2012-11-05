@@ -23,10 +23,7 @@ public:
         this->identifier = id;
     }
     
-    virtual string toString()
-    {
-        return identifier;
-    }
+    virtual string toString();
     
     virtual bool isType() 
     {

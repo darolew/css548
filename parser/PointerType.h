@@ -5,14 +5,14 @@
 #ifndef POINTERTYPE_H
 #define POINTERTYPE_H
 
-#include "OfType.h"
+#include "AbstractType.h"
 
-class PointerType : public OfType {
+class PointerType : public AbstractType {
 
 public:
-    PointerType(string id, string typeName) : OfType(id, typeName) {}
+    PointerType(string id) : AbstractType(id) {}
     virtual bool insertInto(SymTable &);
-    void addType();
+    void addType(string typeName);
 };
 
 #endif

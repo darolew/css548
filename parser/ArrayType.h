@@ -2,30 +2,21 @@
 // Aaron Hoffer and Daniel Lewis
 //
 // TODO: Write description of this file.
-#ifndef ARRAY_H
-#define ARRAY_H
+#ifndef ARRAYTYPE_H
+#define ARRAYTYPE_H
 
 #include <list>
 #include <sstream>
-#include "OfType.h"
+#include "AbstractType.h"
+#include "Range.h"
 using namespace std;
 
-typedef struct Terminal {
-    string str;
-    int token;
-} Terminal;
-
-typedef struct Range {
-    Terminal low;
-    Terminal high;
-} Range;
-
-class Array : public OfType {
+class ArrayType : public AbstractType {
     list<Range> ranges;
 
 public:
-    Array(string ident, list<Range> ranges, string typeName)
-        : OfType(ident, typeName)
+    ArrayType(AbstractType *type, list<Range> ranges)
+        : AbstractType("", type)
     {
         this->ranges = ranges;
     }

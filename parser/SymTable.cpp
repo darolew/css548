@@ -4,6 +4,7 @@
 // TODO: Write description of this file.
 #include <iostream>
 #include <stdlib.h>
+#include "AbstractType.h"
 #include "BaseType.h"
 #include "SymTable.h"
 
@@ -46,6 +47,17 @@ Symbol *SymTable::lookup(string key)
             return (*next)[key];
     }
     return NULL;
+}
+
+//
+AbstractType *SymTable::lookupType(string key)
+{
+    Symbol *sym = lookup(key);
+    if (!sym || !sym->isType()) {
+        cerr << "error: " << key << " is not a type" << endl;
+        exit(1);
+    }
+    return (AbstractType*)sym;
 }
 
 SymTable::SymTable() 

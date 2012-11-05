@@ -1,19 +1,19 @@
-Script started on Mon 15 Oct 2012 09:20:15 PM PDT
+Script started on Mon 15 Oct 2012 09:29:50 PM PDT
 ]0;darolew@uw1-320-13:~/css548/git/parser[darolew@uw1-320-13 parser]$ make
 yacc: 1 shift/reduce conflict
 Done
 ]0;darolew@uw1-320-13:~/css548/git/parser[darolew@uw1-320-13 parser]$ ./a.out < list.p
 linkedlist input output 
 
+/*  Example linked list Pascal Program                          */
+/*                                                              */
+/*  The file list.data would be used as the data file.          */
+/*  If there was an executable, a.out, run:  a.out < list.data  */
 
 
-
-
-
-
-grades 
-avgPosition 
-size 
+grades /* number of grades to be averaged */
+avgPosition /* position of grade average */
+size /* number of students */
 
 
 integerArray avgPosition integer 
@@ -29,9 +29,9 @@ next cellPtr
 list newrec cellPtr 
 mycount classNum integer 
 
-
-
-
+/* ************************************************************************* */
+/* procedure insert                                                          */
+/* ************************************************************************* */
 
 insert list cellPtr newrec cellPtr 
 
@@ -43,7 +43,7 @@ current list
 found 
 list 
 
-newrec next list 
+newrec next list /* fix bug so next is set to nil */
 list newrec 
 
 newrec id list id 
@@ -57,7 +57,7 @@ current found
 
 current next 
 
-newrec next 
+newrec next /* fix bug so next is set to nil */
 current next newrec 
 found 
 
@@ -72,9 +72,9 @@ current current next
 
 
 
-
-
-
+/* ************************************************************************* */
+/* function average                                                          */
+/* ************************************************************************* */
 
 average newrec cellPtr integer 
 
@@ -87,9 +87,9 @@ sum sum newrec info i
 average sum grades 
 
 
-
-
-
+/* ************************************************************************* */
+/* procedure makeNewrec                                                      */
+/* ************************************************************************* */
 
 makeNewrec newrec cellPtr 
 
@@ -100,12 +100,12 @@ newrec
 newrec id 
 i grades 
 newrec info i 
+/*    newrec^.info[avgPosition]:= average(newrec);  */
 
 
-
-
-
-
+/* ************************************************************************* */
+/* procedure displayInfo                                                     */
+/* ************************************************************************* */
 
 displayInfo list cellPtr 
 
@@ -139,9 +139,9 @@ current current next
 
 
 
-
-
-
+/* ************************************************************************** */
+/* main program                                                               */
+/* ************************************************************************** */
 
 
 classNum 
@@ -157,4 +157,4 @@ displayInfo list
 
 ]0;darolew@uw1-320-13:~/css548/git/parser[darolew@uw1-320-13 parser]$ exit
 
-Script done on Mon 15 Oct 2012 09:20:27 PM PDT
+Script done on Mon 15 Oct 2012 09:30:02 PM PDT

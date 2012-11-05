@@ -9,6 +9,7 @@
 #include <string> 
 #include <list>
 #include "Symbol.h"
+#include "AbstractType.h"
 #include "Variable.h"
 using namespace std;
 
@@ -35,6 +36,9 @@ public:
     //Search through all the tables in the list, starting with the last one, 
     //and look for the key. 
     Symbol *lookup(string key);
+    
+    //
+    AbstractType *lookupType(string);
 
     //Return true if there are no scope objects on the stack.
     bool empty();

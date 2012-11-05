@@ -6,14 +6,13 @@
 #define RECORDTYPE_H
 
 #include <list>
-#include "OfType.h"
+#include "AbstractType.h"
 
-class RecordType : public OfType {
+class RecordType : public AbstractType {
     list<Variable*> fields;
 
 public:
-    RecordType(string id, list<Variable*> fields)
-        : OfType(id, "TODO:BOGUS")
+    RecordType(list<Variable*> fields) : AbstractType("")
     {
         this->fields = fields;
     }

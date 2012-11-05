@@ -5,14 +5,14 @@
 #ifndef BASETYPE_H
 #define BASETYPE_H
 
-#include "Type.h"
+#include "AbstractType.h"
 using namespace std;
 
-class BaseType : public Type {
+class BaseType : public AbstractType {
     string cName;
 
 public:
-    BaseType(string ident, string cName) : Type(ident)
+    BaseType(string ident, string cName) : AbstractType(ident)
     {
         this->cName = cName;
     }
