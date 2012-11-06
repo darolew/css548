@@ -38,13 +38,16 @@ public:
     Symbol *lookup(string key);
     
     //
+    Symbol *lookup(Table *, string);
+    
+    //
     AbstractType *lookupType(string);
 
     //Return true if there are no scope objects on the stack.
     bool empty();
 
     //Return top of the stack
-    Table& front();
+    Table *front();
     
     //Destructor
     ~SymTable();

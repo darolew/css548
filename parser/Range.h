@@ -9,7 +9,7 @@
 typedef struct Terminal {
     string str;
     int token;
-    int unaryOp;
+    char unaryOp;
 } Terminal;
 
 typedef struct Range {

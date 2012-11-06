@@ -56,17 +56,16 @@ AbstractType *currType;
 %token  yand yarray yassign ybegin ycaret ycase ycolon ycomma yconst ydiv
         ydivide ydo ydot ydotdot ydownto yelse yend yequal yfor yfunction
         ygreater ygreaterequal yif yin yleftbracket yleftparen yless
-        ylessequal /*yminus*/ ymod ymultiply ynot ynotequal ynumber yof yor
-        /*yplus*/ yprocedure yprogram yrecord yrepeat yrightbracket yrightparen
+        ylessequal ymod ymultiply ynil ynot ynotequal ynumber yof yor
+        yprocedure yprogram yrecord yrepeat yrightbracket yrightparen
         ysemicolon yset ythen yto ytype yuntil yvar ywhile
         
-%token <str> yident ynumber ynil ydispose ynew yread yreadln ystring ytrue
-             yfalse ywrite ywriteln yunknown
+%token <str> yident ynumber ystring yunknown
 
 %token <tkn> yplus yminus
 
 %type <term> ConstFactor ConstExpression
-%type <tkn> UnaryOperator
+%type <chr> UnaryOperator
 
 
 /*
@@ -78,8 +77,8 @@ AbstractType *currType;
         PointerType FieldListSequence FieldList StatementSequence Statements
         Assignment ProcedureCall IfStatement ElsePart CaseStatement CaseList
         Case CaseLabelList WhileStatement RepeatStatement ForStatement WhichWay
-        IOStatement DesignatorList Designator DesignatorStuff theDesignatorStuff
-        ActualParameters ExpList MemoryStatement Expression SimpleExpression
+        DesignatorList Designator DesignatorStuff theDesignatorStuff
+        ActualParameters ExpList Expression SimpleExpression
         TermExpr Term Factor FunctionCall Setvalue ElementList Element SubprogDeclList
         ProcedureDecl FunctionDecl ProcedureHeading FunctionHeading FormalParameters
         FormalParamList OneFormalParam UnaryOperator MultOperator AddOperator
@@ -89,7 +88,7 @@ AbstractType *currType;
 %union {
     char *str;
     struct Terminal *term;
-    int tkn;
+    int chr;
 };
  
 %%
@@ -99,7 +98,15 @@ AbstractType *currType;
 
 CompilationUnit     : ProgramModule
                     ;
-ProgramModule       : yprogram yident ProgramParameters ysemicolon Block ydot
+ProgramModule       : yprogram yident ProgramParameters ysemicolon
+                    {
+                        symTable.beginScope($2);
+                    }
+                      Block
+                    {
+                        symTable.endScope();
+                    }
+                      ydot
                     ;
 ProgramParameters   : yleftparen IdentList2 yrightparen
                     ;
@@ -116,10 +123,10 @@ IdentList           :  yident
 
 /**************************  Declarations section ***************************/
 
-Block               : Declarations PointerCheck ybegin StatementSequence yend
+Block               : Declarations ybegin StatementSequence yend
                     ;
 Declarations        : ConstantDefBlock
-                      TypeDefBlock
+                      TypeDefBlock PointerCheck
                       VariableDeclBlock
                       SubprogDeclList  
                     ;
@@ -214,7 +221,7 @@ ConstFactor         : yident
                     | ynil
                     {
                         $$ = new Terminal;
-                        $$->str = $1;
+                        $$->str = "nil";
                         $$->token = ynil;
                         $$->unaryOp = 0;
                     }
@@ -279,7 +286,16 @@ FieldListSequence   : FieldList
 FieldList           : IdentList ycolon Type
                     {
                         while (!idList.empty()) {
-                            Variable *field = new Variable(idList.front(), currType);
+                            string id = idList.front();
+                            list<Variable*>::iterator it = fieldList.begin();
+                            for (; it != fieldList.end(); it++) {
+                                Variable *prev = *it;
+                                if (id == prev->identifier) {
+                                    cerr << "error: " << id << " already exists in record\n";
+                                    //exit(1);
+                                }
+                            }
+                            Variable *field = new Variable(id, currType);
                             fieldList.push_front(field);
                             idList.pop_front();
                         } 
@@ -298,8 +314,6 @@ Statement           : Assignment
                     | WhileStatement
                     | RepeatStatement
                     | ForStatement
-                    | IOStatement
-                    | MemoryStatement
                     | ybegin StatementSequence yend
                     | /*** empty ***/
                     ;
@@ -332,19 +346,9 @@ ForStatement        : yfor yident yassign Expression WhichWay Expression
                     ;
 WhichWay            : yto | ydownto
                     ;
-IOStatement         : yread yleftparen DesignatorList yrightparen
-                    | yreadln  
-                    | yreadln yleftparen DesignatorList yrightparen 
-                    | ywrite yleftparen ExpList yrightparen
-                    | ywriteln  
-                    | ywriteln yleftparen ExpList yrightparen 
-                    ;
 
 /***************************  Designator Stuff  ******************************/
 
-DesignatorList      : Designator
-                    | DesignatorList ycomma Designator 
-                    ;
 Designator          : yident DesignatorStuff
                     ;
 DesignatorStuff     : /*** empty ***/
@@ -358,9 +362,6 @@ ActualParameters    : yleftparen ExpList yrightparen
                     ;
 ExpList             : Expression   
                     | ExpList ycomma Expression     
-                    ;
-MemoryStatement     : ynew yleftparen yident yrightparen
-                    | ydispose yleftparen yident yrightparen
                     ;
 
 /***************************  Expression Stuff  ******************************/
@@ -377,8 +378,6 @@ Term                : Factor
                     | Term MultOperator Factor
                     ;
 Factor              : ynumber
-                    | ytrue
-                    | yfalse
                     | ynil
                     | ystring 
                     | Designator
@@ -425,7 +424,7 @@ FunctionDecl        : CreateFunc FunctionHeading ycolon yident ysemicolon
                         currFunction->returnType = returnType;
                         symTable.insert(currFunction);  
                     }
-                    Block
+                      Block
                     {
                         symTable.endScope();
                     }
@@ -457,7 +456,7 @@ FormalParameters    : yleftparen FormalParamList yrightparen
 FormalParamList     : OneFormalParam 
                     | FormalParamList ysemicolon OneFormalParam
                     ;
-OneFormalParam      : yvar IdentList ycolon yident 
+OneFormalParam      : FormalParamFlag IdentList ycolon yident 
                     {
                         while (!idList.empty()) {
                             string name = idList.front();
@@ -467,21 +466,14 @@ OneFormalParam      : yvar IdentList ycolon yident
                             idList.pop_front();
                         } 
                     }
-                    | IdentList ycolon yident 
-                    {     
-                        while (!idList.empty()) {
-                            string name = idList.front();
-                            AbstractType *formalType = symTable.lookupType($3);
-                            Variable *formalParam = new Variable(name, formalType);
-                            currFunction->params.push_front(formalParam);
-                            idList.pop_front();
-                        } 
-                    }
+                    ;
+FormalParamFlag     : /*** nothing ***/
+                    | yvar
                     ;
 
 /***************************  More Operators  ********************************/
 
-UnaryOperator       : yplus { printf("yplus: %d\n", $1); $$ = $1; } | yminus { printf("yminus: %d\n", $1); $$ = $1; }
+UnaryOperator       : yplus { $$ = '+'; } | yminus { $$ = '-'; }
                     ;
 MultOperator        : ymultiply | ydivide | ydiv | ymod | yand 
                     ;

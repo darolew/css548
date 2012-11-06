@@ -68,7 +68,6 @@ case                    {return ycase;}
 ":"                     {return ycolon;}
 ","                     {return ycomma;}
 const                   {return yconst;}
-dispose                 {return ydispose;} // TODO: remove
 div                     {return ydiv;}
 "/"                     {return ydivide;}
 do                      {return ydo;}
@@ -91,7 +90,6 @@ in                      {return yin;}
 "-"                     {return yminus;}
 mod                     {return ymod;}
 "*"                     {return ymultiply;}
-new                     {return ynew;} // TODO: remove
 nil                     {return ynil;}
 not                     {return ynot;}
 "<>"                    {return ynotequal;}
@@ -100,8 +98,6 @@ or                      {return yor;}
 "+"                     {return yplus;}
 procedure               {return yprocedure;}
 program                 {return yprogram;}
-read                    {return yread;} // TODO: remove
-readln                  {return yreadln;} // TODO: remove
 record                  {return yrecord;}
 repeat                  {return yrepeat;}
 "]"                     {return yrightbracket;}
@@ -114,8 +110,6 @@ type                    {return ytype;}
 until                   {return yuntil;}
 var                     {return yvar;}
 while                   {return ywhile;}
-write                   {return ywrite;} // TODO: remove
-writeln                 {return ywriteln;} // TODO: remove
 {ID}                    {capture(); return yident;}
 {BCOMMENT}              {print_comment("{");}
 {NUMBER}                {capture(); return ynumber;}

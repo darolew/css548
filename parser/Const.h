@@ -21,7 +21,10 @@ public:
 
     virtual string toString()
     {
-        return identifier + "," + term.str;
+        if (term.unaryOp)
+            return identifier + " = " + term.unaryOp + term.str;
+       
+        return identifier + " = " + term.str;
     }
 };
 

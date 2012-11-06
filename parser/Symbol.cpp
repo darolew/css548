@@ -10,20 +10,19 @@
 bool Symbol::insertInto(SymTable &symTable)
 {
     cerr << "inserting " << toString() << endl;
-    Table &table = symTable.front(); 
-
-    bool alreadyExists = table.count(identifier) != 0;
-    if (alreadyExists) {
-        cerr << "error: " << identifier << " already exists at this scope\n";
+    Table *table = symTable.front();
+    Symbol *sym = symTable.lookup(table, identifier);
+    if (sym) {
+        cerr << "error: " << identifier << " already exists in scope\n";
         //exit(1);
     }
-
-    table[identifier] = this;
+    
+    table->push_front(this);
     //cerr << "\tInsert succeeded.\n"; 
     return true;
 }
 
 string Symbol::toString()
 {
-        return identifier;
+    return identifier;
 }

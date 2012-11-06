@@ -21,6 +21,8 @@ void SymTable::endScope()
 {
     assert_stack();
 
+    printST();
+
     Table *temp = scopes.front();
     scopes.pop_front();
     delete temp;
@@ -40,11 +42,23 @@ bool SymTable::insert(Symbol *symbol)
 //return null.
 Symbol *SymTable::lookup(string key) 
 {
-    list<Table*>::iterator it = scopes.begin();
-    for (; it != scopes.end(); it++) {
-        Table *next = *it;
-        if (next->count(key)) 
-            return (*next)[key];
+    //This is a linear search, which is slow and bad.
+    list<Table*>::iterator ti = scopes.begin();
+    for (; ti != scopes.end(); ti++) {
+        Symbol *sym = lookup(*ti, key);
+        if (sym)
+            return sym;
+    }
+    return NULL;
+}
+
+Symbol *SymTable::lookup(Table *tbl, string key)
+{
+    list<Symbol*>::iterator si = tbl->begin();
+    for (; si != tbl->end(); si++) {
+        Symbol *sym = *si;
+        if (key == sym->identifier)
+            return sym;
     }
     return NULL;
 }
@@ -113,7 +127,7 @@ void SymTable::assert_stack()
 
 void SymTable::printST() 
 {
-
+    // ... 
 }
 
 void SymTable::printLine(string divider)  
@@ -123,7 +137,7 @@ void SymTable::printLine(string divider)
     cerr << endl;
 }
 
-Table& SymTable::front() 
+Table *SymTable::front() 
 {
-    return *scopes.front();
+    return scopes.front();
 }

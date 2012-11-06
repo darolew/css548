@@ -6,12 +6,13 @@
 #define SYMBOL_H
 
 #include <iostream>
-#include <map>
+#include <list>
 #include <string> 
 using namespace std;
 
 class Symbol;
-typedef map<string, Symbol*> Table;
+//typedef map<string, Symbol*> Table;
+typedef list<Symbol*> Table;
 class SymTable;
 
 class Symbol {
