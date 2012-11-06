@@ -1,5 +1,6 @@
 %{
 /*
+ * PHASE 3: SYMBOL TABLE
  * CSS 548; Autumn 2012
  * Aaron Hoffer and Daniel Lewis
  *
@@ -29,29 +30,50 @@
  */
 #define PRINTID(X) {printf("%s ", (X).str); FREE(X)}
 
-/* declarations section */
-void yyerror(char const *);
-int yylex(); /* needed by g++ */
+#define NO_UNARY_OP (0)
 
+//The symbol table is a global object declared in main.cpp
+//We know global objects are not a good idea, but it was expidient for 
+//this project. We did parameterize methods to take the symbol table as an 
+//input and did not access the global var directly. 
 extern SymTable symTable;
 
+//***Helper structures***
+//Ptrinfo is a struct that wraps a pointer definition and the type that 
+//it points to. 
 typedef struct {
     PointerType *ptrType;
     string *pointee;
 } Ptrinfo;
 
+//***Variable declarations for temporary containers***
+//These vars are used to collect objects when Yacc evaluates rules. For 
+//example, the idList collects identifiers {a, b, c, d} when parsing a 
+//declaration like: "var a,b,c,d : integer;"
 list<string> idList;
 list<Range> rangeList;
 list<Ptrinfo> ptrList;
 list<Variable*> fieldList;
 Function *currFunction;
-
 AbstractType *currType;
+
+/* method declarations section */
+void yyerror(char const *);
+int yylex(); /* needed by g++ */
+void assignTypesToPointers(void);
+void addPointerToList(string, string);
+void insertCurrentVariableDecl(void);
+void insertArrayType(void);
+Terminal *newTerminal(string, int, char=NO_UNARY_OP);
+void addRange(struct Terminal *, struct Terminal *);
+void addField(void);
+void addFormalParam(string);
+bool isDuplicateField(string);
+
 
 %}
 
-/* definition section */
-
+/* Yacc definition section */
 %start  CompilationUnit
 %token  yand yarray yassign ybegin ycaret ycase ycolon ycomma yconst ydiv
         ydivide ydo ydot ydotdot ydownto yelse yend yequal yfor yfunction
@@ -59,32 +81,22 @@ AbstractType *currType;
         ylessequal ymod ymultiply ynil ynot ynotequal ynumber yof yor
         yprocedure yprogram yrecord yrepeat yrightbracket yrightparen
         ysemicolon yset ythen yto ytype yuntil yvar ywhile
-        
+
+//Some tokens have lexemes that must be captured.
+//These tokens are declared to use the str field of the union.        
 %token <str> yident ynumber ystring yunknown
 
+//Some token values are be captured.
 %token <tkn> yplus yminus
 
+//Typed non-terminals. These non-terminals pass their value back to the rule
+//from which they were included.
 %type <term> ConstFactor ConstExpression
 %type <chr> UnaryOperator
 
-
-/*
-%type   CompilationUnit ProgramModule ProgramParameters IdentList Block
-        Declarations ConstantDefBlock ConstantDefList TypeDefBlock
-        ConstantDefList TypeDefBlock TypeDefList VariableDeclBlock 
-        VariableDeclList ConstantDef TypeDef VariableDecl ConstExpression
-        ConstFactor Type ArrayType SubrangeList Subrange RecordType SetType
-        PointerType FieldListSequence FieldList StatementSequence Statements
-        Assignment ProcedureCall IfStatement ElsePart CaseStatement CaseList
-        Case CaseLabelList WhileStatement RepeatStatement ForStatement WhichWay
-        DesignatorList Designator DesignatorStuff theDesignatorStuff
-        ActualParameters ExpList Expression SimpleExpression
-        TermExpr Term Factor FunctionCall Setvalue ElementList Element SubprogDeclList
-        ProcedureDecl FunctionDecl ProcedureHeading FunctionHeading FormalParameters
-        FormalParamList OneFormalParam UnaryOperator MultOperator AddOperator
-        Relation
-*/
-
+//The union is used for two reasons. The first is to capture information about
+//lexemes from the scanner. The second is to define the data captured in parser
+//rules.
 %union {
     char *str;
     struct Terminal *term;
@@ -132,11 +144,8 @@ Declarations        : ConstantDefBlock
                     ;
 PointerCheck        : /*** empty ***/
                     {
-                        while (!ptrList.empty()) {
-                            Ptrinfo pi = ptrList.front();
-                            pi.ptrType->addType(*pi.pointee);
-                            ptrList.pop_front();
-                        }
+                        //See method definition for explanation.
+                        assignTypesToPointers();
                     }
                     ;
 ConstantDefBlock    : /*** empty ***/
@@ -171,20 +180,12 @@ TypeDef             : yident yequal NPType
                     ;
 PointerTypeDef      : yident yequal ycaret yident
                     {
-                        Ptrinfo pi;
-                        pi.ptrType = new PointerType($1);
-                        pi.pointee = new string($4);
-                        ptrList.push_front(pi);
-                        symTable.insert(pi.ptrType);
+                        addPointerToList($1, $4);
                     }
                     ;
 VariableDecl        : IdentList ycolon Type
                     {
-                        while (!idList.empty()) {
-                            string name = idList.front();
-                            symTable.insert(new Variable(name, currType));
-                            idList.pop_front();
-                        } 
+                        insertCurrentVariableDecl();
                     }
                     ;
 
@@ -198,39 +199,27 @@ ConstExpression     : UnaryOperator ConstFactor
                     | ConstFactor 
                     | ystring 
                     {
-                        $$ = new Terminal;
-                        $$->str = $1;
-                        $$->token = ystring;
-                        $$->unaryOp = 0;
+                        $$ = newTerminal($1, ystring);
                     }
                     ;
 ConstFactor         : yident 
                     {
-                        $$ = new Terminal;
-                        $$->str = $1;
-                        $$->token = yident;
-                        $$->unaryOp = 0;
+                        $$ = newTerminal($1, yident);
                     }
                     | ynumber
                     {
-                        $$ = new Terminal;
-                        $$->str = $1;
-                        $$->token = ynumber;
-                        $$->unaryOp = 0;
+                        $$ = newTerminal($1, ynumber);
                     }
                     | ynil
                     {
-                        $$ = new Terminal;
-                        $$->str = "nil";
-                        $$->token = ynil;
-                        $$->unaryOp = 0;
+                        $$ = newTerminal("nil", ynil);
                     }
                     ;
 Type                : yident
                     {
                         currType = symTable.lookupType($1);
                     }
-                    | ArrayType 
+                    | ArrayType  
                     | PointerType 
                     | RecordType 
                     | SetType 
@@ -246,9 +235,7 @@ NPType              : yident
 ArrayType           : yarray yleftbracket Subrange SubrangeList 
                       yrightbracket yof Type
                     {
-                        AbstractType *elementType = currType;
-                        currType = new ArrayType(elementType, rangeList);
-                        rangeList.erase(rangeList.begin(), rangeList.end());
+                        insertArrayType();
                     }
                     ;
 SubrangeList        : /*** empty ***/
@@ -256,10 +243,7 @@ SubrangeList        : /*** empty ***/
                     ;
 Subrange            : ConstFactor ydotdot ConstFactor
                     {
-                        Range range;
-                        range.low = *$1;
-                        range.high = *$3;
-                        rangeList.push_front(range);
+                        addRange($1, $3);
                     }
                     | ystring ydotdot ystring 
                     ;
@@ -285,20 +269,7 @@ FieldListSequence   : FieldList
                     ;
 FieldList           : IdentList ycolon Type
                     {
-                        while (!idList.empty()) {
-                            string id = idList.front();
-                            list<Variable*>::iterator it = fieldList.begin();
-                            for (; it != fieldList.end(); it++) {
-                                Variable *prev = *it;
-                                if (id == prev->identifier) {
-                                    cerr << "error: " << id << " already exists in record\n";
-                                    //exit(1);
-                                }
-                            }
-                            Variable *field = new Variable(id, currType);
-                            fieldList.push_front(field);
-                            idList.pop_front();
-                        } 
+                      addField();  
                     }
                     ;
 
@@ -458,13 +429,7 @@ FormalParamList     : OneFormalParam
                     ;
 OneFormalParam      : FormalParamFlag IdentList ycolon yident 
                     {
-                        while (!idList.empty()) {
-                            string name = idList.front();
-                            AbstractType *formalType = symTable.lookupType($4);
-                            Variable *formalParam = new Variable(name, formalType);
-                            currFunction->params.push_front(formalParam);
-                            idList.pop_front();
-                        } 
+                        addFormalParam($4);
                     }
                     ;
 FormalParamFlag     : /*** nothing ***/
@@ -489,4 +454,111 @@ Relation            : yequal | ynotequal | yless | ygreater
 void yyerror(const char *s)
 {
     fprintf(stderr, "%s\n", s);
+}
+
+//This method walks through the lists of pointers declared in the source code.
+//It assigns a pointed-to-type to each pointer. This method is invoked when
+//exiting the type def block in the source code. It allows pointers to point
+//to types that have not yet been defined.
+void assignTypesToPointers(void)
+{
+    while (!ptrList.empty()) {
+        Ptrinfo pi = ptrList.front();
+        pi.ptrType->addType(*pi.pointee);
+        ptrList.pop_front();
+    }
+}
+//When a pointer type is defined, a new object for it and inserted into the 
+//symbol table. The type of the pointer is saved locally as a string, along
+//with its pointer object. That string will be used as a key to lookup the 
+//type object at the end of the type def block.
+void addPointerToList(string nameOfPointer, string nameOfPointee)
+{
+    Ptrinfo pi;
+    pi.ptrType = new PointerType(nameOfPointer);
+    pi.pointee = new string(nameOfPointee);
+    ptrList.push_front(pi);
+    symTable.insert(pi.ptrType);
+}
+
+//Walk the list of variable names being declared. For example, the declaration
+//"a,b,c : interger;" includes a list of variables {a, b, c} and their type, 
+//integer. For each one, a new variable object is created, assigned a type,
+//and entered into the symbol table. The list is emptied as the varaibles are
+//inserted into the symbol table.
+ void insertCurrentVariableDecl(void) 
+ {
+    while (!idList.empty()) {
+        string name = idList.front();
+        symTable.insert(new Variable(name, currType));
+        idList.pop_front();
+    }
+}                        
+//Convience method for creating Terminal struct.
+Terminal *newTerminal(string lexeme, int token, char unaryOperatorChar)
+{
+    Terminal *terminal = new Terminal;
+    terminal->str = lexeme;
+    terminal->token = token;
+    terminal->unaryOp = unaryOperatorChar;
+    return terminal;
+}
+
+//Create a new array type and add it to the symbol table.
+//Use the ranges build up in the rangeList. Empty the range
+//list when the insert is complete.
+void insertArrayType()
+{
+    AbstractType *elementType = currType;
+    currType = new ArrayType(elementType, rangeList);
+    rangeList.erase(rangeList.begin(), rangeList.end());
+}
+
+//Create a range object, set its members, and push it on a list.
+void addRange(struct Terminal *low, struct Terminal *high)
+{
+    Range range;
+    range.low = *low;
+    range.high = *high;
+    rangeList.push_front(range);
+}
+ 
+//Remove an identifer and turn it into a varaible as part of a record's fields.
+void addField()
+{
+    while (!idList.empty()) {
+        string id = idList.front();
+        if (isDuplicateField(id)) {
+            cerr << "error: " << id << " already exists in record\n";
+            //exit(1);
+        }
+        Variable *field = new Variable(id, currType);
+        fieldList.push_front(field);
+        idList.pop_front();
+    } 
+}
+
+//Check for duplicated field names in a record.
+bool isDuplicateField(string id) 
+{
+    list<Variable*>::iterator it = fieldList.begin();
+    for (; it != fieldList.end(); it++) {
+        Variable *prev = *it;
+        if (id == prev->identifier)
+            return true;
+    }
+    return false;
+}
+
+//Create a formal method parameter from a list of identifiers.
+//Add the parameter to the object for the current function.
+void addFormalParam(string typeName) 
+{
+    while (!idList.empty()) {
+        string name = idList.front();
+        AbstractType *formalType = symTable.lookupType(typeName);
+        Variable *formalParam = new Variable(name, formalType);
+        currFunction->params.push_front(formalParam);
+        idList.pop_front();
+    }
 }

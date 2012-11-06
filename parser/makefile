@@ -1,6 +1,6 @@
 # CSS 548; Autumn 2012
 # Aaron Hoffer and Daniel Lewis
-# Generate parser using Yacc and compile it with gcc.
+# Generate parser using Yacc and compile it with g++.
 
 OBJ = y.tab.o lex.yy.o main.o SymTable.o Symbol.o PointerType.o
 H   = y.tab.h SymTable.h Symbol.h BaseType.h NamedType.h AbstractType.h \
