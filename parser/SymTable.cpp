@@ -14,18 +14,14 @@ void SymTable::beginScope(string name)
     scopeNames.push_front(name);
     scopes.push_front(new Table());
     cerr << "\nENTER " << name << endl;
-    printLine("-");
+    printLine("-"); 
 }
 
 void SymTable::endScope() 
-{
+{ 
     assert_stack();
-
+    delTopScope();
     printST();
-
-    Table *temp = scopes.front();
-    scopes.pop_front();
-    delete temp;
     cerr << "\nEXIT " << scopeNames.front() << endl;
     printLine("=");
     scopeNames.pop_front();
@@ -85,17 +81,6 @@ SymTable::SymTable()
     
     //TODO: Using char as an array index.
     insert(new BaseType("char", "string"));
-
-/*
-    insert("writeln", "TODO:writefunction");
-    insert("write", "TODO:writefunction");
-    insert("read", NULL);
-    insert("readln", NULL);
-    insert("new", NULL);
-    insert("dispose", NULL);
-    insert("true", NULL);
-    insert("false", NULL);
-*/
 }
 
 //When the SymTable class goes out of scope (if it was on the stack)
@@ -106,9 +91,7 @@ SymTable::SymTable()
 //on every object still in the list. No explicit cleanup is needed.
 SymTable::~SymTable() 
 {
-    //Get rid of the SIT.
-    assert_stack();
-    endScope();
+    cleanUp();
 }
 
 bool SymTable::empty() 
@@ -137,7 +120,37 @@ void SymTable::printLine(string divider)
     cerr << endl;
 }
 
+//Convenience wrapper
 Table *SymTable::front() 
 {
     return scopes.front();
+}
+
+//Reclaim memory from a symbol table
+void SymTable::delTable(Table *tbl) 
+{
+    list<Symbol*>::iterator si = tbl->begin();
+    for (; si != tbl->end(); si++) {
+        Symbol *sym = *si;
+        if (sym)
+            delete sym;
+    }
+}  
+
+//Remove the scope on top of the stack and reclaim memory.
+void SymTable::delTopScope() 
+{
+    Table *tbl = front();
+    delTable(tbl);
+    scopes.pop_front();
+    delete tbl;
+}
+
+void SymTable::cleanUp()
+{
+    //Get rid of the SIT.
+    assert_stack();
+    
+    //TODO: Assert that the stack has exactly one symbol table on it.
+    endScope();
 }

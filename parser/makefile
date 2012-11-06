@@ -38,7 +38,7 @@ y.tab.o: y.tab.c
 	@$(CC) -c y.tab.c
 
 y.tab.c: parser.y                   
-	@yacc -dv parser.y
+	@bison -dv parser.y
 
 clean:
-	@rm -f a.out lex.yy.c y.tab.h y.tab.c *.o *.output
+	@rm -f a.out lex.yy.c y.tab.h y.tab.c *.o *.output *.gch

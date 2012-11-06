@@ -51,11 +51,14 @@ public:
     
     //Destructor
     ~SymTable();
-  
+
 private:
     void assert_stack();
     void printST();
     void printLine(string);
+    void delTable(Table *);
+    void delTopScope();
+    void cleanUp();    
 };
 
 #endif

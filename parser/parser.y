@@ -20,16 +20,6 @@
 #include "RecordType.h"
 #include "SetType.h"
 
-/* Macro for releasing memory allocated by strdup() in the lexer.
- * X represents the union of lvals.
- */
-#define FREE(X) {free((X).str); (X).str = NULL;}
-
-/* Macro for printing identifiers. Also frees the memory allocated by
- * strdup() in the lexer. 
- */
-#define PRINTID(X) {printf("%s ", (X).str); FREE(X)}
-
 #define NO_UNARY_OP (0)
 
 //The symbol table is a global object declared in main.cpp
@@ -54,14 +44,15 @@ list<string> idList;
 list<Range> rangeList;
 list<Ptrinfo> ptrList;
 list<Variable*> fieldList;
-Function *currFunction;
-AbstractType *currType;
+Function *currFunction = NULL;
+AbstractType *currType = NULL;
 
 /* method declarations section */
 void yyerror(char const *);
 int yylex(); /* needed by g++ */
 void assignTypesToPointers(void);
 void addPointerToList(string, string);
+void addIdentifier(char *);
 void insertCurrentVariableDecl(void);
 void insertArrayType(void);
 Terminal *newTerminal(string, int, char=NO_UNARY_OP);
@@ -69,22 +60,29 @@ void addRange(struct Terminal *, struct Terminal *);
 void addField(void);
 void addFormalParam(string);
 bool isDuplicateField(string);
-
+void beginScope(char *);
 
 %}
 
 /* Yacc definition section */
+
+//Tell bison to expect 1 shift/reduce conflict.
+%expect 1
+
+//Tell bison to use the Yacc name prefix for generated files.
+%file-prefix = "y"
+
 %start  CompilationUnit
 %token  yand yarray yassign ybegin ycaret ycase ycolon ycomma yconst ydiv
         ydivide ydo ydot ydotdot ydownto yelse yend yequal yfor yfunction
         ygreater ygreaterequal yif yin yleftbracket yleftparen yless
-        ylessequal ymod ymultiply ynil ynot ynotequal ynumber yof yor
+        ylessequal ymod ymultiply ynil ynot ynotequal yof yor
         yprocedure yprogram yrecord yrepeat yrightbracket yrightparen
-        ysemicolon yset ythen yto ytype yuntil yvar ywhile
+        ysemicolon yset ythen yto ytype yunknown yuntil yvar ywhile
 
 //Some tokens have lexemes that must be captured.
 //These tokens are declared to use the str field of the union.        
-%token <str> yident ynumber ystring yunknown
+%token <str> yident ynumber ystring 
 
 //Some token values are be captured.
 %token <tkn> yplus yminus
@@ -93,7 +91,7 @@ bool isDuplicateField(string);
 //from which they were included.
 %type <term> ConstFactor ConstExpression
 %type <chr> UnaryOperator
-
+ 
 //The union is used for two reasons. The first is to capture information about
 //lexemes from the scanner. The second is to define the data captured in parser
 //rules.
@@ -113,6 +111,7 @@ CompilationUnit     : ProgramModule
 ProgramModule       : yprogram yident ProgramParameters ysemicolon
                     {
                         symTable.beginScope($2);
+                        free($2);                        
                     }
                       Block
                     {
@@ -122,14 +121,24 @@ ProgramModule       : yprogram yident ProgramParameters ysemicolon
                     ;
 ProgramParameters   : yleftparen IdentList2 yrightparen
                     ;
-IdentList2          : yident | IdentList2 ycomma yident
-IdentList           :  yident
+IdentList2          : yident 
                     {
-                        idList.push_front($1);
+                        free($1)
+                    }
+                    | IdentList2 ycomma yident 
+                    {
+                        free($3)
+                    }                        
+                    ;
+IdentList           :  yident 
+                    {
+                        addIdentifier($1);
+                        free($1);
                     } 
-                    | IdentList ycomma yident
+                    | IdentList ycomma yident 
                     {
-                        idList.push_front($3);
+                        addIdentifier($3);
+                        free($3);
                     }
                     ; 
 
@@ -169,11 +178,14 @@ VariableDeclList    : VariableDecl ysemicolon
 ConstantDef         : yident yequal ConstExpression
                     {
                         symTable.insert(new Const($1, *$3));
+                        free($1);
+                        delete $3;
                     }
                     ;
 TypeDef             : yident yequal NPType
                     {
                         NamedType *td = new NamedType($1, currType);
+                        free($1);
                         symTable.insert(td);
                     }
                     | PointerTypeDef
@@ -181,6 +193,8 @@ TypeDef             : yident yequal NPType
 PointerTypeDef      : yident yequal ycaret yident
                     {
                         addPointerToList($1, $4);
+                        free($1);
+                        free($4);
                     }
                     ;
 VariableDecl        : IdentList ycolon Type
@@ -200,15 +214,19 @@ ConstExpression     : UnaryOperator ConstFactor
                     | ystring 
                     {
                         $$ = newTerminal($1, ystring);
+                        free($1);
                     }
                     ;
 ConstFactor         : yident 
                     {
                         $$ = newTerminal($1, yident);
+                        free($1);
                     }
                     | ynumber
                     {
                         $$ = newTerminal($1, ynumber);
+                        free($1);
+                        
                     }
                     | ynil
                     {
@@ -218,6 +236,7 @@ ConstFactor         : yident
 Type                : yident
                     {
                         currType = symTable.lookupType($1);
+                        free($1);
                     }
                     | ArrayType  
                     | PointerType 
@@ -227,6 +246,7 @@ Type                : yident
 NPType              : yident
                     {
                         currType = symTable.lookupType($1);
+                        free($1);
                     }
                     | ArrayType 
                     | RecordType 
@@ -244,8 +264,15 @@ SubrangeList        : /*** empty ***/
 Subrange            : ConstFactor ydotdot ConstFactor
                     {
                         addRange($1, $3);
+                        delete $1;
+                        delete $3;
                     }
                     | ystring ydotdot ystring 
+                    {
+                        //TODO: handle character subranges [a..z]
+                        free($1);
+                        free($3);
+                    }
                     ;
 RecordType          : yrecord FieldListSequence yend
                     {
@@ -262,6 +289,7 @@ SetType             : yset yof Subrange
 PointerType         : ycaret yident
                     {
                         currType = symTable.lookupType($2);
+                        free($2);
                     }
                     ;
 FieldListSequence   : FieldList
@@ -291,7 +319,16 @@ Statement           : Assignment
 Assignment          : Designator yassign Expression
                     ;
 ProcedureCall       : yident
+                    {
+                        //Generate code 
+                        free($1);
+                    }
                     | yident ActualParameters
+                    {
+                        //Generate code
+                        free($1);
+                    }
+
                     ;
 IfStatement         : yif Expression ythen Statement ElsePart
                     ;
@@ -314,6 +351,10 @@ RepeatStatement     : yrepeat StatementSequence yuntil Expression
                     ;
 ForStatement        : yfor yident yassign Expression WhichWay Expression
                       ydo Statement
+                    {
+                        //Generate code
+                        free($2);
+                    }
                     ;
 WhichWay            : yto | ydownto
                     ;
@@ -321,11 +362,19 @@ WhichWay            : yto | ydownto
 /***************************  Designator Stuff  ******************************/
 
 Designator          : yident DesignatorStuff
+                    {
+                        //Do designator stuff here
+                        free($1);
+                    }                        
                     ;
 DesignatorStuff     : /*** empty ***/
                     | DesignatorStuff theDesignatorStuff
                     ;
 theDesignatorStuff  : ydot yident
+                    {
+                        //Do the the designator stuff here
+                        free($2);
+                    }
                     | yleftbracket ExpList yrightbracket 
                     | ycaret 
                     ;
@@ -358,6 +407,10 @@ Factor              : ynumber
                     | FunctionCall
                     ;
 FunctionCall        : yident ActualParameters
+                    {
+                        //Generate code
+                        free($1);
+                    }
                     ;
 Setvalue            : yleftbracket ElementList yrightbracket
                     | yleftbracket yrightbracket
@@ -402,24 +455,24 @@ FunctionDecl        : CreateFunc FunctionHeading ycolon yident ysemicolon
                     ;
 ProcedureHeading    : yprocedure yident
                     {
-                        symTable.beginScope($2);
-                        currFunction->identifier=$2;
+                        beginScope($2);
+                        free($2);
                     }
                     | yprocedure yident FormalParameters
                     {
-                        symTable.beginScope($2);
-                        currFunction->identifier=$2;                        
+                        beginScope($2);
+                        free($2);
                     }
                     ;
 FunctionHeading     : yfunction yident 
                     {
-                        symTable.beginScope($2);
-                        currFunction->identifier=$2;
+                        beginScope($2);
+                        free($2);
                     }
                     | yfunction yident FormalParameters
                     {
-                        symTable.beginScope($2);
-                        currFunction->identifier=$2;
+                        beginScope($2);
+                        free($2);
                     }
                     ;
 FormalParameters    : yleftparen FormalParamList yrightparen 
@@ -430,6 +483,7 @@ FormalParamList     : OneFormalParam
 OneFormalParam      : FormalParamFlag IdentList ycolon yident 
                     {
                         addFormalParam($4);
+                        free($4);
                     }
                     ;
 FormalParamFlag     : /*** nothing ***/
@@ -561,4 +615,17 @@ void addFormalParam(string typeName)
         currFunction->params.push_front(formalParam);
         idList.pop_front();
     }
+}
+
+//Push an identifier onto the temporary list.
+void addIdentifier(char *ident) 
+{
+     idList.push_front(ident);
+}
+
+//Not much to say about this one.
+void beginScope(char *name) 
+{
+    symTable.beginScope(name);
+    currFunction->identifier = name;
 }
