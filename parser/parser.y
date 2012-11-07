@@ -43,7 +43,7 @@ typedef struct {
 list<string> idList;
 list<Range> rangeList;
 list<Ptrinfo> ptrList;
-list<Variable*> fieldList;
+list<Variable> fieldList;
 Function *currFunction = NULL;
 AbstractType *currType = NULL;
 
@@ -52,7 +52,6 @@ void yyerror(char const *);
 int yylex(); /* needed by g++ */
 void assignTypesToPointers(void);
 void addPointerToList(string, string);
-void addIdentifier(char *);
 void insertCurrentVariableDecl(void);
 void insertArrayType(void);
 Terminal *newTerminal(string, int, char=NO_UNARY_OP);
@@ -132,12 +131,12 @@ IdentList2          : yident
                     ;
 IdentList           :  yident 
                     {
-                        addIdentifier($1);
+                        idList.push_front($1);
                         free($1);
                     } 
                     | IdentList ycomma yident 
                     {
-                        addIdentifier($3);
+                        idList.push_front($3);
                         free($3);
                     }
                     ; 
@@ -519,6 +518,11 @@ void assignTypesToPointers(void)
     while (!ptrList.empty()) {
         Ptrinfo pi = ptrList.front();
         pi.ptrType->addType(*pi.pointee);
+        
+        //The string pointee was copied in the previous statement. 
+        //Free the memory.
+        delete pi.pointee;
+        
         ptrList.pop_front();
     }
 }
@@ -586,7 +590,7 @@ void addField()
             cerr << "error: " << id << " already exists in record\n";
             //exit(1);
         }
-        Variable *field = new Variable(id, currType);
+        Variable field(id, currType);
         fieldList.push_front(field);
         idList.pop_front();
     } 
@@ -595,10 +599,10 @@ void addField()
 //Check for duplicated field names in a record.
 bool isDuplicateField(string id) 
 {
-    list<Variable*>::iterator it = fieldList.begin();
+    list<Variable>::iterator it = fieldList.begin();
     for (; it != fieldList.end(); it++) {
-        Variable *prev = *it;
-        if (id == prev->identifier)
+        Variable &prev = *it;
+        if (id == prev.identifier)
             return true;
     }
     return false;
@@ -615,12 +619,6 @@ void addFormalParam(string typeName)
         currFunction->params.push_front(formalParam);
         idList.pop_front();
     }
-}
-
-//Push an identifier onto the temporary list.
-void addIdentifier(char *ident) 
-{
-     idList.push_front(ident);
 }
 
 //Not much to say about this one.

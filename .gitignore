@@ -6,4 +6,5 @@ a.out
 lex.yy.c
 mypush
 *.gch
+vgrind
 

@@ -32,6 +32,14 @@ public:
     }
     
     virtual bool insertInto(SymTable &);
+
+    
+    //For some resons, just defining the destructor eliminates many memory leaks.
+    virtual ~Symbol()
+    {
+     
+    } 
+    
 };
 
 #endif

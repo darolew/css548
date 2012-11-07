@@ -9,10 +9,10 @@
 #include "AbstractType.h"
 
 class RecordType : public AbstractType {
-    list<Variable*> fields;
+    list<Variable> fields;
 
 public:
-    RecordType(list<Variable*> fields) : AbstractType("")
+    RecordType(list<Variable> fields) : AbstractType("")
     {
         this->fields = fields;
     }
@@ -21,10 +21,10 @@ public:
     {
         stringstream ss (stringstream::in | stringstream::out);
         ss << identifier << " = record" << endl;
-        list<Variable*>::iterator it = fields.begin();
+        list<Variable>::iterator it = fields.begin();
         for (; it != fields.end(); it++) {
-            Variable *var = *it;
-            ss << "    " << var->toString() << endl;
+            Variable &var = *it;
+            ss << "    " << var.toString() << endl;
         }
         ss << "end" << endl;
         return ss.str();   

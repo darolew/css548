@@ -50,15 +50,14 @@ public:
     Table *front();
     
     //Destructor
-    ~SymTable();
-
+    virtual ~SymTable();
+   
 private:
-    void assert_stack();
+    void assertStack();
     void printST();
     void printLine(string);
     void delTable(Table *);
     void delTopScope();
-    void cleanUp();    
 };
 
 #endif

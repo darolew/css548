@@ -31,6 +31,11 @@ public:
         ss << "] of " << type->toString();
         return ss.str();
     }
+    
+    //Does nothing
+    // virtual ~ArrayType()
+    // {
+    // }
 };
 
 #endif

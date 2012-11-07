@@ -24,6 +24,13 @@ public:
     {
         return true;
     }
+    
+    //This desctructor did not help anything.
+    // virtual ~AbstractType()
+    // {
+        // if (type)
+            // delete type;
+    // }
 };
 
 #endif

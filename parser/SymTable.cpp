@@ -4,6 +4,7 @@
 // TODO: Write description of this file.
 #include <iostream>
 #include <stdlib.h>
+#include <cassert>
 #include "AbstractType.h"
 #include "BaseType.h"
 #include "SymTable.h"
@@ -19,7 +20,6 @@ void SymTable::beginScope(string name)
 
 void SymTable::endScope() 
 { 
-    assert_stack();
     delTopScope();
     printST();
     cerr << "\nEXIT " << scopeNames.front() << endl;
@@ -29,7 +29,7 @@ void SymTable::endScope()
 
 bool SymTable::insert(Symbol *symbol) 
 {
-    assert_stack();
+    assertStack();
     return symbol->insertInto(*this);
 }
 
@@ -83,15 +83,12 @@ SymTable::SymTable()
     insert(new BaseType("char", "string"));
 }
 
-//When the SymTable class goes out of scope (if it was on the stack)
-//or deleted (if it was on the heap), the list objects will be deleted
-//because they were created on the stack when the SymTable constructor
-//was called. 
-//When an STL class like list is deleted, it will call the desctructor
-//on every object still in the list. No explicit cleanup is needed.
+//Why is the destructor not called when the object goes out of scope?
 SymTable::~SymTable() 
 {
-    cleanUp();
+    //Only the SIT should be left on the stack.
+    assert(scopes.size() == 1);
+    endScope();
 }
 
 bool SymTable::empty() 
@@ -100,12 +97,9 @@ bool SymTable::empty()
 }
 
 //Prevent seg faults.
-void SymTable::assert_stack() 
+void SymTable::assertStack() 
 {
-    if (empty()) {
-        cerr << "\nFATAL ERROR SymTable::assert_stack\n\n";
-        exit(EXIT_FAILURE);
-    }
+    assert(!empty());
 }
 
 void SymTable::printST() 
@@ -123,6 +117,7 @@ void SymTable::printLine(string divider)
 //Convenience wrapper
 Table *SymTable::front() 
 {
+    assertStack();
     return scopes.front();
 }
 
@@ -135,22 +130,15 @@ void SymTable::delTable(Table *tbl)
         if (sym)
             delete sym;
     }
+    
+    delete tbl;
 }  
 
 //Remove the scope on top of the stack and reclaim memory.
 void SymTable::delTopScope() 
 {
+    assertStack();
     Table *tbl = front();
-    delTable(tbl);
     scopes.pop_front();
-    delete tbl;
-}
-
-void SymTable::cleanUp()
-{
-    //Get rid of the SIT.
-    assert_stack();
-    
-    //TODO: Assert that the stack has exactly one symbol table on it.
-    endScope();
+    delTable(tbl);   
 }
