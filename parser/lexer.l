@@ -120,7 +120,7 @@ while                   {return ywhile;}
 <WARNING><<EOF>>        {eof = true; return yunknown;}
 <WARNING>[^)]           {BEGIN(IN_COMMENT); yymore();}
 <WARNING>\)             {BEGIN(INITIAL); yymore(); print_comment("(*");}
-{NEWLINE}               {printf("\n");}
+{NEWLINE}               {/* Do nothing */}
 {WHITESPACE}            {/* Do nothing */}
 .                       {return yunknown;}
 
@@ -164,7 +164,7 @@ static void print_comment(const char *comment_delim)
     memcpy(buffer+2, yytext + delim_len, yyleng - delim_len * 2);
     patch_comment(buffer+2);
     strcat(buffer, "*/");
-    printf("%s", buffer);
+    printf("%s\n", buffer);
 }
 
 /*

@@ -27,8 +27,7 @@ public:
     virtual string toString(void)
     {
         stringstream ss (stringstream::in | stringstream::out);
-        ss << (returnType ? "function" : "procedure");
-        ss << " " << identifier << "(";
+        ss << identifier << "(";
         list<Variable*>::iterator it = params.begin();
         for (; it != params.end(); it++) {
             Variable *var = *it;

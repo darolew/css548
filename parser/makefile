@@ -2,10 +2,10 @@
 # Aaron Hoffer and Daniel Lewis
 # Generate parser using Yacc and compile it with g++.
 
-OBJ = y.tab.o lex.yy.o main.o SymTable.o Symbol.o PointerType.o
-H   = y.tab.h SymTable.h Symbol.h BaseType.h NamedType.h AbstractType.h \
-		Variable.h Const.h ArrayType.h PointerType.h RecordType.h SetType.h \
-		Range.h Function.h
+OBJ = y.tab.o lex.yy.o main.o actions.o SymTable.o Symbol.o PointerType.o
+H   = y.tab.h SymTable.h Symbol.h BaseType.h AbstractType.h Variable.h \
+		Const.h ArrayType.h PointerType.h RecordType.h SetType.h Range.h \
+		Function.h actions.h
 CC  = g++ 
 
 #all: print $(OBJ) $H
@@ -16,8 +16,11 @@ all: $(OBJ) $H
 print:
 	@echo '************************************************'
 	
-main.o: $H main.cpp                
+main.o: $H main.cpp
 	@$(CC) -g -c main.cpp
+	
+actions.o: $H actions.cpp
+	@$(CC) -g -c actions.cpp
 
 SymTable.o: $H SymTable.cpp
 	@$(CC) -g -c SymTable.cpp

@@ -20,13 +20,12 @@ public:
     virtual string toString(void)
     {
         stringstream ss (stringstream::in | stringstream::out);
-        ss << identifier << " = record" << endl;
+        ss << endl;
         list<Variable>::iterator it = fields.begin();
         for (; it != fields.end(); it++) {
             Variable &var = *it;
-            ss << "    " << var.toString() << endl;
+            ss << "    " << var.toString();
         }
-        ss << "end" << endl;
         return ss.str();   
     }
 };

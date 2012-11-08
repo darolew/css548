@@ -14,8 +14,7 @@ public:
 
     AbstractType(string id) : Symbol(id) {}
 
-    AbstractType(string id, AbstractType *type)
-        : Symbol(id)
+    AbstractType(string id, AbstractType *type) : Symbol(id)
     {
         this->type = type;
     }
@@ -23,6 +22,13 @@ public:
     virtual bool isType() 
     {
         return true;
+    }
+    
+    virtual string toString(void)
+    {
+        if (type)
+            return identifier + " " + type->toString();
+        return identifier + "\n";
     }
     
     //This desctructor did not help anything.

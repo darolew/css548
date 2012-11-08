@@ -9,16 +9,16 @@
 
 bool Symbol::insertInto(SymTable &symTable)
 {
-    cerr << "inserting " << toString() << endl;
+    //cout << "inserting " << toString();
     Table *table = symTable.front();
     Symbol *sym = symTable.lookup(table, identifier);
     if (sym) {
         cerr << "error: " << identifier << " already exists in scope\n";
-        //exit(1);
+        return false;
     }
     
     table->push_front(this);
-    //cerr << "\tInsert succeeded.\n"; 
+    //cout << "\tInsert succeeded.\n"; 
     return true;
 }
 

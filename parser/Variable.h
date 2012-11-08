@@ -20,9 +20,8 @@ public:
     virtual string toString(void)
     {
         if (type)
-            return identifier + " : " + type->toString();
-        
-        return identifier + " : " + "<unknown_type>";
+            return identifier + " " + type->toString();
+        return identifier + " <unknown_type>\n";
     }
 };
 

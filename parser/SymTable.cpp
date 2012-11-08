@@ -14,15 +14,15 @@ void SymTable::beginScope(string name)
 {
     scopeNames.push_front(name);
     scopes.push_front(new Table());
-    cerr << "\nENTER " << name << endl;
+    cout << "\nENTER " << name << endl;
     printLine("-"); 
 }
 
 void SymTable::endScope() 
-{ 
-    delTopScope();
+{
     printST();
-    cerr << "\nEXIT " << scopeNames.front() << endl;
+    delTopScope();
+    cout << "\nEXIT " << scopeNames.front() << endl;
     printLine("=");
     scopeNames.pop_front();
 }
@@ -64,7 +64,7 @@ AbstractType *SymTable::lookupType(string key)
 {
     Symbol *sym = lookup(key);
     if (!sym || !sym->isType()) {
-        cerr << "error: " << key << " is not a type" << endl;
+        cout << "error: " << key << " is not a type" << endl;
         exit(1);
     }
     return (AbstractType*)sym;
@@ -104,14 +104,17 @@ void SymTable::assertStack()
 
 void SymTable::printST() 
 {
-    // ... 
+    Table *tbl = front();
+    list<Symbol*>::iterator it = tbl->begin();
+    for (; it != tbl->end(); it++)
+        cout << (*it)->toString();
 }
 
 void SymTable::printLine(string divider)  
 {
-    for(int i=0; i<75; ++i)
-        cerr << divider;
-    cerr << endl;
+    for (int i=0; i<75; ++i)
+        cout << divider;
+    cout << endl;
 }
 
 //Convenience wrapper

@@ -1,10 +1,8 @@
 program hoffer(input, output);
 type
-   cell = record
-      a, b, c: real;
-      x: integer;
+   cell = record 
       id: integer;
-      info: real
+      info: real;
    end;
 var
     a, b, c: cell;
