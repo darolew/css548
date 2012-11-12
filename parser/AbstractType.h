@@ -6,6 +6,7 @@
 #define ABSTRACTTYPE_H
 
 #include "Symbol.h"
+#include "main.h"
 
 class AbstractType : public Symbol {
 
@@ -23,12 +24,20 @@ public:
     {
         return true;
     }
+
+    virtual string toIdentTypeString()
+    {
+        if (identifier != "")
+            return identifier + nlindent();
+        
+        return toString();
+    }    
     
     virtual string toString(void)
     {
         if (type)
-            return identifier + " " + type->toString();
-        return identifier + "\n";
+            return identifier + " " + type->toIdentTypeString();
+        return identifier + nlindent();
     }
     
     //This desctructor did not help anything.
@@ -37,6 +46,13 @@ public:
         // if (type)
             // delete type;
     // }
+	virtual ~AbstractType() 
+    {
+    	//If the type has no name, it is not in the symbol table and
+    	//will not be freed by it.
+    	if (type && type->identifier == "")
+    		delete type;
+    }
 };
 
 #endif

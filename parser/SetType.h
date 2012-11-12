@@ -6,9 +6,10 @@
 #define SETTYPE_H
 
 #include <list>
-//#include <sstream>
+#include <sstream>
 #include "AbstractType.h"
 #include "Range.h"
+#include "main.h"
 using namespace std;
 
 class SetType : public AbstractType {
@@ -23,8 +24,8 @@ public:
     virtual string toString(void)
     {
         stringstream ss (stringstream::in | stringstream::out);
-        ss << identifier << " = ";
-        ss << range.low.str << ".." << range.high.str << endl;
+        ss << identifier << " ";
+        ss << range.low.str << ".." << range.high.str << nlindent();
         return ss.str();
     }
 };

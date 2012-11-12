@@ -11,8 +11,9 @@ class PointerType : public AbstractType {
 
 public:
     PointerType(string id) : AbstractType(id) {}
-    virtual bool insertInto(SymTable &);
+    virtual bool insertInto();
     void addType(string typeName);
+    virtual string toString();
 };
 
 #endif

@@ -1,12 +1,11 @@
 program hoffer(input, output);
 type
-   cell = record
-      a, b, c: real;
-      x: integer;
-      id: integer;
-      info: real
+   cellPtr = ^cell;
+   cell = record 
+      next: cellPtr
    end;
 var
     a, b, c: cell;
+    goto : cell;
 begin
 end.

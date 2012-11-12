@@ -8,6 +8,7 @@
 #include <iostream>
 #include <list>
 #include <string> 
+#include "main.h"
 using namespace std;
 
 class Symbol;
@@ -25,15 +26,14 @@ public:
     }
     
     virtual string toString();
-    
+
     virtual bool isType() 
     {
         return false;
     }
     
-    virtual bool insertInto(SymTable &);
+    virtual bool insertInto();
 
-    
     //For some resons, just defining the destructor eliminates many memory leaks.
     virtual ~Symbol()
     {

@@ -7,6 +7,7 @@
 
 #include <list>
 #include "AbstractType.h"
+#include "main.h"
 
 class RecordType : public AbstractType {
     list<Variable> fields;
@@ -14,20 +15,21 @@ class RecordType : public AbstractType {
 public:
     RecordType(list<Variable> fields) : AbstractType("")
     {
-        this->fields = fields;
+        list<Variable>::iterator it = fields.begin();
+        for (; it != fields.end(); it++)
+	        this->fields.push_front(*it);
     }
     
-    virtual string toString(void)
+    virtual string toString()
     {
         stringstream ss (stringstream::in | stringstream::out);
-        ss << endl;
+        ss << nlindent();
         list<Variable>::iterator it = fields.begin();
-        for (; it != fields.end(); it++) {
-            Variable &var = *it;
-            ss << "    " << var.toString();
-        }
-        return ss.str();   
+        for (; it != fields.end(); it++)
+			ss << "    " << it->toString();
+        return ss.str();
     }
+    
 };
 
 #endif

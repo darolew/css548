@@ -4,14 +4,52 @@
 // TODO: Write description of this file.
 #include <iostream>
 #include <stdlib.h>
-#include <cassert>
+#include <assert.h>
+#include "SymTable.h"
 #include "AbstractType.h"
 #include "BaseType.h"
-#include "SymTable.h"
+#include "Function.h"
+#include "MemFunction.h"
+#include "IoFunction.h"
+#include "main.h"
+
+SymTable::SymTable() 
+{
+    //Start standard identifier.
+    beginScope("Standard Identifier Table");
+    
+    insert(new BaseType("integer", "int"));
+    insert(new BaseType("boolean", "bool"));
+    insert(new BaseType("real", "double"));
+    insert(new BaseType("char", "string")); //TODO: Using char as an array index.
+    
+    insert(new IoFunction("write"));
+    insert(new IoFunction("writeln"));
+    insert(new IoFunction("read"));
+    insert(new IoFunction("readln"));
+    
+    insert(new MemFunction("new"));
+    insert(new MemFunction("dispose"));
+}
+
+//Why is the destructor not called when the object goes out of scope?
+SymTable::~SymTable() 
+{
+    //Only the SIT should be left on the stack.
+    if (scopes.size() > 1) {
+    	//TODO: comment that this is an error case
+    	do {
+	    	delTopScope();
+	    } while (scopes.size());
+    } else
+	    endScope();
+}
 
 //Push a new scope onto the stack.
 void SymTable::beginScope(string name) 
 {
+	if (scopes.size() > 0)
+		indent++;
     scopeNames.push_front(name);
     scopes.push_front(new Table());
     cout << "\nENTER " << name << endl;
@@ -21,6 +59,8 @@ void SymTable::beginScope(string name)
 void SymTable::endScope() 
 {
     printST();
+    if (scopes.size() > 0)
+		indent--;
     delTopScope();
     cout << "\nEXIT " << scopeNames.front() << endl;
     printLine("=");
@@ -30,7 +70,7 @@ void SymTable::endScope()
 bool SymTable::insert(Symbol *symbol) 
 {
     assertStack();
-    return symbol->insertInto(*this);
+    return symbol->insertInto();
 }
 
 //Drill down through the list of scopes, front to back, and look
@@ -63,32 +103,9 @@ Symbol *SymTable::lookup(Table *tbl, string key)
 AbstractType *SymTable::lookupType(string key)
 {
     Symbol *sym = lookup(key);
-    if (!sym || !sym->isType()) {
-        cout << "error: " << key << " is not a type" << endl;
-        exit(1);
-    }
+    if (!sym || !sym->isType())
+        cerr << "error: " << key << " is not a type" << endl;
     return (AbstractType*)sym;
-}
-
-SymTable::SymTable() 
-{
-    //Start standard identifier.
-    beginScope("Standard Identifier Table");
-    
-    insert(new BaseType("boolean", "bool"));
-    insert(new BaseType("integer", "int"));
-    insert(new BaseType("real", "double"));
-    
-    //TODO: Using char as an array index.
-    insert(new BaseType("char", "string"));
-}
-
-//Why is the destructor not called when the object goes out of scope?
-SymTable::~SymTable() 
-{
-    //Only the SIT should be left on the stack.
-    assert(scopes.size() == 1);
-    endScope();
 }
 
 bool SymTable::empty() 
@@ -104,9 +121,21 @@ void SymTable::assertStack()
 
 void SymTable::printST() 
 {
+	string scopeName = scopeNames.front();
+	Symbol *sym = lookup(scopeName);
+	if (sym) {
+		Function *func = (Function*)sym;
+		//TODO: comment that this is bad
+		indent--;
+		cout << indentation();
+		cout << func->toStringLong();
+		cout << "    ";
+		indent++;
+	} else
+		cout << indentation();
     Table *tbl = front();
-    list<Symbol*>::iterator it = tbl->begin();
-    for (; it != tbl->end(); it++)
+    list<Symbol*>::reverse_iterator it = tbl->rbegin();
+    for (; it != tbl->rend(); it++)
         cout << (*it)->toString();
 }
 

@@ -60,9 +60,16 @@ void addPointerToList(string nameOfPointer, string nameOfPointee)
 Terminal *newTerminal(string lexeme, int token, char unaryOperatorChar)
 {
     Terminal *terminal = new Terminal;
-    terminal->str = lexeme;
-    terminal->token = token;
-    terminal->unaryOp = unaryOperatorChar;
+    *terminal = initTerminal(lexeme, token, unaryOperatorChar);
+    return terminal;
+}
+
+Terminal initTerminal(string lexeme, int token, char unaryOperatorChar)
+{
+	Terminal terminal;
+    terminal.str = lexeme;
+    terminal.token = token;
+    terminal.unaryOp = unaryOperatorChar;
     return terminal;
 }
 
@@ -77,12 +84,12 @@ void insertArrayType()
 }
 
 //Create a range object, set its members, and push it on a list.
-void addRange(struct Terminal *low, struct Terminal *high)
+void addRange(Terminal *low, Terminal *high)
 {
     Range range;
     range.low = *low;
     range.high = *high;
-    rangeList.push_front(range);
+    rangeList.push_back(range);
 }
  
 //Remove an identifer and turn it into a varaible as part of a record's fields.
@@ -120,7 +127,8 @@ void addFormalParam(string typeName)
         string name = idList.front();
         AbstractType *formalType = symTable.lookupType(typeName);
         Variable *formalParam = new Variable(name, formalType);
-        currFunction->params.push_front(formalParam);
+        currFunction->addParam(formalParam);
+        delete formalParam;
         idList.pop_front();
     }
 }

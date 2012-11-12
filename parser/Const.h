@@ -8,6 +8,7 @@
 #include <string> 
 #include "Symbol.h"
 #include "Range.h"
+#include "main.h"
 using namespace std;
 
 class Const: public Symbol {
@@ -21,10 +22,11 @@ public:
 
     virtual string toString()
     {
+    	string s = identifier + " ";
         if (term.unaryOp)
-            return identifier + " = " + term.unaryOp + term.str;
-       
-        return identifier + " = " + term.str;
+            s += term.unaryOp;
+        s += term.str + nlindent();
+        return s;
     }
 };
 

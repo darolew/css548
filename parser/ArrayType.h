@@ -9,6 +9,7 @@
 #include <sstream>
 #include "AbstractType.h"
 #include "Range.h"
+#include "main.h"
 using namespace std;
 
 class ArrayType : public AbstractType {
@@ -24,11 +25,14 @@ public:
     virtual string toString(void)
     {
         stringstream ss (stringstream::in | stringstream::out);
-        ss << identifier << "[";
+        ss << identifier << " ";
         list<Range>::iterator it = ranges.begin();
-        for (; it != ranges.end(); it++)
-            ss << it->low.str << ".." << it->high.str << ",";
-        ss << "] of " << type->toString();
+        for (; it != ranges.end(); it++) {
+        	if (it != ranges.begin())
+        		ss << ",";
+            ss << it->low.str << ".." << it->high.str;
+        }
+        ss << " " << type->toIdentTypeString();
         return ss.str();
     }
     

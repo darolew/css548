@@ -53,6 +53,7 @@ void addPointerToList(string, string);
 void insertCurrentVariableDecl(void);
 void insertArrayType(void);
 Terminal *newTerminal(string, int, char=NO_UNARY_OP);
+Terminal initTerminal(string, int, char=NO_UNARY_OP);
 void addRange(struct Terminal *, struct Terminal *);
 void addField(void);
 void addFormalParam(string);

@@ -82,25 +82,22 @@ ProgramModule       : yprogram yident ProgramParameters ysemicolon
                     }
                       ydot
                     ;
-ProgramParameters   : yleftparen IdentList2 yrightparen
-                    ;
-IdentList2          : yident 
-                    {
-                        free($1)
-                    }
-                    | IdentList2 ycomma yident 
-                    {
-                        free($3)
-                    }                        
+ProgramParameters   : yleftparen IdentList yrightparen
+					{
+						//We don't care about the program parameters ("input,
+						//"output").
+						idList.clear();
+					}	
+                    ;   
                     ;
 IdentList           :  yident 
                     {
-                        idList.push_front($1);
+                        idList.push_back($1);
                         free($1);
                     } 
                     | IdentList ycomma yident 
                     {
-                        idList.push_front($3);
+                        idList.push_back($3);
                         free($3);
                     }
                     ; 
@@ -232,7 +229,10 @@ Subrange            : ConstFactor ydotdot ConstFactor
                     }
                     | ystring ydotdot ystring 
                     {
-                        //TODO: handle character subranges [a..z]
+                    	Terminal low, high;
+                    	low = initTerminal($1, ystring);
+                    	high = initTerminal($3, ystring);
+                    	addRange(&low, &high);
                         free($1);
                         free($3);
                     }
@@ -399,7 +399,7 @@ ProcedureDecl       : CreateFunc ProcedureHeading ysemicolon Block
 FunctionDecl        : CreateFunc FunctionHeading ycolon yident ysemicolon 
                     {
                         AbstractType *returnType = symTable.lookupType($4);
-                        currFunction->returnType = returnType;
+                        currFunction->setReturnType(returnType);
                     }
                       Block
                     {

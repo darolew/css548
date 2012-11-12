@@ -77,12 +77,15 @@ downto                  {return ydownto;}
 else                    {return yelse;}
 end                     {return yend;}
 "="                     {return yequal;}
+file					{return yunknown;}		/* Unsupported keyword */
 for                     {return yfor;}
 function                {return yfunction;}
+goto					{return yunknown;}		/* Unsupported keyword */
 ">"                     {return ygreater;}
 ">="                    {return ygreaterequal;}
 if                      {return yif;}
 in                      {return yin;}
+label					{return yunknown;}		/* Unsupported keyword */
 "["                     {return yleftbracket;}
 "("                     {return yleftparen;}
 "<"                     {return yless;}
@@ -95,6 +98,7 @@ not                     {return ynot;}
 "<>"                    {return ynotequal;}
 of                      {return yof;}
 or                      {return yor;}
+packed					{return yunknown;}		/* Unsupported keyword */
 "+"                     {return yplus;}
 procedure               {return yprocedure;}
 program                 {return yprogram;}
@@ -110,6 +114,7 @@ type                    {return ytype;}
 until                   {return yuntil;}
 var                     {return yvar;}
 while                   {return ywhile;}
+with					{return yunknown;}		/* Unsupported keyword */
 {ID}                    {capture(); return yident;}
 {BCOMMENT}              {print_comment("{");}
 {NUMBER}                {capture(); return ynumber;}

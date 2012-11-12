@@ -6,8 +6,11 @@
 #include <stdlib.h>
 #include "Symbol.h"
 #include "SymTable.h"
+#include "main.h"
 
-bool Symbol::insertInto(SymTable &symTable)
+extern SymTable symTable;
+
+bool Symbol::insertInto()
 {
     //cout << "inserting " << toString();
     Table *table = symTable.front();
@@ -24,5 +27,5 @@ bool Symbol::insertInto(SymTable &symTable)
 
 string Symbol::toString()
 {
-    return identifier;
+    return identifier + nlindent();
 }

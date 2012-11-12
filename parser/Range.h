@@ -2,7 +2,6 @@
 // Aaron Hoffer and Daniel Lewis
 //
 // TODO: Write description of this file.
-// TODO: Rename this header.
 #ifndef RANGE_H
 #define RANGE_H
 

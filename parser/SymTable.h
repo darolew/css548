@@ -51,7 +51,7 @@ public:
     
     //Destructor
     virtual ~SymTable();
-   
+
 private:
     void assertStack();
     void printST();
