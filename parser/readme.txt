@@ -43,14 +43,26 @@ Bugs
 
 - valgrind still reports memory leaks, some of which are probably our fault.
 
-
 Who Did What
 ------------
 
 Most of the code was written in pair-programming sessions in the Linux
 lab. Both Aaron and Daniel contributed individual coding sessions, mostly
-to cleanup code but occasionally implementing new functionality. Aaron in
-particular made an heroic effort to cleanup the memory leaks. Aaron also
-gets credit for getting the ball rolling, by starting the implementation.
+to cleanup code but occasionally implementing new functionality.  Daniel 
+modified the grammar to make it easier to build the symbol table without having
+the benefit of an AST. In particular, the introduction of the non-termal
+"NPType" (non-pointer type) allowed pointers to be declared ahead of the type
+to which they point. Daniel also introduced what the Dragon Book calls 
+"markers"-- empty string productions that trigger semantic actions. The 
+non-terminal "PointerCheck" is an example of a marker. Danield also came up
+with an elegant way to prevent reserved words like "goto" from being used as
+identifiers. His solution was to modify the lexer the return yunknown for these
+words.
+
+Aaron got the class hierarchy started. Both Daniel and Aaron beat it into
+shape over the course of the project. Aaron introduced objected-oriented 
+constructs like virtual unctions. He also came up with the mechanism where
+each class in the hierachy can insert itself into the symbol table in its own
+special way. He overrode the toString method in the sub-classes of Symbol.
 
 Gremlins are responsible for all typos, bugs, and ugly code.
