@@ -12,16 +12,16 @@
 #include <list>
 #include "AbstractType.h"
 #include "Variable.h"
-#include "main.h"
 
 class RecordType : public AbstractType {
-    list<Variable> fields;
+
+private:
+    list<Variable> fields;  // fields contained within the record
 
 public:
     //Refer to the .cpp file for descriptions of these methods.
     RecordType(list<Variable>);
     virtual string toString();
-
 };
 
 #endif

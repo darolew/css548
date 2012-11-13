@@ -9,7 +9,6 @@
 #include <iostream>
 #include <list>
 #include <string>
-#include "main.h"
 using namespace std;
 
 class Symbol;
@@ -17,29 +16,15 @@ typedef list<Symbol*> Table;
 class SymTable;
 
 class Symbol {
+
 public:
-    string identifier;
+    string identifier; // the identifier associated with this symbol
 
-    Symbol(string id)
-    {
-        this->identifier = id;
-    }
-
-    virtual string toString();
-
-    virtual bool isType()
-    {
-        return false;
-    }
-
+    Symbol(string);
+    virtual ~Symbol();
     virtual bool insertInto();
-
-    //For some resons, just defining the destructor eliminates many memory leaks.
-    virtual ~Symbol()
-    {
-
-    }
-
+    virtual bool isType();
+    virtual string toString();
 };
 
 #endif

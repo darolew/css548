@@ -1,7 +1,7 @@
 // CSS 548; Autumn 2012
 // Aaron Hoffer and Daniel Lewis
 //
-// TODO: Write description of this file.
+// PointerType defines a pointer.
 
 #ifndef POINTERTYPE_H
 #define POINTERTYPE_H
@@ -11,9 +11,9 @@
 class PointerType : public AbstractType {
 
 public:
-    PointerType(string id) : AbstractType(id) {}
+    PointerType(string);
     virtual bool insertInto();
-    void addType(string typeName);
+    void addType(string);
     virtual string toString();
 };
 

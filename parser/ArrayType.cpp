@@ -3,16 +3,20 @@
 //
 // This file contains the method definitions of the ArrayType class.
 
+#include <sstream>
 #include "ArrayType.h"
 
+//The constructor for an ArrayType. The passed-in type is the type of the
+//array elements, while the ranges list represents the array dimensions.
 ArrayType::ArrayType(AbstractType *type, list<Range> ranges)
-    : AbstractType("", type)
+    : AbstractType(type)
 {
     this->ranges = ranges;
 }
 
-//Print the array type as an identifier, followed its ranges and type.
-string ArrayType::toString(void)
+//Return the array type as an identifier, followed its ranges and type.
+//Used only for printST() and debugging.
+string ArrayType::toString()
 {
     stringstream ss (stringstream::in | stringstream::out);
     ss << identifier << " ";

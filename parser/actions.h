@@ -17,19 +17,14 @@
 #include "RecordType.h"
 #include "Variable.h"
 #include "Function.h"
+#include "Range.h"
 
-#define NO_UNARY_OP (0)
-
-//The symbol table is a global object declared in main.cpp
-//We know global objects are not a good idea, but it was expidient for
-//this project. We did parameterize methods to take the symbol table as an
-//input and did not access the global var directly.
+//The symbol table is a global object declared in main.cpp.
 extern SymTable symTable;
 
-//***Helper structures***
 //Ptrinfo is a struct that wraps a pointer definition and the type that
 //it points to.
-typedef struct {
+typedef struct Ptrinfo {
     PointerType *ptrType;
     string *pointee;
 } Ptrinfo;
@@ -38,25 +33,24 @@ typedef struct {
 //These vars are used to collect objects when Yacc evaluates rules. For
 //example, the idList collects identifiers {a, b, c, d} when parsing a
 //declaration like: "var a,b,c,d : integer;"
-extern list<string> idList;
-extern list<Range> rangeList;
-extern list<Ptrinfo> ptrList;
-extern list<Variable> fieldList;
-extern Function *currFunction;
-extern AbstractType *currType;
-
+extern list<string> idList;       // list of identifiers
+extern list<Range> rangeList;     // list of ranges, like for an array
+extern list<Ptrinfo> ptrList;     // list of pointers that need types
+extern list<Variable> fieldList;  // list of fields to add to a record
+extern Function *currFunction;    // current function object
+extern AbstractType *currType;    // current type being constructed
 
 //Method prototypes. For details about each method, see comments in actions.cpp
-void assignTypesToPointers(void);
+void assignTypesToPointers();
 void addPointerToList(string, string);
-void insertCurrentVariableDecl(void);
-void insertArrayType(void);
+void insertCurrentVariableDecl();
+void insertArrayType();
 Terminal *newTerminal(string, int, char=NO_UNARY_OP);
 Terminal initTerminal(string, int, char=NO_UNARY_OP);
-void addRange(struct Terminal *, struct Terminal *);
-void addField(void);
+void addRange(const Terminal *, const Terminal *);
+void addField();
 void addFormalParam(string);
 bool isDuplicateField(string);
-void beginScope(char *);
+void beginScope(const char *);
 
 #endif

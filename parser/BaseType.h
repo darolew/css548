@@ -1,10 +1,13 @@
 // CSS 548; Autumn 2012
 // Aaron Hoffer and Daniel Lewis
 //
-// BaseType represents one of the fundamental data types boolean; integer;
-// real; char/string.
+// BaseType represents one of the fundamental Pascal data types:
+//     - boolean;
+//     - integer;
+//     - real;
+//     - char (used for strings).
 //
-// This class is too small to deserve it's own cpp file.
+// This class is too small to deserve its own cpp file.
 
 #ifndef BASETYPE_H
 #define BASETYPE_H
@@ -13,10 +16,11 @@
 using namespace std;
 
 class BaseType : public AbstractType {
+    //The name of the equivalent type in C++, e.g., "int" for integer.
     string cName;
 
 public:
-    BaseType(string ident, string cName) : AbstractType(ident)
+    BaseType(string id, string cName) : AbstractType(id)
     {
         this->cName = cName;
     }

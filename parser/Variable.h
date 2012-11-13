@@ -1,7 +1,8 @@
 // CSS 548; Autumn 2012
 // Aaron Hoffer and Daniel Lewis
 //
-// TODO: Write description of this file.
+// This file contains the definition of the Variable class. Note that Variable
+// objects are also used for record fields and function parameters.
 
 #ifndef VARIABLE_H
 #define VARIABLE_H
@@ -10,31 +11,12 @@
 using namespace std;
 
 class Variable: public Symbol {
-    AbstractType *type;
+    AbstractType *type; // a variable has a type
 
 public:
-    Variable(string id, AbstractType *type) : Symbol(id)
-    {
-        this->type = type;
-    }
-
-    virtual string toString(void)
-    {
-        string s = identifier + " ";
-        if (type)
-            s += type->toIdentTypeString();
-        else
-            s += "<unknown_type>" + nlindent();
-        return s;
-    }
-
-    virtual ~Variable()
-    {
-        //If the type has no name, it is not in the symbol table and
-        //will not be freed by it.
-        if (type && type->identifier == "")
-            delete type;
-    }
+    Variable(string, AbstractType *);
+    virtual ~Variable();
+    virtual string toString();
 };
 
 #endif

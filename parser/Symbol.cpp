@@ -1,16 +1,29 @@
 // CSS 548; Autumn 2012
 // Aaron Hoffer and Daniel Lewis
 //
-// TODO: Write description of this file.
+// This file contains the method definitions of the Symbol class.
 
 #include <iostream>
-#include <stdlib.h>
 #include "Symbol.h"
 #include "SymTable.h"
 #include "main.h"
 
 extern SymTable symTable;
 
+//The constructor for a Symbol. Simply saves the identifier.
+Symbol::Symbol(string id)
+{
+    this->identifier = id;
+}
+
+//For some resons, just defining an empty destructor eliminates many memory
+//leaks.
+Symbol::~Symbol()
+{
+}
+
+//Insert this symbol into the synbol table. An error is produced if the symbol
+//already exists in the current scope. Returns whether the insert succeeded.
 bool Symbol::insertInto()
 {
     //cout << "inserting " << toString();
@@ -21,11 +34,18 @@ bool Symbol::insertInto()
         return false;
     }
 
-    table->push_front(this);
     //cout << "\tInsert succeeded.\n";
+    table->push_front(this);
     return true;
 }
 
+//By default, a symbol is not a type. Overridable.
+bool Symbol::isType()
+{
+    return false;
+}
+
+//Returns a string representation of the symbol.
 string Symbol::toString()
 {
     return identifier + nlindent();

@@ -6,32 +6,68 @@
 #include "AbstractType.h"
 #include <string>
 
-//This constructor is used when creating a named type, such as a type def:
+//This constructor is used for nameless types that do not refer to another
+//type. The empty string represents the lack of a name.
+AbstractType::AbstractType() : Symbol("")
+{
+    this->type = NULL;
+}
+
+//This constructor is used for named types that do not refer to another
+//type. An example is "integer". Also used for pointers, since their
+//type is not initially known.
+AbstractType::AbstractType(string id) : Symbol(id)
+{
+    this->type = NULL;
+}
+
+//This constructor is used for nameless types that refer to another type.
+//An example is an array. The empty string represents the lack of a name.
+AbstractType::AbstractType(AbstractType *type) : Symbol("")
+{
+    this->type = type;
+}
+
+//This constructor is used when creating a named type, such as a typedef:
 //
-//    myName = Integer;
-//The alias, "myName" is the first parameter to the constructor and the
-//second parameter is a pointer to the "integer" object in the symbol table.
+//    myInt = Integer;
 //
+//The alias "myInt" is the first parameter to the constructor and the second
+//parameter is a pointer to the "integer" object in the symbol table.
 AbstractType::AbstractType(string id, AbstractType *type) : Symbol(id)
 {
     this->type = type;
 }
 
+AbstractType::~AbstractType()
+{
+    //If the type has no name, it is not in the symbol table and
+    //will not be freed by it.
+    //TODO: Seg fault going on here
+    //if (type && type->identifier == "")
+    //    delete type;
+}
+
 //Return true because this class and all its subclasses are type objects.
-//
 bool AbstractType::isType()
 {
     return true;
 }
 
-//Print the only the name/alias of the type and no information about
-//what kind of type it is. For example, if an object represented a type
-//type def:
+//Returns a string representing this type as it would be used to give a
+//type to an identifier (e.g., variable or field). If this type is a
+//typedef, return just the name. Thus, a type created for:
 //
-//  cellPtr = ^cell;
+//    intArray = array [1..16] of integer;
 //
-// Return "cellPtr"
+//would return just "intArray", but a nameless type created ad hoc like
+//this:
 //
+//    a : array [1..16] of integer;
+//
+//would return "1..16 integer".
+//
+//Used only for printST() and debugging.
 string AbstractType::toIdentTypeString()
 {
     if (identifier != "")
@@ -41,25 +77,16 @@ string AbstractType::toIdentTypeString()
 }
 
 //Return the name/alias of the type and details about the type it represents.
-//For example, given the type def:
+//For example, given the typedef:
 //
 //  myint = integer;
 //
-// Return "myint integer"
+// this returns "myint integer".
 //
+//Used only for printST() and debugging.
 string AbstractType::toString()
 {
     if (type)
         return identifier + " " + type->toIdentTypeString();
     return identifier + nlindent();
-}
-
-AbstractType::~AbstractType()
-{
-    //If the type has no name, it is not in the symbol table and
-    //will not be freed by it.
-
-    //TODO: Seg fault going on here
-    //if (type && type->identifier == "")
-    //    delete type;
 }

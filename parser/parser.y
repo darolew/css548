@@ -39,9 +39,9 @@ int yylex(); /* needed by g++ */
 %token  yand yarray yassign ybegin ycaret ycase ycolon ycomma yconst ydiv
         ydivide ydo ydot ydotdot ydownto yelse yend yequal yfor yfunction
         ygreater ygreaterequal yif yin yleftbracket yleftparen yless
-        ylessequal ymod ymultiply ynil ynot ynotequal yof yor
-        yprocedure yprogram yrecord yrepeat yrightbracket yrightparen
-        ysemicolon yset ythen yto ytype yunknown yuntil yvar ywhile
+        ylessequal ymod ymultiply ynil ynot ynotequal yof yor yprocedure
+        yprogram yrecord yrepeat yrightbracket yrightparen ysemicolon yset
+        ythen yto ytype yunknown yuntil yvar ywhile
 
 //Some tokens have lexemes that must be captured.
 //These tokens are declared to use the str field of the union.
@@ -84,8 +84,7 @@ ProgramModule       : yprogram yident ProgramParameters ysemicolon
                     ;
 ProgramParameters   : yleftparen IdentList yrightparen
                     {
-                        //We don't care about the program parameters ("input,
-                        //"output").
+                        //We don't care about the program parameters.
                         idList.clear();
                     }
                     ;
@@ -240,7 +239,7 @@ Subrange            : ConstFactor ydotdot ConstFactor
 RecordType          : yrecord FieldListSequence yend
                     {
                         currType = new RecordType(fieldList);
-                        fieldList.erase(fieldList.begin(), fieldList.end());
+                        fieldList.clear();
                     }
                     ;
 SetType             : yset yof Subrange
@@ -291,7 +290,6 @@ ProcedureCall       : yident
                         //Generate code
                         free($1);
                     }
-
                     ;
 IfStatement         : yif Expression ythen Statement ElsePart
                     ;

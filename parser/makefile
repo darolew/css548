@@ -3,7 +3,8 @@
 # Generate parser using Yacc and compile it with g++.
 
 OBJ = y.tab.o lex.yy.o main.o AbstractType.o actions.o ArrayType.o Const.o \
-    Function.o PointerType.o RecordType.o Symbol.o SymTable.o
+    Function.o PointerType.o RecordType.o SetType.o Symbol.o SymTable.o \
+    Variable.o
 H = y.tab.h actions.h  AbstractType.h ArrayType.h BaseType.h Const.h \
     Function.h IoFunction.h MemFunction.h PointerType.h Range.h RecordType.h \
     SetType.h Symbol.h SymTable.h Variable.h
@@ -43,11 +44,17 @@ PointerType.o: $H PointerType.cpp
 RecordType.o: $H RecordType.cpp
 	@$(CC) -g -c RecordType.cpp
 
+SetType.o: $H SetType.cpp
+	@$(CC) -g -c SetType.cpp
+
 SymTable.o: $H SymTable.cpp
 	@$(CC) -g -c SymTable.cpp
 
 Symbol.o: $H Symbol.cpp
 	@$(CC) -g -c Symbol.cpp
+
+Variable.o: $H Variable.cpp
+	@$(CC) -g -c Variable.cpp
 
 y.tab.o: y.tab.c
 	@$(CC) -c y.tab.c
@@ -56,7 +63,7 @@ y.tab.c: parser.y
 	@bison -dv parser.y
 
 clean:
-	@rm -f a.out lex.yy.c y.tab.h y.tab.c *.o *.output *.gch
+	@rm -f a.out lex.yy.c y.tab.h y.tab.c $(OBJ) *.output *.gch
 
-    print:
+print:
 	@echo '************************************************'

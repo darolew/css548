@@ -1,8 +1,8 @@
 // CSS 548; Autumn 2012
 // Aaron Hoffer and Daniel Lewis
 //
-// Specialized class for IO functions.
-// Not used for anything important in phase 3.
+// Specialized class for IO functions (e.g., "read", "writeln").
+// Just a placeholder class for phase 3.
 
 #ifndef IOFUNCTION_H
 #define IOFUNCTION_H

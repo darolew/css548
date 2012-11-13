@@ -2,6 +2,10 @@ CSS 548; Autumn 2012
 Aaron Hoffer and Daniel Lewis
 Phase 3
 
+
+Design
+------
+
 The basic data structure for the symbol table is a stack of lists. When a
 new scope is is detected in the parser, a new list is created and pushed
 onto the stack. When leaving a scope, the stack is popped.
@@ -28,7 +32,25 @@ scope is the Standard Identifier Table (SIT) and contains the keywords
 and fundamental data types. The next scope to be created is the name of
 the program. Successive scopes represent functions or procedures.
 
-There is a SymTable::printST method that is called everytime a scope is
+There is a SymTable::printST() method that is called everytime a scope is
 exited. It prints the identifiers of all the symbols that were defined
 in that scope. The Symbol calls hierarchy defines print methods. These
-methods are invoked from SymTable::printST.
+methods are invoked from SymTable::printST().
+
+
+Bugs
+----
+
+- valgrind still reports memory leaks, some of which are probably our fault.
+
+
+Who Did What
+------------
+
+Most of the code was written in pair-programming sessions in the Linux
+lab. Both Aaron and Daniel contributed individual coding sessions, mostly
+to cleanup code but occasionally implementing new functionality. Aaron in
+particular made an heroic effort to cleanup the memory leaks. Aaron also
+gets credit for getting the ball rolling, by starting the implementation.
+
+Gremlins are responsible for all typos, bugs, and ugly code.

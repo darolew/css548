@@ -5,19 +5,19 @@
 
 #include "actions.h"
 
-//Create varibales used by the semantic actions.
-list<string> idList;
-list<Range> rangeList;
-list<Ptrinfo> ptrList;
-list<Variable> fieldList;
-Function *currFunction = NULL;
-AbstractType *currType = NULL;
+//Create variables used by the semantic actions to collect objects.
+list<string> idList;       // list of identifiers
+list<Range> rangeList;     // list of ranges, like for an array
+list<Ptrinfo> ptrList;     // list of pointers that need types
+list<Variable> fieldList;  // list of fields to add to a record
+Function *currFunction;    // current function object
+AbstractType *currType;    // current type being constructed
 
-//This method walks through the lists of pointers declared in the source code.
-//It assigns a pointed-to-type to each pointer. This method is invoked when
-//exiting the type def block in the source code. It allows pointers to point
-//to types that have not yet been defined.
-void assignTypesToPointers(void)
+//This method iterates through the list of pointers declared in a just-parsed
+//typedef block; it is invoked when exiting the typedef block, and it assigns
+//a points-to-type to each pointer. This post facto way of adding the type
+//allows pointers to point to types that have not yet been defined.
+void assignTypesToPointers()
 {
     while (!ptrList.empty()) {
         Ptrinfo pi = ptrList.front();
@@ -31,10 +31,10 @@ void assignTypesToPointers(void)
     }
 }
 
-//When a pointer type is defined, a new object for it and inserted into the
-//symbol table. The type of the pointer is saved locally as a string, along
-//with its pointer object. That string will be used as a key to lookup the
-//type object at the end of the type def block.
+//When a pointer type is defined, a new object for it is created and inserted
+//into the symbol table. The type of the pointer is saved locally as a string,
+//along with its pointer object. That string will be used as a key to lookup
+//the type object at the end of the typedef block.
 void addPointerToList(string nameOfPointer, string nameOfPointee)
 {
     Ptrinfo pi;
@@ -49,8 +49,8 @@ void addPointerToList(string nameOfPointer, string nameOfPointee)
 //integer. For each one, a new variable object is created, assigned a type,
 //and entered into the symbol table. The list is emptied as the varaibles are
 //inserted into the symbol table.
- void insertCurrentVariableDecl(void)
- {
+void insertCurrentVariableDecl()
+{
     while (!idList.empty()) {
         string name = idList.front();
         symTable.insert(new Variable(name, currType));
@@ -66,6 +66,7 @@ Terminal *newTerminal(string lexeme, int token, char unaryOperatorChar)
     return terminal;
 }
 
+//Convience method for initializing Terminal struct.
 Terminal initTerminal(string lexeme, int token, char unaryOperatorChar)
 {
     Terminal terminal;
@@ -75,9 +76,8 @@ Terminal initTerminal(string lexeme, int token, char unaryOperatorChar)
     return terminal;
 }
 
-//Create a new array type and add it to the symbol table.
-//Use the ranges build up in the rangeList. Empty the range
-//list when the insert is complete.
+//Create a new array type and add it to the symbol table. Uses the ranges built
+//up in the rangeList. Empty the range list when the insert is complete.
 void insertArrayType()
 {
     AbstractType *elementType = currType;
@@ -86,7 +86,7 @@ void insertArrayType()
 }
 
 //Create a range object, set its members, and push it on a list.
-void addRange(Terminal *low, Terminal *high)
+void addRange(const Terminal *low, const Terminal *high)
 {
     Range range;
     range.low = *low;
@@ -94,7 +94,7 @@ void addRange(Terminal *low, Terminal *high)
     rangeList.push_back(range);
 }
 
-//Remove an identifer and turn it into a varaible as part of a record's fields.
+//Remove an identifer and turn it into a variable as part of a record's fields.
 void addField()
 {
     while (!idList.empty()) {
@@ -121,8 +121,8 @@ bool isDuplicateField(string id)
     return false;
 }
 
-//Create a formal method parameter from a list of identifiers.
-//Add the parameter to the object for the current function.
+//Create a formal method parameter from a list of identifiers. Add the
+//parameter to the object for the current function.
 void addFormalParam(string typeName)
 {
     while (!idList.empty()) {
@@ -135,8 +135,8 @@ void addFormalParam(string typeName)
     }
 }
 
-//Not much to say about this one.
-void beginScope(char *name)
+//Begin a scope for a new function.
+void beginScope(const char *name)
 {
     currFunction->identifier = name;
     symTable.insert(currFunction);

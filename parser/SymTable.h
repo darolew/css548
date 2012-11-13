@@ -15,50 +15,36 @@
 using namespace std;
 
 class SymTable {
+
+private:
+    //An ordered list of the current scopes in the program. The first scope
+    //is special, as it is the SIT; beneath that is the global scope. Other
+    //scopes are transient, created as functions and subfunctions are seen
+    //and destroyed when they end.
     list<Table*> scopes;
+
+    //For debugging purposes, each scope in the above list has a name.
     list<string> scopeNames;
 
 public:
-    //Constructor
+    //See the .cpp file for descriptions of these methods.
     SymTable();
-
-    //Create a new table and push it onto the back of the list.
+    virtual ~SymTable();
     void beginScope(string="Unnamed");
-
-    //Pop (and discard) the table on the back of the list.
     void endScope();
-
-    //Insert a symbol into the table.
-    //Return true if insert suceeded. Return false if insert failed.
-    //Insert will fail if symbol is already defined in the current scope.
     bool insert(Symbol *);
-    // bool insert(Variable *);
-
-    //Search through all the tables in the list, starting with the last one,
-    //and look for the key.
     Symbol *lookup(string key);
-
-    //
     Symbol *lookup(Table *, string);
-
-    //
     AbstractType *lookupType(string);
-
-    //Return true if there are no scope objects on the stack.
-    bool empty();
-
-    //Return top of the stack
     Table *front();
 
-    //Destructor
-    virtual ~SymTable();
-
 private:
-    void assertStack();
     void printST();
     void printLine(string);
-    void delTable(Table *);
     void delTopScope();
+    void delTable(Table *);
+    bool empty();
+    void assertStack();
 };
 
 #endif

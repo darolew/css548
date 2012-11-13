@@ -1,7 +1,7 @@
 // CSS 548; Autumn 2012
 // Aaron Hoffer and Daniel Lewis
 //
-// TODO: Write description of this file.
+// This class represents a Pascal set.
 
 #ifndef SETTYPE_H
 #define SETTYPE_H
@@ -14,21 +14,13 @@
 using namespace std;
 
 class SetType : public AbstractType {
-    Range range;
+
+private:
+    Range range;  // range of the set (e.g., 0..9)
 
 public:
-    SetType(Range range) : AbstractType("")
-    {
-        this->range = range;
-    }
-
-    virtual string toString(void)
-    {
-        stringstream ss (stringstream::in | stringstream::out);
-        ss << identifier << " ";
-        ss << range.low.str << ".." << range.high.str << nlindent();
-        return ss.str();
-    }
+    SetType(Range);
+    virtual string toString();
 };
 
 #endif
