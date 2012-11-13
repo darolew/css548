@@ -5,7 +5,7 @@
 #ifndef SYMBOL_H
 #define SYMBOL_H
 
-#include <iostream>
+#include <iostream> 
 #include <list>
 #include <string> 
 #include "main.h"

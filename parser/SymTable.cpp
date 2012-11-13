@@ -1,7 +1,7 @@
 // CSS 548; Autumn 2012
 // Aaron Hoffer and Daniel Lewis
 //
-// TODO: Write description of this file.
+// This file contains the method definitions of the SymTable class.
 #include <iostream>
 #include <stdlib.h>
 #include <assert.h>
@@ -10,7 +10,7 @@
 #include "BaseType.h"
 #include "Function.h"
 #include "MemFunction.h"
-#include "IoFunction.h"
+#include "IoFunction.h" 
 #include "main.h"
 
 SymTable::SymTable() 
@@ -37,19 +37,19 @@ SymTable::~SymTable()
 {
     //Only the SIT should be left on the stack.
     if (scopes.size() > 1) {
-    	//TODO: comment that this is an error case
-    	do {
-	    	delTopScope();
-	    } while (scopes.size());
+        //TODO: comment that this is an error case
+        do {
+            delTopScope();
+        } while (scopes.size());
     } else
-	    endScope();
+        endScope();
 }
 
 //Push a new scope onto the stack.
 void SymTable::beginScope(string name) 
 {
-	if (scopes.size() > 0)
-		indent++;
+    if (scopes.size() > 0)
+        indent++;
     scopeNames.push_front(name);
     scopes.push_front(new Table());
     cout << "\nENTER " << name << endl;
@@ -60,7 +60,7 @@ void SymTable::endScope()
 {
     printST();
     if (scopes.size() > 0)
-		indent--;
+        indent--;
     delTopScope();
     cout << "\nEXIT " << scopeNames.front() << endl;
     printLine("=");
@@ -121,18 +121,18 @@ void SymTable::assertStack()
 
 void SymTable::printST() 
 {
-	string scopeName = scopeNames.front();
-	Symbol *sym = lookup(scopeName);
-	if (sym) {
-		Function *func = (Function*)sym;
-		//TODO: comment that this is bad
-		indent--;
-		cout << indentation();
-		cout << func->toStringLong();
-		cout << "    ";
-		indent++;
-	} else
-		cout << indentation();
+    string scopeName = scopeNames.front();
+    Symbol *sym = lookup(scopeName);
+    if (sym) {
+        Function *func = (Function*)sym;
+        //TODO: comment that this is bad
+        indent--;
+        cout << indentation();
+        cout << func->toStringLong();
+        cout << "    ";
+        indent++;
+    } else
+        cout << indentation();
     Table *tbl = front();
     list<Symbol*>::reverse_iterator it = tbl->rbegin();
     for (; it != tbl->rend(); it++)

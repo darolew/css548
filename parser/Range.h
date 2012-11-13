@@ -5,7 +5,7 @@
 #ifndef RANGE_H
 #define RANGE_H
 
-typedef struct Terminal {
+typedef struct Terminal { 
     string str;
     int token;
     char unaryOp;

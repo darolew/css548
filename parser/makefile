@@ -2,26 +2,46 @@
 # Aaron Hoffer and Daniel Lewis
 # Generate parser using Yacc and compile it with g++.
 
-OBJ = y.tab.o lex.yy.o main.o actions.o SymTable.o Symbol.o Function.o \
-		PointerType.o
-H   = y.tab.h SymTable.h Symbol.h BaseType.h AbstractType.h Variable.h \
-		Const.h ArrayType.h PointerType.h RecordType.h SetType.h Range.h \
-		Function.h MemFunction.h IoFunction.h actions.h
-CC  = g++ 
+OBJ = y.tab.o lex.yy.o main.o AbstractType.o actions.o ArrayType.o Const.o \
+    Function.o PointerType.o RecordType.o Symbol.o SymTable.o 
+H = y.tab.h actions.h  AbstractType.h ArrayType.h BaseType.h Const.h \
+    Function.h IoFunction.h MemFunction.h PointerType.h Range.h RecordType.h \
+    SetType.h Symbol.h SymTable.h Variable.h
+CC = g++ 
 
-#all: print $(OBJ) $H
 all: $(OBJ) $H
 	@$(CC) $(OBJ) -g -o a.out -lfl
 	@echo Done
-		
-print:
-	@echo '************************************************'
-	
+
 main.o: $H main.cpp
 	@$(CC) -g -c main.cpp
-	
+ 
+AbstractType.o: $H AbstractType.cpp
+	@$(CC) -g -c AbstractType.cpp
+    
+ArrayType.o: $H ArrayType.cpp
+	@$(CC) -g -c ArrayType.cpp
+    
 actions.o: $H actions.cpp
 	@$(CC) -g -c actions.cpp
+
+Const.o: $H Const.cpp
+	@$(CC) -g -c Const.cpp
+
+Function.o: $H Function.cpp
+	@$(CC) -g -c Function.cpp
+
+lex.yy.o: $H lex.yy.c    
+	@$(CC) -g -c lex.yy.c
+
+lex.yy.c: $H lexer.l 
+	@flex lexer.l
+
+PointerType.o: $H PointerType.cpp
+	@$(CC) -g -c PointerType.cpp
+
+RecordType.o: $H RecordType.cpp
+	@$(CC) -g -c RecordType.cpp
 
 SymTable.o: $H SymTable.cpp
 	@$(CC) -g -c SymTable.cpp
@@ -29,23 +49,14 @@ SymTable.o: $H SymTable.cpp
 Symbol.o: $H Symbol.cpp
 	@$(CC) -g -c Symbol.cpp
 
-Function.o: $H Function.cpp
-	@$(CC) -g -c Function.cpp
-	
-PointerType.o: $H PointerType.cpp
-	@$(CC) -g -c PointerType.cpp
-	
-lex.yy.o: $H lex.yy.c                
-	@$(CC) -g -c lex.yy.c
-
-lex.yy.c: $H lexer.l                 
-	@flex lexer.l                   
-
-y.tab.o: y.tab.c               
+y.tab.o: y.tab.c
 	@$(CC) -c y.tab.c
 
-y.tab.c: parser.y                   
+y.tab.c: parser.y     
 	@bison -dv parser.y
 
 clean:
 	@rm -f a.out lex.yy.c y.tab.h y.tab.c *.o *.output *.gch
+
+    print:
+	@echo '************************************************'

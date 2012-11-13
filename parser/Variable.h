@@ -8,7 +8,7 @@
 #include "AbstractType.h"
 using namespace std;
 
-class Variable: public Symbol {
+class Variable: public Symbol { 
     AbstractType *type;
 
 public:
@@ -19,20 +19,20 @@ public:
     
     virtual string toString(void)
     {
-    	string s = identifier + " ";
+        string s = identifier + " ";
         if (type)
             s += type->toIdentTypeString();
         else
-			s += "<unknown_type>" + nlindent();
-		return s;
+            s += "<unknown_type>" + nlindent();
+        return s;
     }
     
     virtual ~Variable() 
     {
-    	//If the type has no name, it is not in the symbol table and
-    	//will not be freed by it.
-    	if (type && type->identifier == "")
-    		delete type;
+        //If the type has no name, it is not in the symbol table and
+        //will not be freed by it.
+        if (type && type->identifier == "")
+            delete type;
     }
 };
 

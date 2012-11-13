@@ -1,7 +1,8 @@
 // CSS 548; Autumn 2012
 // Aaron Hoffer and Daniel Lewis
 //
-// TODO: Write description of this file.
+// This file contains definitions and funtion prototypes used in the semantic
+// actions.
 #ifndef ACTIONS_H
 #define ACTIONS_H
 
@@ -15,12 +16,7 @@
 #include "RecordType.h"
 #include "Variable.h"
 #include "Function.h"
-
-/*
-#include "Const.h"
-#include "SetType.h"
-*/
-
+ 
 #define NO_UNARY_OP (0)
 
 //The symbol table is a global object declared in main.cpp
@@ -48,6 +44,8 @@ extern list<Variable> fieldList;
 extern Function *currFunction;
 extern AbstractType *currType;
 
+
+//Method prototypes. For details about each method, see comments in actions.cpp
 void assignTypesToPointers(void);
 void addPointerToList(string, string);
 void insertCurrentVariableDecl(void);

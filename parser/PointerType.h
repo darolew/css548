@@ -4,7 +4,7 @@
 // TODO: Write description of this file.
 #ifndef POINTERTYPE_H
 #define POINTERTYPE_H
-
+ 
 #include "AbstractType.h"
 
 class PointerType : public AbstractType {

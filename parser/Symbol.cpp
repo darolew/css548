@@ -9,7 +9,7 @@
 #include "main.h"
 
 extern SymTable symTable;
-
+ 
 bool Symbol::insertInto()
 {
     //cout << "inserting " << toString();

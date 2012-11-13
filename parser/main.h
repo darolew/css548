@@ -1,8 +1,9 @@
 // CSS 548; Autumn 2012
 // Aaron Hoffer and Daniel Lewis
 //
-// TODO: Write description of this file.
-#ifndef MAIN_H
+// Prototyles and extern delaration of variables and functions
+//defined in main.cpp
+#ifndef MAIN_H 
 #define MAIN_H
 
 using namespace std;

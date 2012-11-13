@@ -5,7 +5,7 @@
 #ifndef SETTYPE_H
 #define SETTYPE_H
 
-#include <list>
+#include <list> 
 #include <sstream>
 #include "AbstractType.h"
 #include "Range.h"

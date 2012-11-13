@@ -1,7 +1,13 @@
 // CSS 548; Autumn 2012
 // Aaron Hoffer and Daniel Lewis
 //
-// TODO: Write description of this file.
+// ArrayType defines an array. For example, the information to the right
+// of the equals sign is captured in an ArrayType object:
+//
+//  int3D = array [1..5,2..3,0..2] of integer;
+//
+// An array constist of a list of ranges, a type (in this case it is integer)
+
 #ifndef ARRAYTYPE_H
 #define ARRAYTYPE_H
 
@@ -10,31 +16,14 @@
 #include "AbstractType.h"
 #include "Range.h"
 #include "main.h"
-using namespace std;
+using namespace std; 
 
 class ArrayType : public AbstractType {
     list<Range> ranges;
 
 public:
-    ArrayType(AbstractType *type, list<Range> ranges)
-        : AbstractType("", type)
-    {
-        this->ranges = ranges;
-    }
-    
-    virtual string toString(void)
-    {
-        stringstream ss (stringstream::in | stringstream::out);
-        ss << identifier << " ";
-        list<Range>::iterator it = ranges.begin();
-        for (; it != ranges.end(); it++) {
-        	if (it != ranges.begin())
-        		ss << ",";
-            ss << it->low.str << ".." << it->high.str;
-        }
-        ss << " " << type->toIdentTypeString();
-        return ss.str();
-    }
+    ArrayType(AbstractType *, list<Range> );
+    virtual string toString();
     
     //Does nothing
     // virtual ~ArrayType()

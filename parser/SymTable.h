@@ -13,7 +13,7 @@
 #include "Variable.h"
 using namespace std;
 
-class SymTable {
+class SymTable { 
     list<Table*> scopes;
     list<string> scopeNames;
 

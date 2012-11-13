@@ -1,9 +1,10 @@
 // CSS 548; Autumn 2012
 // Aaron Hoffer and Daniel Lewis
 //
-// TODO: Write description of this file.
+// This file contains defintion of helper methods used in the semantic actions.
 #include "actions.h"
 
+//Create varibales used by the semantic actions.
 list<string> idList;
 list<Range> rangeList;
 list<Ptrinfo> ptrList;
@@ -66,7 +67,7 @@ Terminal *newTerminal(string lexeme, int token, char unaryOperatorChar)
 
 Terminal initTerminal(string lexeme, int token, char unaryOperatorChar)
 {
-	Terminal terminal;
+    Terminal terminal;
     terminal.str = lexeme;
     terminal.token = token;
     terminal.unaryOp = unaryOperatorChar;
@@ -105,7 +106,7 @@ void addField()
         }
         idList.pop_front();
     } 
-}
+} 
 
 //Check for duplicated field names in a record.
 bool isDuplicateField(string id) 
