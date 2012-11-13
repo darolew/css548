@@ -28,8 +28,8 @@ string ArrayType::toString()
         ss << it->low.str << ".." << it->high.str;
     }
     if (type)
-    	ss << " " << type->toIdentTypeString();
+        ss << " " << type->toIdentTypeString();
     else
-    	ss << " <bogus_type>" << nlindent();
+        ss << " <bogus_type>" << nlindent();
     return ss.str();
 }
