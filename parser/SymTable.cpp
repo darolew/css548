@@ -93,7 +93,7 @@ void SymTable::endScope()
 }
 
 //Insert a symbol into the symbol table for the current scope. The insert
-///will fail if the symbol indentifier already exists for the current
+//will fail if the symbol indentifier already exists for the current
 //scope. Returns whether the insert succeeded.
 bool SymTable::insert(Symbol *symbol)
 {
