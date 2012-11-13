@@ -3,7 +3,7 @@
 //
 // Prototyles and extern delaration of variables and functions
 //defined in main.cpp
-#ifndef MAIN_H 
+#ifndef MAIN_H
 #define MAIN_H
 
 using namespace std;

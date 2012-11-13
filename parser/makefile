@@ -3,11 +3,11 @@
 # Generate parser using Yacc and compile it with g++.
 
 OBJ = y.tab.o lex.yy.o main.o AbstractType.o actions.o ArrayType.o Const.o \
-    Function.o PointerType.o RecordType.o Symbol.o SymTable.o 
+    Function.o PointerType.o RecordType.o Symbol.o SymTable.o
 H = y.tab.h actions.h  AbstractType.h ArrayType.h BaseType.h Const.h \
     Function.h IoFunction.h MemFunction.h PointerType.h Range.h RecordType.h \
     SetType.h Symbol.h SymTable.h Variable.h
-CC = g++ 
+CC = g++
 
 all: $(OBJ) $H
 	@$(CC) $(OBJ) -g -o a.out -lfl
@@ -15,13 +15,13 @@ all: $(OBJ) $H
 
 main.o: $H main.cpp
 	@$(CC) -g -c main.cpp
- 
+
 AbstractType.o: $H AbstractType.cpp
 	@$(CC) -g -c AbstractType.cpp
-    
+
 ArrayType.o: $H ArrayType.cpp
 	@$(CC) -g -c ArrayType.cpp
-    
+
 actions.o: $H actions.cpp
 	@$(CC) -g -c actions.cpp
 
@@ -31,10 +31,10 @@ Const.o: $H Const.cpp
 Function.o: $H Function.cpp
 	@$(CC) -g -c Function.cpp
 
-lex.yy.o: $H lex.yy.c    
+lex.yy.o: $H lex.yy.c
 	@$(CC) -g -c lex.yy.c
 
-lex.yy.c: $H lexer.l 
+lex.yy.c: $H lexer.l
 	@flex lexer.l
 
 PointerType.o: $H PointerType.cpp
@@ -52,7 +52,7 @@ Symbol.o: $H Symbol.cpp
 y.tab.o: y.tab.c
 	@$(CC) -c y.tab.c
 
-y.tab.c: parser.y     
+y.tab.c: parser.y
 	@bison -dv parser.y
 
 clean:

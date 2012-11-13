@@ -2,6 +2,7 @@
 // Aaron Hoffer and Daniel Lewis
 //
 // This file contains the method definitions of the SymTable class.
+
 #include <iostream>
 #include <stdlib.h>
 #include <assert.h>
@@ -10,30 +11,30 @@
 #include "BaseType.h"
 #include "Function.h"
 #include "MemFunction.h"
-#include "IoFunction.h" 
+#include "IoFunction.h"
 #include "main.h"
 
-SymTable::SymTable() 
+SymTable::SymTable()
 {
     //Start standard identifier.
     beginScope("Standard Identifier Table");
-    
+
     insert(new BaseType("integer", "int"));
     insert(new BaseType("boolean", "bool"));
     insert(new BaseType("real", "double"));
     insert(new BaseType("char", "string")); //TODO: Using char as an array index.
-    
+
     insert(new IoFunction("write"));
     insert(new IoFunction("writeln"));
     insert(new IoFunction("read"));
     insert(new IoFunction("readln"));
-    
+
     insert(new MemFunction("new"));
     insert(new MemFunction("dispose"));
 }
 
 //Why is the destructor not called when the object goes out of scope?
-SymTable::~SymTable() 
+SymTable::~SymTable()
 {
     //Only the SIT should be left on the stack.
     if (scopes.size() > 1) {
@@ -46,17 +47,17 @@ SymTable::~SymTable()
 }
 
 //Push a new scope onto the stack.
-void SymTable::beginScope(string name) 
+void SymTable::beginScope(string name)
 {
     if (scopes.size() > 0)
         indent++;
     scopeNames.push_front(name);
     scopes.push_front(new Table());
     cout << "\nENTER " << name << endl;
-    printLine("-"); 
+    printLine("-");
 }
 
-void SymTable::endScope() 
+void SymTable::endScope()
 {
     printST();
     if (scopes.size() > 0)
@@ -67,7 +68,7 @@ void SymTable::endScope()
     scopeNames.pop_front();
 }
 
-bool SymTable::insert(Symbol *symbol) 
+bool SymTable::insert(Symbol *symbol)
 {
     assertStack();
     return symbol->insertInto();
@@ -76,7 +77,7 @@ bool SymTable::insert(Symbol *symbol)
 //Drill down through the list of scopes, front to back, and look
 //for the symbol. Return the first Symbol if it is found, otherwise
 //return null.
-Symbol *SymTable::lookup(string key) 
+Symbol *SymTable::lookup(string key)
 {
     //This is a linear search, which is slow and bad.
     list<Table*>::iterator ti = scopes.begin();
@@ -108,18 +109,18 @@ AbstractType *SymTable::lookupType(string key)
     return (AbstractType*)sym;
 }
 
-bool SymTable::empty() 
+bool SymTable::empty()
 {
     return scopes.empty();
 }
 
 //Prevent seg faults.
-void SymTable::assertStack() 
+void SymTable::assertStack()
 {
     assert(!empty());
 }
 
-void SymTable::printST() 
+void SymTable::printST()
 {
     string scopeName = scopeNames.front();
     Symbol *sym = lookup(scopeName);
@@ -139,7 +140,7 @@ void SymTable::printST()
         cout << (*it)->toString();
 }
 
-void SymTable::printLine(string divider)  
+void SymTable::printLine(string divider)
 {
     for (int i=0; i<75; ++i)
         cout << divider;
@@ -147,14 +148,14 @@ void SymTable::printLine(string divider)
 }
 
 //Convenience wrapper
-Table *SymTable::front() 
+Table *SymTable::front()
 {
     assertStack();
     return scopes.front();
 }
 
 //Reclaim memory from a symbol table
-void SymTable::delTable(Table *tbl) 
+void SymTable::delTable(Table *tbl)
 {
     list<Symbol*>::iterator si = tbl->begin();
     for (; si != tbl->end(); si++) {
@@ -162,15 +163,15 @@ void SymTable::delTable(Table *tbl)
         if (sym)
             delete sym;
     }
-    
+
     delete tbl;
-}  
+}
 
 //Remove the scope on top of the stack and reclaim memory.
-void SymTable::delTopScope() 
+void SymTable::delTopScope()
 {
     assertStack();
     Table *tbl = front();
     scopes.pop_front();
-    delTable(tbl);   
+    delTable(tbl);
 }

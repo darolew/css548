@@ -2,6 +2,7 @@
 // Aaron Hoffer and Daniel Lewis
 //
 // TODO: Write description of this file.
+
 #include <iostream>
 #include <stdlib.h>
 #include "Symbol.h"
@@ -9,7 +10,7 @@
 #include "main.h"
 
 extern SymTable symTable;
- 
+
 bool Symbol::insertInto()
 {
     //cout << "inserting " << toString();
@@ -19,9 +20,9 @@ bool Symbol::insertInto()
         cerr << "error: " << identifier << " already exists in scope\n";
         return false;
     }
-    
+
     table->push_front(this);
-    //cout << "\tInsert succeeded.\n"; 
+    //cout << "\tInsert succeeded.\n";
     return true;
 }
 

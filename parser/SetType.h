@@ -2,10 +2,11 @@
 // Aaron Hoffer and Daniel Lewis
 //
 // TODO: Write description of this file.
+
 #ifndef SETTYPE_H
 #define SETTYPE_H
 
-#include <list> 
+#include <list>
 #include <sstream>
 #include "AbstractType.h"
 #include "Range.h"
@@ -20,7 +21,7 @@ public:
     {
         this->range = range;
     }
-    
+
     virtual string toString(void)
     {
         stringstream ss (stringstream::in | stringstream::out);

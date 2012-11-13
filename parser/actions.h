@@ -3,6 +3,7 @@
 //
 // This file contains definitions and funtion prototypes used in the semantic
 // actions.
+
 #ifndef ACTIONS_H
 #define ACTIONS_H
 
@@ -16,26 +17,26 @@
 #include "RecordType.h"
 #include "Variable.h"
 #include "Function.h"
- 
+
 #define NO_UNARY_OP (0)
 
 //The symbol table is a global object declared in main.cpp
-//We know global objects are not a good idea, but it was expidient for 
-//this project. We did parameterize methods to take the symbol table as an 
-//input and did not access the global var directly. 
+//We know global objects are not a good idea, but it was expidient for
+//this project. We did parameterize methods to take the symbol table as an
+//input and did not access the global var directly.
 extern SymTable symTable;
 
 //***Helper structures***
-//Ptrinfo is a struct that wraps a pointer definition and the type that 
-//it points to. 
+//Ptrinfo is a struct that wraps a pointer definition and the type that
+//it points to.
 typedef struct {
     PointerType *ptrType;
     string *pointee;
 } Ptrinfo;
 
 //***Variable declarations for temporary containers***
-//These vars are used to collect objects when Yacc evaluates rules. For 
-//example, the idList collects identifiers {a, b, c, d} when parsing a 
+//These vars are used to collect objects when Yacc evaluates rules. For
+//example, the idList collects identifiers {a, b, c, d} when parsing a
 //declaration like: "var a,b,c,d : integer;"
 extern list<string> idList;
 extern list<Range> rangeList;

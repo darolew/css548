@@ -2,22 +2,23 @@
 // Aaron Hoffer and Daniel Lewis
 //
 // Data structures for managing symbols and scope.
+
 #ifndef SYMTABLE_H
 #define SYMTABLE_H
 
 #include <map>
-#include <string> 
+#include <string>
 #include <list>
 #include "Symbol.h"
 #include "AbstractType.h"
 #include "Variable.h"
 using namespace std;
 
-class SymTable { 
+class SymTable {
     list<Table*> scopes;
     list<string> scopeNames;
 
-public: 
+public:
     //Constructor
     SymTable();
 
@@ -27,19 +28,19 @@ public:
     //Pop (and discard) the table on the back of the list.
     void endScope();
 
-    //Insert a symbol into the table. 
+    //Insert a symbol into the table.
     //Return true if insert suceeded. Return false if insert failed.
     //Insert will fail if symbol is already defined in the current scope.
     bool insert(Symbol *);
     // bool insert(Variable *);
 
-    //Search through all the tables in the list, starting with the last one, 
-    //and look for the key. 
+    //Search through all the tables in the list, starting with the last one,
+    //and look for the key.
     Symbol *lookup(string key);
-    
+
     //
     Symbol *lookup(Table *, string);
-    
+
     //
     AbstractType *lookupType(string);
 
@@ -48,7 +49,7 @@ public:
 
     //Return top of the stack
     Table *front();
-    
+
     //Destructor
     virtual ~SymTable();
 
@@ -61,4 +62,3 @@ private:
 };
 
 #endif
-

@@ -16,15 +16,15 @@
 #include "AbstractType.h"
 #include "Range.h"
 #include "main.h"
-using namespace std; 
+using namespace std;
 
 class ArrayType : public AbstractType {
     list<Range> ranges;
 
 public:
-    ArrayType(AbstractType *, list<Range> );
+    ArrayType(AbstractType *, list<Range>);
     virtual string toString();
-    
+
     //Does nothing
     // virtual ~ArrayType()
     // {

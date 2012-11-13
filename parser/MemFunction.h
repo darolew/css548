@@ -3,8 +3,9 @@
 //
 // Specialized class for new/dispose.
 // Not used for anything important in phase 3.
+
 #ifndef MEMFUNCTION_H
-#define MEMFUNCTION_H 
+#define MEMFUNCTION_H
 
 #include "Symbol.h"
 using namespace std;

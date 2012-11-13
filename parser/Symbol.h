@@ -2,17 +2,17 @@
 // Aaron Hoffer and Daniel Lewis
 //
 // Class to hold a symbol's attributes.
+
 #ifndef SYMBOL_H
 #define SYMBOL_H
 
-#include <iostream> 
+#include <iostream>
 #include <list>
-#include <string> 
+#include <string>
 #include "main.h"
 using namespace std;
 
 class Symbol;
-//typedef map<string, Symbol*> Table;
 typedef list<Symbol*> Table;
 class SymTable;
 
@@ -24,22 +24,22 @@ public:
     {
         this->identifier = id;
     }
-    
+
     virtual string toString();
 
-    virtual bool isType() 
+    virtual bool isType()
     {
         return false;
     }
-    
+
     virtual bool insertInto();
 
     //For some resons, just defining the destructor eliminates many memory leaks.
     virtual ~Symbol()
     {
-     
-    } 
-    
+
+    }
+
 };
 
 #endif

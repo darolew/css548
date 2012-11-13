@@ -14,14 +14,14 @@
 #include "Variable.h"
 #include "main.h"
 
-class RecordType : public AbstractType { 
+class RecordType : public AbstractType {
     list<Variable> fields;
 
 public:
     //Refer to the .cpp file for descriptions of these methods.
     RecordType(list<Variable>);
     virtual string toString();
-    
+
 };
 
 #endif

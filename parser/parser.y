@@ -5,10 +5,10 @@
  * Aaron Hoffer and Daniel Lewis
  *
  * This is a Yacc/Bison input file. Yacc generates a parserin C code from this
- * definition. 
+ * definition.
  */
 #include <iostream>
-#include <stdio.h> 
+#include <stdio.h>
 
 #include "actions.h"
 
@@ -44,8 +44,8 @@ int yylex(); /* needed by g++ */
         ysemicolon yset ythen yto ytype yunknown yuntil yvar ywhile
 
 //Some tokens have lexemes that must be captured.
-//These tokens are declared to use the str field of the union.        
-%token <str> yident ynumber ystring 
+//These tokens are declared to use the str field of the union.
+%token <str> yident ynumber ystring
 
 //Some token values are be captured.
 %token <tkn> yplus yminus
@@ -54,7 +54,7 @@ int yylex(); /* needed by g++ */
 //from which they were included.
 %type <term> ConstFactor ConstExpression
 %type <chr> UnaryOperator
- 
+
 //The union is used for two reasons. The first is to capture information about
 //lexemes from the scanner. The second is to define the data captured in parser
 //rules.
@@ -63,7 +63,7 @@ int yylex(); /* needed by g++ */
     struct Terminal *term;
     int chr;
 };
- 
+
 %%
 /* rules section */
 
@@ -74,7 +74,7 @@ CompilationUnit     : ProgramModule
 ProgramModule       : yprogram yident ProgramParameters ysemicolon
                     {
                         symTable.beginScope($2);
-                        free($2);                        
+                        free($2);
                     }
                       Block
                     {
@@ -83,24 +83,24 @@ ProgramModule       : yprogram yident ProgramParameters ysemicolon
                       ydot
                     ;
 ProgramParameters   : yleftparen IdentList yrightparen
-					{
-						//We don't care about the program parameters ("input,
-						//"output").
-						idList.clear();
-					}	
-                    ;   
+                    {
+                        //We don't care about the program parameters ("input,
+                        //"output").
+                        idList.clear();
+                    }
                     ;
-IdentList           :  yident 
+                    ;
+IdentList           :  yident
                     {
                         idList.push_back($1);
                         free($1);
-                    } 
-                    | IdentList ycomma yident 
+                    }
+                    | IdentList ycomma yident
                     {
                         idList.push_back($3);
                         free($3);
                     }
-                    ; 
+                    ;
 
 /**************************  Declarations section ***************************/
 
@@ -109,7 +109,7 @@ Block               : Declarations ybegin StatementSequence yend
 Declarations        : ConstantDefBlock
                       TypeDefBlock PointerCheck
                       VariableDeclBlock
-                      SubprogDeclList  
+                      SubprogDeclList
                     ;
 PointerCheck        : /*** empty ***/
                     {
@@ -124,10 +124,10 @@ ConstantDefList     : ConstantDef ysemicolon
                     | ConstantDefList ConstantDef ysemicolon
                     ;
 TypeDefBlock        : /*** empty ***/
-                    | ytype TypeDefList          
+                    | ytype TypeDefList
                     ;
 TypeDefList         : TypeDef ysemicolon
-                    | TypeDefList TypeDef ysemicolon  
+                    | TypeDefList TypeDef ysemicolon
                     ;
 VariableDeclBlock   : /*** empty ***/
                     | yvar VariableDeclList
@@ -168,16 +168,16 @@ VariableDecl        : IdentList ycolon Type
 ConstExpression     : UnaryOperator ConstFactor
                     {
                         $$ = $2;
-                        $$->unaryOp = $1;                    
+                        $$->unaryOp = $1;
                     }
-                    | ConstFactor 
-                    | ystring 
+                    | ConstFactor
+                    | ystring
                     {
                         $$ = newTerminal($1, ystring);
                         free($1);
                     }
                     ;
-ConstFactor         : yident 
+ConstFactor         : yident
                     {
                         $$ = newTerminal($1, yident);
                         free($1);
@@ -186,7 +186,7 @@ ConstFactor         : yident
                     {
                         $$ = newTerminal($1, ynumber);
                         free($1);
-                        
+
                     }
                     | ynil
                     {
@@ -198,28 +198,28 @@ Type                : yident
                         currType = symTable.lookupType($1);
                         free($1);
                     }
-                    | ArrayType  
-                    | PointerType 
-                    | RecordType 
-                    | SetType 
+                    | ArrayType
+                    | PointerType
+                    | RecordType
+                    | SetType
                     ;
 NPType              : yident
                     {
                         currType = symTable.lookupType($1);
                         free($1);
                     }
-                    | ArrayType 
-                    | RecordType 
-                    | SetType 
+                    | ArrayType
+                    | RecordType
+                    | SetType
                     ;
-ArrayType           : yarray yleftbracket Subrange SubrangeList 
+ArrayType           : yarray yleftbracket Subrange SubrangeList
                       yrightbracket yof Type
                     {
                         insertArrayType();
                     }
                     ;
 SubrangeList        : /*** empty ***/
-                    | SubrangeList ycomma Subrange 
+                    | SubrangeList ycomma Subrange
                     ;
 Subrange            : ConstFactor ydotdot ConstFactor
                     {
@@ -227,12 +227,12 @@ Subrange            : ConstFactor ydotdot ConstFactor
                         delete $1;
                         delete $3;
                     }
-                    | ystring ydotdot ystring 
+                    | ystring ydotdot ystring
                     {
-                    	Terminal low, high;
-                    	low = initTerminal($1, ystring);
-                    	high = initTerminal($3, ystring);
-                    	addRange(&low, &high);
+                        Terminal low, high;
+                        low = initTerminal($1, ystring);
+                        high = initTerminal($3, ystring);
+                        addRange(&low, &high);
                         free($1);
                         free($3);
                     }
@@ -260,13 +260,13 @@ FieldListSequence   : FieldList
                     ;
 FieldList           : IdentList ycolon Type
                     {
-                        addField();  
+                        addField();
                     }
                     ;
 
 /***************************  Statements  ************************************/
 
-StatementSequence   : Statement  
+StatementSequence   : Statement
                     | StatementSequence ysemicolon Statement
                     ;
 Statement           : Assignment
@@ -283,7 +283,7 @@ Assignment          : Designator yassign Expression
                     ;
 ProcedureCall       : yident
                     {
-                        //Generate code 
+                        //Generate code
                         free($1);
                     }
                     | yident ActualParameters
@@ -296,19 +296,19 @@ ProcedureCall       : yident
 IfStatement         : yif Expression ythen Statement ElsePart
                     ;
 ElsePart            : /*** empty ***/
-                    | yelse Statement   
+                    | yelse Statement
                     ;
 CaseStatement       : ycase Expression yof CaseList yend
                     ;
 CaseList            : Case
-                    | CaseList ysemicolon Case  
+                    | CaseList ysemicolon Case
                     ;
 Case                : CaseLabelList ycolon Statement
                     ;
-CaseLabelList       : ConstExpression  
-                    | CaseLabelList ycomma ConstExpression   
+CaseLabelList       : ConstExpression
+                    | CaseLabelList ycomma ConstExpression
                     ;
-WhileStatement      : ywhile Expression ydo Statement  
+WhileStatement      : ywhile Expression ydo Statement
                     ;
 RepeatStatement     : yrepeat StatementSequence yuntil Expression
                     ;
@@ -328,7 +328,7 @@ Designator          : yident DesignatorStuff
                     {
                         //Do designator stuff here
                         free($1);
-                    }                        
+                    }
                     ;
 DesignatorStuff     : /*** empty ***/
                     | DesignatorStuff theDesignatorStuff
@@ -338,31 +338,31 @@ theDesignatorStuff  : ydot yident
                         //Do the the designator stuff here
                         free($2);
                     }
-                    | yleftbracket ExpList yrightbracket 
-                    | ycaret 
+                    | yleftbracket ExpList yrightbracket
+                    | ycaret
                     ;
 ActualParameters    : yleftparen ExpList yrightparen
                     ;
-ExpList             : Expression   
-                    | ExpList ycomma Expression     
+ExpList             : Expression
+                    | ExpList ycomma Expression
                     ;
 
 /***************************  Expression Stuff  ******************************/
-Expression          : SimpleExpression  
-                    | SimpleExpression Relation SimpleExpression 
+Expression          : SimpleExpression
+                    | SimpleExpression Relation SimpleExpression
                     ;
 SimpleExpression    : TermExpr
                     | UnaryOperator TermExpr
                     ;
-TermExpr            : Term  
+TermExpr            : Term
                     | TermExpr AddOperator Term
                     ;
-Term                : Factor  
+Term                : Factor
                     | Term MultOperator Factor
                     ;
 Factor              : ynumber
                     | ynil
-                    | ystring 
+                    | ystring
                     | Designator
                     | yleftparen Expression yrightparen
                     | ynot Factor
@@ -378,25 +378,25 @@ FunctionCall        : yident ActualParameters
 Setvalue            : yleftbracket ElementList yrightbracket
                     | yleftbracket yrightbracket
                     ;
-ElementList         : Element  
+ElementList         : Element
                     | ElementList ycomma Element
                     ;
-Element             : ConstExpression  
-                    | ConstExpression ydotdot ConstExpression 
+Element             : ConstExpression
+                    | ConstExpression ydotdot ConstExpression
                     ;
 
 /***************************  Subprogram Stuff  ******************************/
 
 SubprogDeclList     : /*** empty ***/
-                    | SubprogDeclList ProcedureDecl ysemicolon  
+                    | SubprogDeclList ProcedureDecl ysemicolon
                     | SubprogDeclList FunctionDecl ysemicolon
                     ;
-ProcedureDecl       : CreateFunc ProcedureHeading ysemicolon Block 
+ProcedureDecl       : CreateFunc ProcedureHeading ysemicolon Block
                     {
                         symTable.endScope();
                     }
                     ;
-FunctionDecl        : CreateFunc FunctionHeading ycolon yident ysemicolon 
+FunctionDecl        : CreateFunc FunctionHeading ycolon yident ysemicolon
                     {
                         AbstractType *returnType = symTable.lookupType($4);
                         currFunction->setReturnType(returnType);
@@ -410,7 +410,7 @@ CreateFunc          : /*** empty ***/
                     {
                         currFunction = new Function();
                     }
-                    ; 
+                    ;
 ProcedureHeading    : yprocedure yident
                     {
                         beginScope($2);
@@ -423,7 +423,7 @@ ProcedureHeading    : yprocedure yident
                     }
                       FormalParameters
                     ;
-FunctionHeading     : yfunction yident 
+FunctionHeading     : yfunction yident
                     {
                         beginScope($2);
                         free($2);
@@ -435,12 +435,12 @@ FunctionHeading     : yfunction yident
                     }
                       FormalParameters
                     ;
-FormalParameters    : yleftparen FormalParamList yrightparen 
+FormalParameters    : yleftparen FormalParamList yrightparen
                     ;
-FormalParamList     : OneFormalParam 
+FormalParamList     : OneFormalParam
                     | FormalParamList ysemicolon OneFormalParam
                     ;
-OneFormalParam      : FormalParamFlag IdentList ycolon yident 
+OneFormalParam      : FormalParamFlag IdentList ycolon yident
                     {
                         addFormalParam($4);
                         free($4);
@@ -454,11 +454,11 @@ FormalParamFlag     : /*** nothing ***/
 
 UnaryOperator       : yplus { $$ = '+'; } | yminus { $$ = '-'; }
                     ;
-MultOperator        : ymultiply | ydivide | ydiv | ymod | yand 
+MultOperator        : ymultiply | ydivide | ydiv | ymod | yand
                     ;
 AddOperator         : yplus | yminus | yor
                     ;
-Relation            : yequal | ynotequal | yless | ygreater 
+Relation            : yequal | ynotequal | yless | ygreater
                     | ylessequal | ygreaterequal | yin
                     ;
 

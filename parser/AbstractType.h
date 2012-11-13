@@ -3,9 +3,9 @@
 //
 // This file contains the definition of the AbstractType class.
 // AbstractType is a sublcass Symbol and the base class of other type classes.
-// The most imporant different this class and its parent class is that any 
+// The most imporant different this class and its parent class is that any
 // Abstract Type can be associated with another AbstractType. For example,
-// an array type be an integer array, pointer type must be associated with the 
+// an array type be an integer array, pointer type must be associated with the
 // type to which it points, and so on.
 
 // TODO: This class is no longer abstract because we create instances of it.
@@ -20,7 +20,7 @@ class AbstractType : public Symbol {
 
 public:
     //Types can point to other types.
-    AbstractType *type; 
+    AbstractType *type;
 
     //See the .cpp file for descriptions of these methods.
     AbstractType(string id) : Symbol(id) {}
@@ -28,7 +28,7 @@ public:
     virtual bool isType();
     virtual string toIdentTypeString();
     virtual string toString();
-    virtual ~AbstractType();    
+    virtual ~AbstractType();
 };
 
 #endif

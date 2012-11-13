@@ -7,7 +7,7 @@
 #ifndef IOFUNCTION_H
 #define IOFUNCTION_H
 
-#include "Symbol.h" 
+#include "Symbol.h"
 using namespace std;
 
 //TODO: Add methods for code generation

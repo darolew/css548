@@ -5,7 +5,7 @@
 
 #include "PointerType.h"
 #include "SymTable.h"
- 
+
 extern SymTable symTable;
 
 //Pointer types are special: they are allowed to be declared before
@@ -29,4 +29,4 @@ string PointerType::toString(void)
 {
     return identifier + " ^ " + type->toIdentTypeString();
 }
-    
+

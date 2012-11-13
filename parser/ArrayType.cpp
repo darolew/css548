@@ -1,6 +1,6 @@
 // CSS 548; Autumn 2012
 // Aaron Hoffer and Daniel Lewis
-// 
+//
 // This file contains the method definitions of the ArrayType class.
 
 #include "ArrayType.h"
@@ -25,4 +25,3 @@ string ArrayType::toString(void)
     ss << " " << type->toIdentTypeString();
     return ss.str();
 }
- 

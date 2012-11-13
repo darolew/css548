@@ -7,14 +7,14 @@
 
 #include <list>
 #include "AbstractType.h"
-#include "Variable.h" 
+#include "Variable.h"
 
 class Function : public Symbol {
 
 private:
     list<Variable> params;
     AbstractType *returnType;
-    
+
 public:
 
     Function() : Symbol(""), returnType(NULL) {}
@@ -26,7 +26,7 @@ public:
     }
 
     virtual string toString(void);
-    virtual string toStringLong(void);  
+    virtual string toStringLong(void);
     virtual bool insertInto();
     void addParam(Variable *param);
     void setReturnType(AbstractType *rt);

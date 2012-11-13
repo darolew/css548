@@ -5,11 +5,11 @@
 #ifndef CONST_H
 #define CONST_H
 
-#include <string> 
+#include <string>
 #include "Symbol.h"
 #include "Range.h"
 #include "main.h"
-using namespace std; 
+using namespace std;
 
 class Const: public Symbol {
 private:

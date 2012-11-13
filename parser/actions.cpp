@@ -2,6 +2,7 @@
 // Aaron Hoffer and Daniel Lewis
 //
 // This file contains defintion of helper methods used in the semantic actions.
+
 #include "actions.h"
 
 //Create varibales used by the semantic actions.
@@ -21,18 +22,18 @@ void assignTypesToPointers(void)
     while (!ptrList.empty()) {
         Ptrinfo pi = ptrList.front();
         pi.ptrType->addType(*pi.pointee);
-        
-        //The string pointee was copied in the previous statement. 
+
+        //The string pointee was copied in the previous statement.
         //Free the memory.
         delete pi.pointee;
-        
+
         ptrList.pop_front();
     }
 }
 
-//When a pointer type is defined, a new object for it and inserted into the 
+//When a pointer type is defined, a new object for it and inserted into the
 //symbol table. The type of the pointer is saved locally as a string, along
-//with its pointer object. That string will be used as a key to lookup the 
+//with its pointer object. That string will be used as a key to lookup the
 //type object at the end of the type def block.
 void addPointerToList(string nameOfPointer, string nameOfPointee)
 {
@@ -44,11 +45,11 @@ void addPointerToList(string nameOfPointer, string nameOfPointee)
 }
 
 //Walk the list of variable names being declared. For example, the declaration
-//"a,b,c : interger;" includes a list of variables {a, b, c} and their type, 
+//"a,b,c : interger;" includes a list of variables {a, b, c} and their type,
 //integer. For each one, a new variable object is created, assigned a type,
 //and entered into the symbol table. The list is emptied as the varaibles are
 //inserted into the symbol table.
- void insertCurrentVariableDecl(void) 
+ void insertCurrentVariableDecl(void)
  {
     while (!idList.empty()) {
         string name = idList.front();
@@ -56,7 +57,7 @@ void addPointerToList(string nameOfPointer, string nameOfPointee)
         idList.pop_front();
     }
 }
-                    
+
 //Convience method for creating Terminal struct.
 Terminal *newTerminal(string lexeme, int token, char unaryOperatorChar)
 {
@@ -92,7 +93,7 @@ void addRange(Terminal *low, Terminal *high)
     range.high = *high;
     rangeList.push_back(range);
 }
- 
+
 //Remove an identifer and turn it into a varaible as part of a record's fields.
 void addField()
 {
@@ -105,11 +106,11 @@ void addField()
             fieldList.push_front(field);
         }
         idList.pop_front();
-    } 
-} 
+    }
+}
 
 //Check for duplicated field names in a record.
-bool isDuplicateField(string id) 
+bool isDuplicateField(string id)
 {
     list<Variable>::iterator it = fieldList.begin();
     for (; it != fieldList.end(); it++) {
@@ -122,7 +123,7 @@ bool isDuplicateField(string id)
 
 //Create a formal method parameter from a list of identifiers.
 //Add the parameter to the object for the current function.
-void addFormalParam(string typeName) 
+void addFormalParam(string typeName)
 {
     while (!idList.empty()) {
         string name = idList.front();
@@ -135,7 +136,7 @@ void addFormalParam(string typeName)
 }
 
 //Not much to say about this one.
-void beginScope(char *name) 
+void beginScope(char *name)
 {
     currFunction->identifier = name;
     symTable.insert(currFunction);

@@ -2,13 +2,14 @@
 // Aaron Hoffer and Daniel Lewis
 //
 // TODO: Write description of this file.
+
 #ifndef VARIABLE_H
 #define VARIABLE_H
 
 #include "AbstractType.h"
 using namespace std;
 
-class Variable: public Symbol { 
+class Variable: public Symbol {
     AbstractType *type;
 
 public:
@@ -16,7 +17,7 @@ public:
     {
         this->type = type;
     }
-    
+
     virtual string toString(void)
     {
         string s = identifier + " ";
@@ -26,8 +27,8 @@ public:
             s += "<unknown_type>" + nlindent();
         return s;
     }
-    
-    virtual ~Variable() 
+
+    virtual ~Variable()
     {
         //If the type has no name, it is not in the symbol table and
         //will not be freed by it.

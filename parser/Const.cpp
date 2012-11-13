@@ -1,11 +1,11 @@
 // CSS 548; Autumn 2012
 // Aaron Hoffer and Daniel Lewis
-// 
+//
 // This file contains the method definitions of the Const class
 
 #include "Const.h"
 
-//The name of the constant and the value of the constant are passed to the 
+//The name of the constant and the value of the constant are passed to the
 //constructor.
 Const::Const(string id, Terminal term) : Symbol(id)
 {
@@ -26,4 +26,3 @@ string Const::toString()
     s += term.str + nlindent();
     return s;
 }
-
