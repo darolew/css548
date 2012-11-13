@@ -1,4 +1,4 @@
-program example(input, output);     (* program example with more errors *)
+program sterror(input, output);     (* program example with more errors *)
 const  
    grades = 5;
    size = 4;
