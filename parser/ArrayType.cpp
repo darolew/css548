@@ -5,6 +5,7 @@
 
 #include <sstream>
 #include "ArrayType.h"
+#include "main.h"
 
 //The constructor for an ArrayType. The passed-in type is the type of the
 //array elements, while the ranges list represents the array dimensions.
@@ -26,6 +27,9 @@ string ArrayType::toString()
             ss << ",";
         ss << it->low.str << ".." << it->high.str;
     }
-    ss << " " << type->toIdentTypeString();
+    if (type)
+    	ss << " " << type->toIdentTypeString();
+    else
+    	ss << " <bogus_type>" << nlindent();
     return ss.str();
 }

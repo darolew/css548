@@ -5,6 +5,7 @@
 
 #include "PointerType.h"
 #include "SymTable.h"
+#include "main.h"
 
 extern SymTable symTable;
 
@@ -35,5 +36,8 @@ void PointerType::addType(string typeName)
 //  cellPtr ^ cell
 string PointerType::toString()
 {
+    if (!type)
+        return identifier + " ^ <bogus_type>" + nlindent();
+
     return identifier + " ^ " + type->toIdentTypeString();
 }
