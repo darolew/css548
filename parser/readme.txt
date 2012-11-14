@@ -66,3 +66,60 @@ each class in the hierachy can insert itself into the symbol table in its own
 special way. He overrode the toString method in the sub-classes of Symbol.
 
 Gremlins are responsible for all typos, bugs, and ugly code.
+
+
+How to read the output
+----------------------
+When entering a scope, the program prints a banner with the name of the scope.
+If the program is named "first", you will see:
+
+ENTER Standard Identifier Table 
+---------------------------------------------------------------------------
+
+ENTER first                                                                                                                 
+---------------------------------------------------------------------------
+
+The first line tells you the SIT was created and pushed onto the stack. 
+It is the most encompassing scope. Then the program scope, "first", 
+is created and pushed onto the stack. Notice that the SIT identifiers-- 
+"boolean"; "integer"; etcetera-- are not printed when entering a new scope.
+Instead, they are printed when the SIT is popped off the stack, at the very
+end of the print-out. It looks like this:
+
+/* scopeExit first */                                                                                                 
+integer                                                                                                                 
+boolean                                                                                                                 
+real                                                                                                                    
+char                                                                                                                    
+write                                                                                                                   
+writeln                                                                                                                 
+read                                                                                                                    
+readln                                                                                                                  
+new                                                                                                                     
+dispose                                                                                                                 
+                                                                                                                    
+EXIT Standard Identifier Table                                                                                          
+===========================================================================
+ 
+ 
+routines and records are printed with their formal paramaters indented from
+their identifiers In the example below, "i", "j" and "k" are formal parameters
+of routine "d".
+
+Formal parameters are displed in a routine's own scope. Subroutines inside of
+the routine only print their identifiers. For example, "e" and "f" in the
+print-out below:
+                                                                                                    
+    d                                                                                                                   
+        i integer                                                                                                       
+        j integer                                                                                                       
+        k integer                                                                                                       
+                                                                                                                        
+        x integer                                                                                                       
+        y integer                                                                                                       
+        e                                                                                                               
+        f                                                                                                               
+                                                                                                                        
+EXIT d                                                                                                                  
+===========================================================================                                             
+/* scopeExit D */
