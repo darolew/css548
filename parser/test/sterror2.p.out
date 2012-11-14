@@ -1,0 +1,34 @@
+
+ENTER Standard Identifier Table
+---------------------------------------------------------------------------
+
+ENTER sterror2
+---------------------------------------------------------------------------
+error: apple is not a type
+error: apple is not a type
+/* program example with more st errors */
+/* apple undefined indirectly */
+    myreal 4.5
+    appleptr ^ <bogus_type>
+    basketptr ^ basket
+    basket 
+        fuji appleptr
+        next basketptr
+    thearray  2..8 integer
+    anotherarray  5..9 <bogus_type>
+    
+EXIT sterror2
+===========================================================================
+integer
+boolean
+real
+char
+write
+writeln
+read
+readln
+new
+dispose
+
+EXIT Standard Identifier Table
+===========================================================================

@@ -1,0 +1,160 @@
+
+ENTER Standard Identifier Table
+---------------------------------------------------------------------------
+
+ENTER sterror
+---------------------------------------------------------------------------
+error: id already exists in record
+error: undefinedtype is not a type
+error: info already exists in record
+error: junk is not a type
+error: undefinedtype is not a type
+/* program example with more errors */
+/* produce error: id exists */
+/* redefine and type not defined */
+/* junk never gets defined */
+/* problem with anotherPtr */
+/* okay, handle lower/uppercase */
+/* error, not defined */
+
+ENTER proc1
+---------------------------------------------------------------------------
+error: junk is not a type
+/* scopeEntry proc1 */
+/* redefine error */
+/* undefined type */
+/* redefine */
+    proc1
+        list cellptr
+        thea int3d
+        thea integer
+        something <unknown_type>
+        rec cellptr
+    
+        mycount integer
+        x1 integer
+        y integer
+        rec cellptr
+        
+EXIT proc1
+===========================================================================
+/* scopeExit proc1 */
+
+ENTER proc2
+---------------------------------------------------------------------------
+error: y already exists in scope
+error: x2 already exists in scope
+/* scopeEntry proc2 */
+/* redefine */
+/* redefine */
+
+ENTER proc2a
+---------------------------------------------------------------------------
+error: x2a already exists in scope
+/* scopeEntry proc2a */
+/* redefine */
+
+ENTER proc2b
+---------------------------------------------------------------------------
+error: x2b already exists in scope
+/* scopeEntry proc2b */
+/* redefine */
+
+ENTER proc2c
+---------------------------------------------------------------------------
+error: x2c already exists in scope
+/* scopeEntry proc2c */
+/* redefine */
+
+ENTER func2d
+---------------------------------------------------------------------------
+error: yetanotherundefinedtype is not a type
+/* scopeEntry func2d */
+/* undefined type */
+                    func2d integer
+                        newrec cellptr
+                    
+                        a  5..10 real
+                        b <unknown_type>
+                        
+EXIT func2d
+===========================================================================
+/* scopeExit func2d */
+                proc2c
+                
+                    someconst 10
+                    theconst 20
+                    x2c integer
+                    y integer
+                    func2d integer
+                    
+EXIT proc2c
+===========================================================================
+/* scopeExit proc2c */
+            proc2b
+            
+                x2b integer
+                y integer
+                proc2c
+                
+EXIT proc2b
+===========================================================================
+/* scopeExit proc2b */
+        proc2a
+        
+            mycount int3d
+            x2a integer
+            y integer
+            z integer
+            proc2b
+            
+EXIT proc2a
+===========================================================================
+/* scopeExit proc2a */
+    proc2
+    
+        mycount int3d
+        x2 integer
+        y integer
+        z integer
+        proc2a
+        
+EXIT proc2
+===========================================================================
+/* scopeExit proc2 */
+    grades 5
+    size 4
+    int3d  1..5,2..3,0..2 integer
+    cellptr ^ cell
+    cell 
+        id integer
+        info int3d
+        next cellptr
+    anotherptr ^ <bogus_type>
+    digit  0..9
+    list cellptr
+    newrec cellptr
+    ptr anotherptr
+    mycount int3d
+    theset digit
+    classnum integer
+    aaa <unknown_type>
+    proc1
+    proc2
+    
+EXIT sterror
+===========================================================================
+/* scopeExit example */
+integer
+boolean
+real
+char
+write
+writeln
+read
+readln
+new
+dispose
+
+EXIT Standard Identifier Table
+===========================================================================

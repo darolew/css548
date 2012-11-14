@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# CSS 548; Autumn 2012
+# Aaron Hoffer and Daniel Lewis
+
+function testfile()
+{
+    ../a.out <$1 &>test.out
+    echo Testing $1
+    diff --suppress-common-lines $1.out test.out > diff.out
+    if [ -s "diff.out" ]
+    then
+        echo -------------------------------------------------------------------------------
+        echo $1 FAILED
+        cat diff.out
+        echo -------------------------------------------------------------------------------
+    fi
+}
+
+#symbol table test files
+testfile sttest.p
+testfile sttest2.p
+testfile sttest3.p
+testfile sterror.p
+testfile sterror2.p
+
+# cleanup after testfile()
+echo Done
+rm -f test.out diff.out
+
+

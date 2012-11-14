@@ -10,10 +10,12 @@ H = y.tab.h actions.h  AbstractType.h ArrayType.h BaseType.h Const.h \
     SetType.h Symbol.h SymTable.h Variable.h
 CC = g++
 
-all: $(OBJ) $H
-	@$(CC) $(OBJ) -g -o a.out -lfl
+all: all_quiet
 	@echo Done
 
+all_quiet: $(OBJ) $H
+	@$(CC) $(OBJ) -g -o a.out -lfl 
+    
 main.o: $H main.cpp
 	@$(CC) -g -c main.cpp
 
@@ -64,6 +66,9 @@ y.tab.c: parser.y
 
 clean:
 	@rm -f a.out lex.yy.c y.tab.h y.tab.c $(OBJ) *.output *.gch
+
+test: all_quiet
+	@./run
 
 print:
 	@echo '************************************************'

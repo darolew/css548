@@ -1,0 +1,131 @@
+
+ENTER Standard Identifier Table
+---------------------------------------------------------------------------
+
+ENTER sttest2
+---------------------------------------------------------------------------
+error: id already exists in record
+/* program sttest2 */
+/* produce error: id exists */
+
+ENTER proc1
+---------------------------------------------------------------------------
+/* scopeEntry proc1 */
+    proc1
+        list cellptr
+        thea int3d
+        rec cellptr
+    
+        mycount integer
+        x1 integer
+        y integer
+        
+EXIT proc1
+===========================================================================
+/* scopeExit proc1 */
+
+ENTER proc2
+---------------------------------------------------------------------------
+error: y already exists in scope
+/* scopeEntry proc2 */
+/* produce error: y exists */
+
+ENTER proc2a
+---------------------------------------------------------------------------
+/* scopeEntry proc2a */
+
+ENTER proc2b
+---------------------------------------------------------------------------
+/* scopeEntry proc2b */
+
+ENTER proc2c
+---------------------------------------------------------------------------
+error: x2c already exists in scope
+/* scopeEntry proc2c */
+/* produce error: x2c exists */
+
+ENTER func2d
+---------------------------------------------------------------------------
+/* scopeEntry func2d */
+                    func2d integer
+                        newrec cellptr
+                    
+                        a  5..10 real
+                        
+EXIT func2d
+===========================================================================
+/* scopeExit func2d */
+                proc2c
+                
+                    someconst 10
+                    theconst 20
+                    x2c integer
+                    y integer
+                    func2d integer
+                    
+EXIT proc2c
+===========================================================================
+/* scopeExit proc2c */
+            proc2b
+            
+                x2b integer
+                y integer
+                proc2c
+                
+EXIT proc2b
+===========================================================================
+/* scopeExit proc2b */
+        proc2a
+        
+            mycount int3d
+            x2a integer
+            y integer
+            z integer
+            proc2b
+            
+EXIT proc2a
+===========================================================================
+/* scopeExit proc2a */
+    proc2
+    
+        mycount int3d
+        x2 integer
+        y integer
+        z integer
+        proc2a
+        
+EXIT proc2
+===========================================================================
+/* scopeExit proc2 */
+    grades 5
+    size 4
+    int3d  1..5,2..3,0..2 integer
+    cellptr ^ cell
+    cell 
+        id integer
+        info int3d
+        next cellptr
+    digit  0..9
+    list cellptr
+    newrec cellptr
+    mycount int3d
+    classnum integer
+    proc1
+    proc2
+    
+EXIT sttest2
+===========================================================================
+/* scopeExit example */
+integer
+boolean
+real
+char
+write
+writeln
+read
+readln
+new
+dispose
+
+EXIT Standard Identifier Table
+===========================================================================
