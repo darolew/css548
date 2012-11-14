@@ -1,7 +1,0 @@
-- Comment function and files (add comments in general)
-- Code cleanup
-	- .h and .cpp prototypes vs. definitions
-	- re-order function in .cpp files
-- Write readme.txt
-	- Note memory leak issues (are they our fault?)
-- Generate C++ code for variables, consts, etc.
