@@ -22,6 +22,7 @@ public:
 
     Symbol(string);
     virtual ~Symbol();
+    virtual string className();
     virtual bool insertInto();
     virtual bool isType();
     virtual string toString();

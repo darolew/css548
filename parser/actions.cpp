@@ -21,7 +21,7 @@ void assignTypesToPointers()
 {
     while (!ptrList.empty()) {
         Ptrinfo pi = ptrList.front();
-        pi.ptrType->addType(*pi.pointee);
+        pi.ptrType->type = symTable.lookupType(*pi.pointee);
 
         //The string pointee was copied in the previous statement.
         //Free the memory.

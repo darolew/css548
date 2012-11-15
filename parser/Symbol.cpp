@@ -22,6 +22,11 @@ Symbol::~Symbol()
 {
 }
 
+string Symbol::className() 
+{
+    return "Symbol";
+}
+
 //Insert this symbol into the synbol table. An error is produced if the symbol
 //already exists in the current scope. Returns whether the insert succeeded.
 bool Symbol::insertInto()

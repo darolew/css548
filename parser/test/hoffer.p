@@ -1,11 +1,7 @@
-program hoffer(input, output);
-type
-   cellPtr = ^cell;
-   cell = record 
-      next: cellPtr
-   end;
-var
-    a, b, c: cell;
-    goto : cell;
-begin
-end.
+program hoffer(input, output);     (* program example with more st errors *)
+type 
+   applePtr = ^apple;
+   anotherArray = array [5..9] of ^integer;
+begin                                
+   (* apple undefined indirectly *)
+end.  

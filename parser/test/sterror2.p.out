@@ -14,8 +14,8 @@ error: apple is not a type
     basket 
         fuji appleptr
         next basketptr
-    thearray  2..8 integer
-    anotherarray  5..9 <bogus_type>
+    thearray  2..8  ^ integer
+    anotherarray  5..9  ^ <bogus_type>
     
 EXIT sterror2
 ===========================================================================

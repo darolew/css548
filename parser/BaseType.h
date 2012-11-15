@@ -24,6 +24,11 @@ public:
     {
         this->cName = cName;
     }
+    
+    virtual string className() 
+    {
+        return "BaseType";
+    }
 };
 
 #endif

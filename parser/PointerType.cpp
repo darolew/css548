@@ -16,20 +16,17 @@ PointerType::PointerType(string id) : AbstractType(id)
 {
 }
 
+string PointerType::className() 
+{
+    return "PointerType";
+}
+
 //Pointer types are special: they are allowed to be declared before
 //the type they point to has been declared. Thus, this method skips
 //the symbol checking of the superclass method.
 bool PointerType::insertInto()
 {
     return Symbol::insertInto();
-}
-
-//Add the type to which the PointerType points. This must be done
-//after all the types for the scope have been declared.
-void PointerType::addType(string typeName)
-{
-    //lookupType() handles error checking.
-    type = symTable.lookupType(typeName);
 }
 
 //Format this object as a string in this format:

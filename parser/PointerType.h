@@ -12,8 +12,8 @@ class PointerType : public AbstractType {
 
 public:
     PointerType(string);
+    virtual string className();
     virtual bool insertInto();
-    void addType(string);
     virtual string toString();
 };
 

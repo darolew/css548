@@ -250,7 +250,21 @@ SetType             : yset yof Subrange
                     ;
 PointerType         : ycaret yident
                     {
-                        currType = symTable.lookupType($2);
+                        AbstractType* pointee = symTable.lookupType($2);
+
+                        //If current type is NULL after the lookup, the pointee
+                        //is not in the symbol table. This is a problem with
+                        //the source code, but we should create an a pointer
+                        //instance that does not point to anything. 
+                        //This is to fix the bug the variable is parser
+                        //     
+                        //     anotherArray = array [5..9] of ^integer;
+                        //
+                        //as "arry of integer" and should be parsed as "array 
+                        //of pointers to integers.
+                        currType = new PointerType("");
+                        currType->type = pointee;
+
                         free($2);
                     }
                     ;
