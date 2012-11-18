@@ -6,6 +6,7 @@
 #include <sstream>
 #include "ArrayType.h"
 #include "main.h"
+#include "y.tab.h"
 
 //The constructor for an ArrayType. The passed-in type is the type of the
 //array elements, while the ranges list represents the array dimensions.
@@ -32,4 +33,28 @@ string ArrayType::toString()
     else
         ss << " <bogus_type>" << nlindent();
     return ss.str();
+}
+
+//TODO:
+//  - Support character ranges
+//  - Support constant ranges
+//  - Make sure both ranges are the same type
+//  - Make sure low <= high
+void ArrayType::generateCode(ostream &out, string ident)
+{
+    type->generateCode(out, ident);
+    list<Range>::iterator it = ranges.begin();
+    for (; it != ranges.end(); it++) {
+        Range r = *it;
+        if (r.low.token != ynumber || r.high.token != ynumber) {
+            cerr << "error -- unsupported array type" << endl;
+            return;
+        }
+        
+        int low, high, size;
+        low = atoi(r.low.str.c_str());
+        high = atoi(r.high.str.c_str());
+        size = (high - low + 1);
+        out << "[" << size << "]";
+    }
 }

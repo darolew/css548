@@ -31,6 +31,8 @@ public:
     AbstractType(string, AbstractType*);
     virtual ~AbstractType();
     virtual bool isType();
+    virtual void generateCode(ostream &, string);
+    virtual void generateDefinition(ostream &, string);
     virtual string toIdentTypeString();
     virtual string toString();
 };

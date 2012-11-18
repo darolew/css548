@@ -14,6 +14,8 @@
 #include "Variable.h"
 using namespace std;
 
+//#define PRINTST
+
 class SymTable {
 
 private:
@@ -37,6 +39,7 @@ public:
     Symbol *lookup(Table *, string);
     AbstractType *lookupType(string);
     Table *front();
+    int size();
 
 private:
     void printST();

@@ -24,6 +24,7 @@ public:
     virtual ~Symbol();
     virtual string className();
     virtual bool insertInto();
+    virtual void resolve();
     virtual bool isType();
     virtual string toString();
 };

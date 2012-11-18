@@ -2,9 +2,9 @@
 # Aaron Hoffer and Daniel Lewis
 # Generate parser using Yacc and compile it with g++.
 
-OBJ = y.tab.o lex.yy.o main.o AbstractType.o actions.o ArrayType.o Const.o \
-    Function.o PointerType.o RecordType.o SetType.o Symbol.o SymTable.o \
-    Variable.o
+OBJ = y.tab.o lex.yy.o main.o AbstractType.o actions.o ArrayType.o \
+    BaseType.o Const.o Function.o PointerType.o RecordType.o SetType.o \
+    Symbol.o SymTable.o Variable.o
 H = y.tab.h actions.h  AbstractType.h ArrayType.h BaseType.h Const.h \
     Function.h IoFunction.h MemFunction.h PointerType.h Range.h RecordType.h \
     SetType.h Symbol.h SymTable.h Variable.h
@@ -27,6 +27,9 @@ ArrayType.o: $H ArrayType.cpp
 
 actions.o: $H actions.cpp
 	@$(CC) -g -c actions.cpp
+
+BaseType.o: $H BaseType.cpp
+	@$(CC) -g -c BaseType.cpp
 
 Const.o: $H Const.cpp
 	@$(CC) -g -c Const.cpp

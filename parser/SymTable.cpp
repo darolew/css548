@@ -61,21 +61,26 @@ SymTable::~SymTable()
 //Push a new scope onto the stack.
 void SymTable::beginScope(string name)
 {
+#ifdef PRINTST
     //For all scopes except the SIT, increase the global indentation level.
     if (scopes.size() > 0)
         indent++;
+#endif
 
     scopes.push_front(new Table());
     scopeNames.push_front(name);
 
+#ifdef PRINTST
     //Print the new scope banner.
     cout << "\nENTER " << name << endl;
     printLine("-");
+#endif
 }
 
 //Pop and discard the current scope.
 void SymTable::endScope()
 {
+#ifdef PRINTST
     //Print the symbols that are about to be destroyed.
     printST();
 
@@ -86,6 +91,7 @@ void SymTable::endScope()
     //Print the end scope banner.
     cout << "\nEXIT " << scopeNames.front() << endl;
     printLine("=");
+#endif
 
     //Destroy the scope.
     delTopScope();
@@ -149,6 +155,12 @@ Table *SymTable::front()
 {
     assertStack();
     return scopes.front();
+}
+
+//TODO:comment
+int SymTable::size()
+{
+    return (int)scopes.size();
 }
 
 //

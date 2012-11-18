@@ -48,6 +48,22 @@ AbstractType::~AbstractType()
     //    delete type;
 }
 
+void AbstractType::generateCode(ostream &out, string ident)
+{
+    out << identifier << " " << ident;
+/*
+    if (type)
+        type->generateCode(out, ident);
+    else
+        out << "BOGUS";
+*/
+}
+
+void AbstractType::generateDefinition(ostream &out, string ident)
+{
+    generateCode(out, ident);
+}
+
 //Return true because this class and all its subclasses are type objects.
 bool AbstractType::isType()
 {

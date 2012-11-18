@@ -44,6 +44,10 @@ bool Symbol::insertInto()
     return true;
 }
 
+void Symbol::resolve()
+{
+}
+
 //By default, a symbol is not a type. Overridable.
 bool Symbol::isType()
 {

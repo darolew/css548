@@ -6,8 +6,6 @@
 //     - integer;
 //     - real;
 //     - char (used for strings).
-//
-// This class is too small to deserve its own cpp file.
 
 #ifndef BASETYPE_H
 #define BASETYPE_H
@@ -20,15 +18,9 @@ class BaseType : public AbstractType {
     string cName;
 
 public:
-    BaseType(string id, string cName) : AbstractType(id)
-    {
-        this->cName = cName;
-    }
-    
-    virtual string className() 
-    {
-        return "BaseType";
-    }
+    BaseType(string, string);
+    virtual string className();
+    virtual void generateCode(ostream &out, string);
 };
 
 #endif

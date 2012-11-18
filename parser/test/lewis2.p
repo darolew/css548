@@ -11,12 +11,13 @@ const
   size = 4;                               (* number of students *)
 
 type
-  integerArray = array [1..avgPosition] of integer;
+  integerArray = array [1..6] of integer;
 
   cellPtr = ^cell;
   cell = record
      id: integer;
      info: integerArray;
+     temp: ^integer;
      next: cellPtr
   end;
 

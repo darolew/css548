@@ -69,7 +69,12 @@ int yylex(); /* needed by g++ */
 
 /**************************  Pascal program **********************************/
 
-CompilationUnit     : ProgramModule
+CompilationUnit     :
+                    {
+                        cout << "#include <iostream>" << endl;
+                        cout << "using namespace std;" << endl;
+                    }
+                      ProgramModule
                     ;
 ProgramModule       : yprogram yident ProgramParameters ysemicolon
                     {
@@ -103,7 +108,18 @@ IdentList           :  yident
 
 /**************************  Declarations section ***************************/
 
-Block               : Declarations ybegin StatementSequence yend
+Block               : Declarations
+                    {
+                        if (symTable.size() == 2) {
+                            cout << "int main()" << endl;
+                            cout << "{" << endl;
+                        }
+                    }
+                      ybegin StatementSequence yend
+                    {
+                        if (symTable.size() == 2)
+                            cout << "}" << endl;
+                    }
                     ;
 Declarations        : ConstantDefBlock
                       TypeDefBlock PointerCheck
@@ -126,7 +142,13 @@ TypeDefBlock        : /*** empty ***/
                     | ytype TypeDefList
                     ;
 TypeDefList         : TypeDef ysemicolon
+                    {
+                        cout << ";" << endl;
+                    }
                     | TypeDefList TypeDef ysemicolon
+                    {
+                        cout << ";" << endl;
+                    }
                     ;
 VariableDeclBlock   : /*** empty ***/
                     | yvar VariableDeclList
@@ -144,14 +166,18 @@ ConstantDef         : yident yequal ConstExpression
 TypeDef             : yident yequal NPType
                     {
                         AbstractType *td = new AbstractType($1, currType);
-                        free($1);
                         symTable.insert(td);
+                        cout << "typedef ";
+                        currType->generateDefinition(cout, $1);
+                        free($1);
                     }
                     | PointerTypeDef
                     ;
 PointerTypeDef      : yident yequal ycaret yident
                     {
-                        addPointerToList($1, $4);
+                        PointerType *ptrType = addPointerToList($1, $4);
+                        cout << "typedef ";
+                        ptrType->generateDefinition(cout, $1);
                         free($1);
                         free($4);
                     }
@@ -159,6 +185,7 @@ PointerTypeDef      : yident yequal ycaret yident
 VariableDecl        : IdentList ycolon Type
                     {
                         insertCurrentVariableDecl();
+                        currType->resolve();
                     }
                     ;
 
@@ -185,7 +212,6 @@ ConstFactor         : yident
                     {
                         $$ = newTerminal($1, ynumber);
                         free($1);
-
                     }
                     | ynil
                     {
@@ -250,21 +276,10 @@ SetType             : yset yof Subrange
                     ;
 PointerType         : ycaret yident
                     {
-                        AbstractType* pointee = symTable.lookupType($2);
-
-                        //If current type is NULL after the lookup, the pointee
-                        //is not in the symbol table. This is a problem with
-                        //the source code, but we should create an a pointer
-                        //instance that does not point to anything. 
-                        //This is to fix the bug the variable is parser
-                        //     
-                        //     anotherArray = array [5..9] of ^integer;
-                        //
-                        //as "arry of integer" and should be parsed as "array 
-                        //of pointers to integers.
-                        currType = new PointerType("");
-                        currType->type = pointee;
-
+                        //Create a pointer instance -- we know the name of what
+                        //it points at, but we do not know if that identifier
+                        //exists in the symbol table.
+                        currType = new PointerType("", $2);
                         free($2);
                     }
                     ;

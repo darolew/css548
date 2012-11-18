@@ -18,6 +18,18 @@ RecordType::RecordType(list<Variable> fields) : AbstractType()
         this->fields.push_front(*it);
 }
 
+void RecordType::generateCode(ostream &out, string ident)
+{
+    out << "struct " << ident << " {" << endl;
+    list<Variable>::iterator it = fields.begin();
+    for (; it != fields.end(); it++) {
+        out << "    ";
+        it->generateCode(out, it->identifier);
+        out << ";" << endl;
+    }
+    out << "} " << ident;
+}
+
 //Returns a string representation. The cell record is formatted:
 //
 //    cell

@@ -6,12 +6,12 @@
 #include "actions.h"
 
 //Create variables used by the semantic actions to collect objects.
-list<string> idList;       // list of identifiers
-list<Range> rangeList;     // list of ranges, like for an array
-list<Ptrinfo> ptrList;     // list of pointers that need types
-list<Variable> fieldList;  // list of fields to add to a record
-Function *currFunction;    // current function object
-AbstractType *currType;    // current type being constructed
+list<string> idList;        // list of identifiers
+list<Range> rangeList;      // list of ranges, like for an array
+list<PointerType*> ptrList; // list of pointers that need types
+list<Variable> fieldList;   // list of fields to add to a record
+Function *currFunction;     // current function object
+AbstractType *currType;     // current type being constructed
 
 //This method iterates through the list of pointers declared in a just-parsed
 //typedef block; it is invoked when exiting the typedef block, and it assigns
@@ -20,13 +20,8 @@ AbstractType *currType;    // current type being constructed
 void assignTypesToPointers()
 {
     while (!ptrList.empty()) {
-        Ptrinfo pi = ptrList.front();
-        pi.ptrType->type = symTable.lookupType(*pi.pointee);
-
-        //The string pointee was copied in the previous statement.
-        //Free the memory.
-        delete pi.pointee;
-
+        PointerType *ptrType = ptrList.front();
+        ptrType->resolve();
         ptrList.pop_front();
     }
 }
@@ -35,13 +30,12 @@ void assignTypesToPointers()
 //into the symbol table. The type of the pointer is saved locally as a string,
 //along with its pointer object. That string will be used as a key to lookup
 //the type object at the end of the typedef block.
-void addPointerToList(string nameOfPointer, string nameOfPointee)
+PointerType *addPointerToList(string nameOfPointer, string nameOfPointee)
 {
-    Ptrinfo pi;
-    pi.ptrType = new PointerType(nameOfPointer);
-    pi.pointee = new string(nameOfPointee);
-    ptrList.push_front(pi);
-    symTable.insert(pi.ptrType);
+    PointerType *ptrType = new PointerType(nameOfPointer, nameOfPointee);
+    ptrList.push_front(ptrType);
+    symTable.insert(ptrType);
+    return ptrType;
 }
 
 //Walk the list of variable names being declared. For example, the declaration

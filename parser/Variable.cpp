@@ -16,8 +16,13 @@ Variable::~Variable()
 {
     //If the type has no name, it is not in the symbol table and
     //will not be freed by it.
-    if (type && type->identifier == "")
-        delete type;
+//    if (type && type->identifier == "")
+//        delete type;
+}
+
+void Variable::generateCode(ostream &out, string ident)
+{
+    type->generateCode(out, ident);
 }
 
 //Returns a string representation of a variable.
