@@ -35,15 +35,15 @@ void PointerType::resolve()
     type = symTable.lookupType(pointeeName);
 }
 
-void PointerType::generateCode(ostream &out, string ident)
+void PointerType::generateCode(string ident)
 {
     if (identifier != "")
-        out << identifier << " " << ident;
+        cout << identifier << " " << ident;
     else
-        out << pointeeName << " *" << ident;
+        cout << pointeeName << " *" << ident;
 }
 
-void PointerType::generateDefinition(ostream &out, string ident)
+void PointerType::generateDefinition(string ident)
 {
     AbstractType *pt = type; // initialize to class's type
     
@@ -58,9 +58,9 @@ void PointerType::generateDefinition(ostream &out, string ident)
     //foward reference, and the only forward references we support
     //are for records, so output the "struct" keyword.
     if (pt)
-        out << pointeeName << " *" << ident;
+        cout << pointeeName << " *" << ident;
     else
-        out << "struct " << pointeeName << " *" << ident;
+        cout << "struct " << pointeeName << " *" << ident;
 }
 
 //Format this object as a string in this format:

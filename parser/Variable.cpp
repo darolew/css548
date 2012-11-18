@@ -3,6 +3,7 @@
 //
 // This file contains the method definitions of the Variable class.
 
+#include <cassert>
 #include "Variable.h"
 
 //A constructor for a Variable. Saves the id and type.
@@ -20,9 +21,22 @@ Variable::~Variable()
 //        delete type;
 }
 
-void Variable::generateCode(ostream &out, string ident)
+void Variable::generateCode(string ident)
 {
-    type->generateCode(out, ident);
+    //Example 1. ident==list
+    //  cellptr list
+    type->generateCode(ident);
+}
+
+//TODO: Most places the parameter "ident" is not used.
+//It makes the code a little harder to follow when there is an ident parameter,
+//but it doesn't hurt anything. Consider writing virtual function
+//Symbol::generateCode() that just calls generateCode(identifier)
+//Definitely a low priority.
+void Variable::generateDefinition(string ident)
+{
+    //Ignore parameter "ident"
+    generateCode(identifier);
 }
 
 //Returns a string representation of a variable.

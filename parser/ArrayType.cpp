@@ -40,9 +40,9 @@ string ArrayType::toString()
 //  - Support constant ranges
 //  - Make sure both ranges are the same type
 //  - Make sure low <= high
-void ArrayType::generateCode(ostream &out, string ident)
+void ArrayType::generateCode(string ident)
 {
-    type->generateCode(out, ident);
+    type->generateCode(ident);
     list<Range>::iterator it = ranges.begin();
     for (; it != ranges.end(); it++) {
         Range r = *it;
@@ -55,6 +55,6 @@ void ArrayType::generateCode(ostream &out, string ident)
         low = atoi(r.low.str.c_str());
         high = atoi(r.high.str.c_str());
         size = (high - low + 1);
-        out << "[" << size << "]";
+        cout << "[" << size << "]";
     }
 }

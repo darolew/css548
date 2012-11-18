@@ -38,20 +38,6 @@ PointerType *addPointerToList(string nameOfPointer, string nameOfPointee)
     return ptrType;
 }
 
-//Walk the list of variable names being declared. For example, the declaration
-//"a,b,c : interger;" includes a list of variables {a, b, c} and their type,
-//integer. For each one, a new variable object is created, assigned a type,
-//and entered into the symbol table. The list is emptied as the varaibles are
-//inserted into the symbol table.
-void insertCurrentVariableDecl()
-{
-    while (!idList.empty()) {
-        string name = idList.front();
-        symTable.insert(new Variable(name, currType));
-        idList.pop_front();
-    }
-}
-
 //Convience method for creating Terminal struct.
 Terminal *newTerminal(string lexeme, int token, char unaryOperatorChar)
 {

@@ -21,6 +21,9 @@
 //Constructor for the symbol table.
 SymTable::SymTable()
 {
+    //Print the SIT, program scope without indentation
+    indentThreshold=1;
+
     //Start standard identifier.
     beginScope("Standard Identifier Table");
 
@@ -47,11 +50,11 @@ SymTable::~SymTable()
     //program contained a syntax error) this destructor might be called
     //when other scopes still exist. In that case, simply delete all
     //the remaining scopes.
-    if (scopes.size() > 1) {
+    if (size() > 1) {
         //Error case, delete remaining scopes.
         do {
             delTopScope();
-        } while (scopes.size());
+        } while (size());
     } else {
         //Happy case, cleanup the SIT scope.
         endScope();
@@ -61,11 +64,8 @@ SymTable::~SymTable()
 //Push a new scope onto the stack.
 void SymTable::beginScope(string name)
 {
-#ifdef PRINTST
-    //For all scopes except the SIT, increase the global indentation level.
-    if (scopes.size() > 0)
+    if (scopes.size() > indentThreshold)
         indent++;
-#endif
 
     scopes.push_front(new Table());
     scopeNames.push_front(name);
@@ -78,16 +78,18 @@ void SymTable::beginScope(string name)
 }
 
 //Pop and discard the current scope.
+//Pop and discard the current scope.
 void SymTable::endScope()
 {
 #ifdef PRINTST
     //Print the symbols that are about to be destroyed.
     printST();
+#endif
 
-    //For all scopes except the SIT, reduce the global indentation level.
-    if (scopes.size() > 0)
+    if (indent > 0)
         indent--;
 
+#ifdef PRINTST
     //Print the end scope banner.
     cout << "\nEXIT " << scopeNames.front() << endl;
     printLine("=");

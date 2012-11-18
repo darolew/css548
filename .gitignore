@@ -7,4 +7,5 @@ lex.yy.c
 mypush
 *.gch
 vgrind
+.nfs*
 

@@ -36,7 +36,6 @@ extern AbstractType *currType;     // current type being constructed
 //Method prototypes. For details about each method, see comments in actions.cpp
 void assignTypesToPointers();
 PointerType *addPointerToList(string, string);
-void insertCurrentVariableDecl();
 void insertArrayType();
 Terminal *newTerminal(string, int, char=NO_UNARY_OP);
 Terminal initTerminal(string, int, char=NO_UNARY_OP);

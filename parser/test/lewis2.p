@@ -22,6 +22,7 @@ type
   end;
 
 var
+  testAary : array [1..3, 3..8] of ^boolean;  
   list, newrec: cellPtr;
   count, classNum: integer;
 

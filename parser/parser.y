@@ -147,7 +147,7 @@ TypeDefList         : TypeDef ysemicolon
                     }
                     | TypeDefList TypeDef ysemicolon
                     {
-                        cout << ";" << endl;
+                        cout << ";" << nlindent();
                     }
                     ;
 VariableDeclBlock   : /*** empty ***/
@@ -168,7 +168,7 @@ TypeDef             : yident yequal NPType
                         AbstractType *td = new AbstractType($1, currType);
                         symTable.insert(td);
                         cout << "typedef ";
-                        currType->generateDefinition(cout, $1);
+                        currType->generateDefinition($1);
                         free($1);
                     }
                     | PointerTypeDef
@@ -177,14 +177,30 @@ PointerTypeDef      : yident yequal ycaret yident
                     {
                         PointerType *ptrType = addPointerToList($1, $4);
                         cout << "typedef ";
-                        ptrType->generateDefinition(cout, $1);
+                        ptrType->generateDefinition($1);
                         free($1);
                         free($4);
                     }
                     ;
 VariableDecl        : IdentList ycolon Type
                     {
-                        insertCurrentVariableDecl();
+                        /*Walk the list of variable names being declared. For
+                        example, the declaration "a,b,c : interger;" includes
+                        a list of variables {a, b, c} and their type, integer.
+                        For each one, a new variable object is created, 
+                        assigned a type, and entered into the symbol table. 
+                        The list is emptied as the variables are inserted into
+                        the symbol table.*/
+                        while (!idList.empty()) {
+                            string name = idList.front();
+                            Variable *var = new Variable(name, currType);
+                            var->generateDefinition(name);
+                            symTable.insert(var);
+                            idList.pop_front();
+                            cout << ";" << nlindent();
+                        }
+                        //Variables must point to a known type. They can be 
+                        //resolved immediately.
                         currType->resolve();
                     }
                     ;
@@ -418,8 +434,13 @@ SubprogDeclList     : /*** empty ***/
                     | SubprogDeclList ProcedureDecl ysemicolon
                     | SubprogDeclList FunctionDecl ysemicolon
                     ;
-ProcedureDecl       : CreateFunc ProcedureHeading ysemicolon Block
+ProcedureDecl       : CreateFunc ProcedureHeading ysemicolon
                     {
+                        currFunction->generateDefinition("");
+                    }
+                    Block
+                    {
+                        cout << "\n}\n\n";
                         symTable.endScope();
                     }
                     ;
@@ -427,9 +448,11 @@ FunctionDecl        : CreateFunc FunctionHeading ycolon yident ysemicolon
                     {
                         AbstractType *returnType = symTable.lookupType($4);
                         currFunction->setReturnType(returnType);
+                        currFunction->generateDefinition("");
                     }
-                      Block
+                    Block
                     {
+                        cout << "\n}\n\n";
                         symTable.endScope();
                     }
                     ;

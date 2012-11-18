@@ -16,7 +16,8 @@ class Variable: public Symbol {
 public:
     Variable(string, AbstractType *);
     virtual ~Variable();
-    virtual void generateCode(ostream &, string);
+    virtual void generateCode(string);
+    virtual void generateDefinition(string);
     virtual string toString();
 };
 

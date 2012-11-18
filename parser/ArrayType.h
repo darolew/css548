@@ -24,7 +24,7 @@ class ArrayType : public AbstractType {
 
 public:
     ArrayType(AbstractType *, list<Range>);
-    virtual void generateCode(ostream &, string);
+    virtual void generateCode(string);
     virtual string toString();
 };
 

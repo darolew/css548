@@ -42,6 +42,7 @@ public:
     int size();
 
 private:
+    int indentThreshold;
     void printST();
     void printLine(string);
     void delTopScope();

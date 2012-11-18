@@ -10,6 +10,11 @@ BaseType::BaseType(string id, string cName) : AbstractType(id)
 {
     this->cName = cName;
 }
+
+string BaseType::cTypeName() 
+{
+    return cName;
+}
     
 string BaseType::className() 
 {

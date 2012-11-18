@@ -19,11 +19,12 @@ private:
 
 public:
     Function();
+    void addParam(Variable *param);
+    virtual void generateDefinition(string);
+    virtual bool insertInto();
+    void setReturnType(AbstractType *rt);
     virtual string toString();
     virtual string toStringLong();
-    virtual bool insertInto();
-    void addParam(Variable *param);
-    void setReturnType(AbstractType *rt);
 };
 
 #endif

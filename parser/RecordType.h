@@ -21,7 +21,7 @@ private:
 public:
     //Refer to the .cpp file for descriptions of these methods.
     RecordType(list<Variable>);
-    virtual void generateCode(ostream &, string);
+    virtual void generateCode(string);
     virtual string toString();
 };
 

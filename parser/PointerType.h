@@ -17,8 +17,8 @@ public:
     virtual string className();
     virtual bool insertInto();
     virtual void resolve();
-    virtual void generateCode(ostream &, string);
-    virtual void generateDefinition(ostream &, string);
+    virtual void generateCode(string);
+    virtual void generateDefinition(string);
     virtual string toString();
 };
 

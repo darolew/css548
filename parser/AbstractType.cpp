@@ -48,20 +48,28 @@ AbstractType::~AbstractType()
     //    delete type;
 }
 
-void AbstractType::generateCode(ostream &out, string ident)
+//For typedefs, the name of the c in C++ is the alais created by the typedef,
+//the name is the same in C and Pascal. For these cases, just return the 
+//type's identifier. However, the base types have different names in Pascal
+//and C. This method is overriden in the BaseType class.
+string AbstractType::cTypeName() 
 {
-    out << identifier << " " << ident;
-/*
-    if (type)
-        type->generateCode(out, ident);
-    else
-        out << "BOGUS";
-*/
+    return identifier;
 }
 
-void AbstractType::generateDefinition(ostream &out, string ident)
+void AbstractType::generateCode(string ident)
 {
-    generateCode(out, ident);
+    //Example 1. typedef
+    //  cellptr list
+    //
+    //Example 2. base type
+    //  int count
+    cout << cTypeName() << " " << ident;
+}
+
+void AbstractType::generateDefinition(string ident)
+{
+    generateCode(ident);
 }
 
 //Return true because this class and all its subclasses are type objects.

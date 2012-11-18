@@ -19,6 +19,37 @@ Function::Function() : Symbol("")
     returnType = NULL;
 }
 
+//TODO: Comment
+void Function::generateDefinition(string ident)
+{
+    if(returnType)
+        cout << returnType->cTypeName();
+    else
+        cout << "void";
+        
+    cout << " " << identifier << "(";
+    
+    //Parameters
+    list<Variable>::iterator it = params.begin();
+    for (; it != params.end(); it++) {
+        it->generateCode("");
+        if (it != --params.end())
+            cout << ", ";
+    }
+ 
+    cout 
+        //Close off function parameter list
+        << ")" 
+        //Go to the next line but do not indent, otherwise the curly 
+        //brace will be indented as well.
+        << endl 
+        //Open the function body with a curly brace
+        << "{" 
+        //Add the new line and indentation
+        << nlindent();
+
+}
+
 //Returns a description of the function in the format:
 //
 //    functionName returnType
