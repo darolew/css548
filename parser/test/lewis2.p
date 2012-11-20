@@ -22,7 +22,7 @@ type
   end;
 
 var
-  testAary : array [1..3, 3..8] of ^boolean;  
+  testArray : array [1..3, 3..8] of ^boolean;  
   list, newrec: cellPtr;
   count, classNum: integer;
 
@@ -32,10 +32,16 @@ var
 
 procedure insert(var list: cellPtr; newrec: cellPtr);
 var
+  x: integer;
+  str: char;
   current: cellPtr;
   found: boolean;
 
 begin
+    x := 42;
+    str := "hello";
+    str := 'world';
+    x := x * 23 + 12 -5 / 0;
     current := list;
     found := false;
     if (list = nil) then 

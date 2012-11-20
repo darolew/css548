@@ -312,6 +312,9 @@ FieldList           : IdentList ycolon Type
 
 StatementSequence   : Statement
                     | StatementSequence ysemicolon Statement
+                	{
+                    	cout << ";" << nlindent();
+                    }
                     ;
 Statement           : Assignment
                     | ProcedureCall
@@ -323,18 +326,24 @@ Statement           : Assignment
                     | ybegin StatementSequence yend
                     | /*** empty ***/
                     ;
-Assignment          : Designator yassign Expression
+Assignment          : Designator yassign 
+					{
+						cout << " = "; 
+					}
+					Expression
                     ;
 ProcedureCall       : yident
                     {
-                        //Generate code
+                        cout << $1;
                         free($1);
                     }
-                    | yident ActualParameters
+                    | yident 
                     {
-                        //Generate code
+                        cout << $1;
                         free($1);
                     }
+
+                      ActualParameters
                     ;
 IfStatement         : yif Expression ythen Statement ElsePart
                     ;
@@ -367,27 +376,45 @@ WhichWay            : yto | ydownto
 
 /***************************  Designator Stuff  ******************************/
 
-Designator          : yident DesignatorStuff
-                    {
-                        //Do designator stuff here
-                        free($1);
-                    }
+Designator          : yident 
+					{
+						cout << $1;
+					}
+					  DesignatorStuff
                     ;
 DesignatorStuff     : /*** empty ***/
                     | DesignatorStuff theDesignatorStuff
                     ;
-theDesignatorStuff  : ydot yident
+theDesignatorStuff  : ydot yident /*Record field access*/
                     {
-                        //Do the the designator stuff here
+                        cout << "." << $2;
                         free($2);
                     }
-                    | yleftbracket ExpList yrightbracket
+                    | yleftbracket 
+                    {
+                    	cout << "[";
+                    }
+                      ExpList yrightbracket /*Array element access*/
+                    {
+                    	cout << "]";
+                    }
                     | ycaret
                     ;
-ActualParameters    : yleftparen ExpList yrightparen
+ActualParameters    : yleftparen 
+					{
+						cout << "(";
+					}
+					  ExpList yrightparen
+					{
+						cout << ")";
+					}
                     ;
 ExpList             : Expression
-                    | ExpList ycomma Expression
+                    | ExpList ycomma
+                    {
+                    	cout << ", ";
+                    }
+                      Expression
                     ;
 
 /***************************  Expression Stuff  ******************************/
@@ -395,7 +422,11 @@ Expression          : SimpleExpression
                     | SimpleExpression Relation SimpleExpression
                     ;
 SimpleExpression    : TermExpr
-                    | UnaryOperator TermExpr
+                    | UnaryOperator 
+                    {
+                    	cout << $1;
+                    }
+                    TermExpr
                     ;
 TermExpr            : Term
                     | TermExpr AddOperator Term
@@ -404,19 +435,40 @@ Term                : Factor
                     | Term MultOperator Factor
                     ;
 Factor              : ynumber
+					{
+						cout << $1;
+					}
                     | ynil
+                    {
+                    	cout << "NULL";
+                    }
                     | ystring
+                    {
+                    	cout << "\"" << $1 << "\"";
+                    }
                     | Designator
-                    | yleftparen Expression yrightparen
-                    | ynot Factor
+                    | yleftparen 
+                    {
+                    	cout << "(";
+                    }
+                      Expression yrightparen
+                    {
+                    	cout << ")";
+                    }
+                    | ynot 
+                    {
+                    	cout << "!";
+                    }
+                    Factor
                     | Setvalue
                     | FunctionCall
                     ;
-FunctionCall        : yident ActualParameters
-                    {
-                        //Generate code
-                        free($1);
-                    }
+FunctionCall        : yident
+					{
+						cout << $1;
+						free($1);
+					}
+ 					  ActualParameters
                     ;
 Setvalue            : yleftbracket ElementList yrightbracket
                     | yleftbracket yrightbracket
@@ -504,9 +556,45 @@ FormalParamFlag     : /*** nothing ***/
 
 UnaryOperator       : yplus { $$ = '+'; } | yminus { $$ = '-'; }
                     ;
-MultOperator        : ymultiply | ydivide | ydiv | ymod | yand
+MultOperator        : ymultiply
+					{
+						//TODO: type checking and coercion
+						cout << "*";
+					} 
+					| ydivide 
+					{
+						//TODO: type checking and coersion
+						cout << "/";
+					}
+					| ydiv 
+					{ //With the exception of Div and Mod, which accept only integer expressions as operands,
+					  //all operators accept real and integer expressions as operands. 
+					  cout << "/";
+					}
+					| ymod 
+					{
+						cout << "%";
+					}
+					| yand
+					{
+						//TODO:Boolean operators can only have boolean type 
+						//operands, and the resulting type is always boolean.
+						cout << "&&";
+					}
+	
                     ;
-AddOperator         : yplus | yminus | yor
+AddOperator         : yplus 
+					{
+						cout << "+";
+					}	
+					| yminus
+					{
+						cout << "-";
+					}
+					| yor
+					{
+						cout << "||";
+					}
                     ;
 Relation            : yequal | ynotequal | yless | ygreater
                     | ylessequal | ygreaterequal | yin

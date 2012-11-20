@@ -136,8 +136,15 @@ with                    {return yunknown;}      /* Unsupported keyword */
  */
 static void capture(void)
 {
+
     /* Copy yytext because it can be changed before we use it. */
-    yylval.str = strdup(yytext);
+    if (yytext[0] == '\'' || yytext[0] == '"') {
+    	//This is a string and not a number or identifier
+    	yylval.str = strdup(yytext+1);
+    	yylval.str[yyleng-2] = '\0';
+    }
+	else
+    	yylval.str = strdup(yytext);
 
     /* Convert string to lower case */
     char *ptr = yylval.str;

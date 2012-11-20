@@ -32,7 +32,7 @@ void Function::generateDefinition(string ident)
     //Parameters
     list<Variable>::iterator it = params.begin();
     for (; it != params.end(); it++) {
-        it->generateCode("");
+        it->generateDefinition("");
         if (it != --params.end())
             cout << ", ";
     }
