@@ -17,6 +17,7 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include "y.tab.h"
+#include "main.h"
 
 #define BUF_SIZE (1024*4)
 
@@ -136,14 +137,12 @@ with                    {return yunknown;}      /* Unsupported keyword */
  */
 static void capture(void)
 {
-
     /* Copy yytext because it can be changed before we use it. */
     if (yytext[0] == '\'' || yytext[0] == '"') {
     	//This is a string and not a number or identifier
     	yylval.str = strdup(yytext+1);
     	yylval.str[yyleng-2] = '\0';
-    }
-	else
+    } else
     	yylval.str = strdup(yytext);
 
     /* Convert string to lower case */
@@ -176,7 +175,7 @@ static void print_comment(const char *comment_delim)
     memcpy(buffer+2, yytext + delim_len, yyleng - delim_len * 2);
     patch_comment(buffer+2);
     strcat(buffer, "*/");
-    printf("%s\n", buffer);
+    printf("%s%s", buffer, nlindent().c_str());
 }
 
 /*

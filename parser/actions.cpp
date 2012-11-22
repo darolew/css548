@@ -10,6 +10,7 @@ list<string> idList;        // list of identifiers
 list<Range> rangeList;      // list of ranges, like for an array
 list<PointerType*> ptrList; // list of pointers that need types
 list<Variable> fieldList;   // list of fields to add to a record
+list<string*> dsgList;      // stack of designator strings
 Function *currFunction;     // current function object
 AbstractType *currType;     // current type being constructed
 

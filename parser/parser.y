@@ -312,12 +312,15 @@ FieldList           : IdentList ycolon Type
 
 StatementSequence   : Statement
                     | StatementSequence ysemicolon Statement
+                    ;
+Statement           : Assignment
                 	{
                     	cout << ";" << nlindent();
                     }
-                    ;
-Statement           : Assignment
                     | ProcedureCall
+                	{
+                    	cout << ";" << nlindent();
+                    }
                     | IfStatement
                     | CaseStatement
                     | WhileStatement
@@ -342,13 +345,35 @@ ProcedureCall       : yident
                         cout << $1;
                         free($1);
                     }
-
                       ActualParameters
                     ;
-IfStatement         : yif Expression ythen Statement ElsePart
+IfStatement         : yif
+                    {
+                        cout << "if (";
+                    }
+                      Expression
+                    {
+                        indent++;
+                        cout << ") {" << nlindent();
+                    }
+                      ythen Statement
+                    {
+                        indent--;
+                        cout << unindent() << "} " << nlindent();
+                    }
+                      ElsePart
                     ;
 ElsePart            : /*** empty ***/
-                    | yelse Statement
+                    | yelse
+                    {
+                        indent++;
+                        cout << "else {" << nlindent();
+                    }
+                      Statement
+                    {
+                        indent--;
+                        cout << unindent() << "} " << nlindent();
+                    }
                     ;
 CaseStatement       : ycase Expression yof CaseList yend
                     ;
@@ -360,9 +385,35 @@ Case                : CaseLabelList ycolon Statement
 CaseLabelList       : ConstExpression
                     | CaseLabelList ycomma ConstExpression
                     ;
-WhileStatement      : ywhile Expression ydo Statement
+WhileStatement      : ywhile
+                    {
+                        cout << "while (";
+                    }
+                      Expression ydo
+                    {
+                        indent++;
+                        cout << ") {" << nlindent();
+                    }
+                      Statement
+                    {
+                        indent--;
+                        cout << unindent() << "}" << nlindent();
+                    }
                     ;
-RepeatStatement     : yrepeat StatementSequence yuntil Expression
+RepeatStatement     : yrepeat
+                    {
+                        indent++;
+                        cout << "do {" << nlindent();
+                    }
+                      StatementSequence yuntil
+                    {
+                        cout << unindent() << "} while (";
+                    }
+                      Expression
+                    {
+                        indent--;
+                        cout << ");" << nlindent();
+                    }
                     ;
 ForStatement        : yfor yident yassign Expression WhichWay Expression
                       ydo Statement
@@ -399,6 +450,15 @@ theDesignatorStuff  : ydot yident /*Record field access*/
                     	cout << "]";
                     }
                     | ycaret
+                    {
+                        //In Pascal, the pointer deference is on the right
+                        //side. In C, using "*" to deference would have to
+                        //go on the left side; to make translation easier,
+                        //dereference with "[0]" which, like Pascal, goes
+                        //on the right. Though this is bad style, since
+                        //the pointer is not an array, it is correct.
+                        cout << "[0]";
+                    }
                     ;
 ActualParameters    : yleftparen 
 					{
@@ -559,45 +619,50 @@ UnaryOperator       : yplus { $$ = '+'; } | yminus { $$ = '-'; }
 MultOperator        : ymultiply
 					{
 						//TODO: type checking and coercion
-						cout << "*";
+						cout << " * ";
 					} 
 					| ydivide 
 					{
 						//TODO: type checking and coersion
-						cout << "/";
+						cout << " / ";
 					}
 					| ydiv 
 					{ //With the exception of Div and Mod, which accept only integer expressions as operands,
 					  //all operators accept real and integer expressions as operands. 
-					  cout << "/";
+					  cout << " / ";
 					}
 					| ymod 
 					{
-						cout << "%";
+						cout << " % ";
 					}
 					| yand
 					{
 						//TODO:Boolean operators can only have boolean type 
 						//operands, and the resulting type is always boolean.
-						cout << "&&";
+						cout << " && ";
 					}
 	
                     ;
 AddOperator         : yplus 
 					{
-						cout << "+";
+						cout << " + ";
 					}	
 					| yminus
 					{
-						cout << "-";
+						cout << " - ";
 					}
 					| yor
 					{
-						cout << "||";
+						cout << " || ";
 					}
                     ;
-Relation            : yequal | ynotequal | yless | ygreater
-                    | ylessequal | ygreaterequal | yin
+Relation            : yequal        { cout << " == "; }
+                    | ynotequal     { cout << " != "; }
+                    | yless         { cout << " < ";  }
+                    | ygreater      { cout << " > ";  }
+                    | ylessequal    { cout << " <= "; }
+                    | ygreaterequal { cout << " >= "; }
+                    | yin
                     ;
 
 %%

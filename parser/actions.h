@@ -30,6 +30,7 @@ extern list<string> idList;        // list of identifiers
 extern list<Range> rangeList;      // list of ranges, like for an array
 extern list<PointerType*> ptrList; // list of pointers that need types
 extern list<Variable> fieldList;   // list of fields to add to a record
+extern list<string*> dsgList;      // stack of designator strings
 extern Function *currFunction;     // current function object
 extern AbstractType *currType;     // current type being constructed
 

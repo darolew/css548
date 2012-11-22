@@ -6,6 +6,9 @@
 #ifndef RANGE_H
 #define RANGE_H
 
+#include <iostream>
+using namespace std;
+
 //Value used to indicate that a constant value has no unary operator.
 #define NO_UNARY_OP (0)
 
