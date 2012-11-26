@@ -39,6 +39,7 @@ public:
     Symbol *lookup(Table *, string);
     AbstractType *lookupType(string);
     Table *front();
+    Table *SIT();
     int size();
 
 private:

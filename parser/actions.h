@@ -16,7 +16,9 @@
 #include "ArrayType.h"
 #include "RecordType.h"
 #include "Variable.h"
+#include "Parameter.h"
 #include "Function.h"
+#include "IoFunction.h"
 #include "Range.h"
 
 //The symbol table is a global object declared in main.cpp.
@@ -32,6 +34,7 @@ extern list<PointerType*> ptrList; // list of pointers that need types
 extern list<Variable> fieldList;   // list of fields to add to a record
 extern list<string*> dsgList;      // stack of designator strings
 extern Function *currFunction;     // current function object
+extern IoFunction *currIoFunc;     //
 extern AbstractType *currType;     // current type being constructed
 
 //Method prototypes. For details about each method, see comments in actions.cpp
@@ -42,7 +45,7 @@ Terminal *newTerminal(string, int, char=NO_UNARY_OP);
 Terminal initTerminal(string, int, char=NO_UNARY_OP);
 void addRange(const Terminal *, const Terminal *);
 void addField();
-void addFormalParam(string);
+void addFormalParam(string, bool);
 bool isDuplicateField(string);
 void beginScope(const char *);
 

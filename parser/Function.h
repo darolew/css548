@@ -9,20 +9,21 @@
 
 #include <list>
 #include "AbstractType.h"
-#include "Variable.h"
+#include "Parameter.h"
 
 class Function : public Symbol {
 
 private:
-    list<Variable> params;    // formal parameters (ordered list)
+    list<Parameter> params;   // formal parameters (ordered list)
     AbstractType *returnType; // return type; left NULL for procedures
 
 public:
     Function();
-    void addParam(Variable *param);
     virtual void generateDefinition(string);
     virtual bool insertInto();
+    void addParam(Parameter *param);
     void setReturnType(AbstractType *rt);
+    virtual bool isFunction();
     virtual string toString();
     virtual string toStringLong();
 };

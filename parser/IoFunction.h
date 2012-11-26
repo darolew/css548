@@ -17,6 +17,53 @@ public:
     IoFunction(string id) : Symbol(id)
     {
     }
+    
+    virtual bool isFunction()
+    {
+        return true;
+    }
+    
+    virtual bool isIoFunction()
+    {
+        return true;
+    }
+    
+    void generateInit()
+    {
+        if (isWrite())
+            cout << "cout";
+        else if (isRead())
+            cout << "cin";
+        else
+            cerr << "internal error: unsupported i/o function" << endl;
+    }
+    
+    void generateSep()
+    {
+        if (isWrite())
+            cout << " << ";
+        else
+            cout << " >> ";
+    }
+    
+    void generateEnd()
+    {
+        if (identifier == "writeln") {
+            generateSep();
+            cout << "endl";
+        }
+    }
+    
+private:
+    bool isWrite()
+    {
+        return identifier == "write" || identifier == "writeln";
+    }
+    
+    bool isRead()
+    {
+        return identifier == "read" || identifier == "readln";
+    }    
 };
 
 #endif

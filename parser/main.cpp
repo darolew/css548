@@ -58,6 +58,7 @@ string nlindent()
 string unindent()
 {
     //The "\b" is backspace and we use four spaces for indentation.
-    return "\b\b\b\b";
+    //return "\b\b\b\b";
+    return "";
 }
 

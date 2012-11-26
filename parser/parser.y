@@ -15,11 +15,13 @@
 #include "ArrayType.h"
 #include "SymTable.h"
 #include "Variable.h"
+#include "Parameter.h"
 #include "Function.h"
 #include "Const.h"
 #include "PointerType.h"
 #include "RecordType.h"
 #include "SetType.h"
+#include "IoFunction.h"
 
 /* method declarations section */
 void yyerror(char const *);
@@ -36,10 +38,11 @@ int yylex(); /* needed by g++ */
 %file-prefix = "y"
 
 %start  CompilationUnit
-%token  yand yarray yassign ybegin ycaret ycase ycolon ycomma yconst ydiv
+//TODO: fix line lengths
+%token  yand yarray yassign ybegin ycaret ycase ycolon ycomma yconst ydispose ydiv
         ydivide ydo ydot ydotdot ydownto yelse yend yequal yfor yfunction
         ygreater ygreaterequal yif yin yleftbracket yleftparen yless
-        ylessequal ymod ymultiply ynil ynot ynotequal yof yor yprocedure
+        ylessequal ymod ymultiply ynew ynil ynot ynotequal yof yor yprocedure
         yprogram yrecord yrepeat yrightbracket yrightparen ysemicolon yset
         ythen yto ytype yunknown yuntil yvar ywhile
 
@@ -54,6 +57,8 @@ int yylex(); /* needed by g++ */
 //from which they were included.
 %type <term> ConstFactor ConstExpression
 %type <chr> UnaryOperator
+%type <tkn> WhichWay
+%type <flag> FormalParamFlag
 
 //The union is used for two reasons. The first is to capture information about
 //lexemes from the scanner. The second is to define the data captured in parser
@@ -62,6 +67,8 @@ int yylex(); /* needed by g++ */
     char *str;
     struct Terminal *term;
     int chr;
+    int tkn;
+    bool flag;
 };
 
 %%
@@ -72,7 +79,9 @@ int yylex(); /* needed by g++ */
 CompilationUnit     :
                     {
                         cout << "#include <iostream>" << endl;
+                        cout << "#include <stdlib.h>" << endl;
                         cout << "using namespace std;" << endl;
+                        cout << endl << endl;
                     }
                       ProgramModule
                     ;
@@ -111,14 +120,17 @@ IdentList           :  yident
 Block               : Declarations
                     {
                         if (symTable.size() == 2) {
+                            indent++;
                             cout << "int main()" << endl;
-                            cout << "{" << endl;
+                            cout << "{" << nlindent();
                         }
                     }
                       ybegin StatementSequence yend
                     {
-                        if (symTable.size() == 2)
-                            cout << "}" << endl;
+                        if (symTable.size() == 2) {
+                            indent--;
+                            cout << unindent() << "}" << endl;
+                        }
                     }
                     ;
 Declarations        : ConstantDefBlock
@@ -134,12 +146,18 @@ PointerCheck        : /*** empty ***/
                     ;
 ConstantDefBlock    : /*** empty ***/
                     | yconst ConstantDefList
+                    {
+                        cout << nlindent();
+                    }
                     ;
 ConstantDefList     : ConstantDef ysemicolon
                     | ConstantDefList ConstantDef ysemicolon
                     ;
 TypeDefBlock        : /*** empty ***/
                     | ytype TypeDefList
+                    {
+                        cout << nlindent();
+                    }
                     ;
 TypeDefList         : TypeDef ysemicolon
                     {
@@ -152,13 +170,19 @@ TypeDefList         : TypeDef ysemicolon
                     ;
 VariableDeclBlock   : /*** empty ***/
                     | yvar VariableDeclList
+                    {
+                        cout << nlindent();
+                    }
                     ;
 VariableDeclList    : VariableDecl ysemicolon
                     | VariableDeclList VariableDecl ysemicolon
                     ;
 ConstantDef         : yident yequal ConstExpression
                     {
-                        symTable.insert(new Const($1, *$3));
+                        Const *c = new Const($1, *$3);
+                        symTable.insert(c);
+                        c->generateDefinition($1);
+                        cout << ";" << nlindent();
                         free($1);
                         delete $3;
                     }
@@ -184,6 +208,10 @@ PointerTypeDef      : yident yequal ycaret yident
                     ;
 VariableDecl        : IdentList ycolon Type
                     {
+                        //Variables must point to a known type. They can be 
+                        //resolved immediately.
+                        currType->resolve();
+                    
                         /*Walk the list of variable names being declared. For
                         example, the declaration "a,b,c : interger;" includes
                         a list of variables {a, b, c} and their type, integer.
@@ -199,9 +227,6 @@ VariableDecl        : IdentList ycolon Type
                             idList.pop_front();
                             cout << ";" << nlindent();
                         }
-                        //Variables must point to a known type. They can be 
-                        //resolved immediately.
-                        currType->resolve();
                     }
                     ;
 
@@ -326,6 +351,10 @@ Statement           : Assignment
                     | WhileStatement
                     | RepeatStatement
                     | ForStatement
+                    | MemoryStatement
+                	{
+                    	cout << ";" << nlindent();
+                    }
                     | ybegin StatementSequence yend
                     | /*** empty ***/
                     ;
@@ -337,15 +366,41 @@ Assignment          : Designator yassign
                     ;
 ProcedureCall       : yident
                     {
-                        cout << $1;
+                        Symbol *sym = symTable.lookup($1);
+                        if (!sym || !sym->isFunction())
+                            cerr << "***ERROR: " << $1 << " is not a function" << endl;
+                        else if (sym->isIoFunction()) {
+                            IoFunction *iofunc = (IoFunction*)sym;
+                            iofunc->generateInit();
+                            iofunc->generateEnd();                                                        
+                        } else {
+                            currIoFunc = NULL;
+                            cout << $1 << "()";
+                        }
+                        
                         free($1);
                     }
                     | yident 
                     {
-                        cout << $1;
+                        Symbol *sym = symTable.lookup($1);
+                        if (!sym || !sym->isFunction())
+                            cerr << "***ERROR: " << $1 << " is not a function" << endl;
+                        else if (sym->isIoFunction()) {
+                            currIoFunc = (IoFunction*)sym;
+                            currIoFunc->generateInit();
+                            currIoFunc->generateSep();
+                        } else
+                            cout << $1;
+
                         free($1);
                     }
                       ActualParameters
+                    {
+                        if (currIoFunc)
+                            currIoFunc->generateEnd();
+                            
+                        currIoFunc = NULL;
+                    }
                     ;
 IfStatement         : yif
                     {
@@ -415,16 +470,50 @@ RepeatStatement     : yrepeat
                         cout << ");" << nlindent();
                     }
                     ;
-ForStatement        : yfor yident yassign Expression WhichWay Expression
-                      ydo Statement
+ForStatement        : yfor yident yassign
                     {
-                        //Generate code
+                        cout << "for (" << $2 << " = ";
+                    }
+                      Expression WhichWay
+                    {
+                        string comparator = ($6 == yto) ? " <=" : " >=";
+                        cout << "; " << $2 << comparator << " ";
+                    }
+                      Expression ydo
+                    {
+                        indent++;
+                        string postfix = ($6 == yto) ? "++" : "--";
+                        cout << "; " << $2 << postfix << ") {" << nlindent();
+                    }
+                      Statement
+                    {
+                        indent--;
+                        cout << unindent() << "}" << nlindent();
                         free($2);
                     }
                     ;
-WhichWay            : yto | ydownto
+WhichWay            : yto
+                    {
+                        $$ = yto;
+                    }
+                    | ydownto
+                    {
+                        $$ = ydownto;
+                    }
                     ;
-
+MemoryStatement     : ynew yleftparen yident yrightparen  
+                    {
+                        //TODO: Make sure ident exists and is pointer.
+                        //Using malloc() is easier than using new since it is
+                        //not necessary to lookup the pointed-to type.
+                        cout << $3 << " = malloc(sizeof(*" << $3 << "))";
+                    }
+                    | ydispose yleftparen yident yrightparen
+                    {
+                        cout << "free(" << $3 << ")";
+                    }
+                    ;
+                   
 /***************************  Designator Stuff  ******************************/
 
 Designator          : yident 
@@ -462,17 +551,22 @@ theDesignatorStuff  : ydot yident /*Record field access*/
                     ;
 ActualParameters    : yleftparen 
 					{
-						cout << "(";
+					    if (!currIoFunc)
+    						cout << "(";
 					}
 					  ExpList yrightparen
 					{
-						cout << ")";
+						if (!currIoFunc)
+    						cout << ")";
 					}
                     ;
 ExpList             : Expression
                     | ExpList ycomma
                     {
-                    	cout << ", ";
+                        if (currIoFunc)
+                            currIoFunc->generateSep();
+                        else
+                        	cout << ", ";
                     }
                       Expression
                     ;
@@ -604,17 +698,24 @@ FormalParamList     : OneFormalParam
                     ;
 OneFormalParam      : FormalParamFlag IdentList ycolon yident
                     {
-                        addFormalParam($4);
+                        addFormalParam($4, $1);
                         free($4);
                     }
                     ;
 FormalParamFlag     : /*** nothing ***/
+                    {
+                        $$ = false;
+                    }
                     | yvar
+                    {
+                        $$ = true;
+                    }
                     ;
 
 /***************************  More Operators  ********************************/
 
-UnaryOperator       : yplus { $$ = '+'; } | yminus { $$ = '-'; }
+UnaryOperator       : yplus     { $$ = '+'; }
+                    | yminus    { $$ = '-'; }
                     ;
 MultOperator        : ymultiply
 					{

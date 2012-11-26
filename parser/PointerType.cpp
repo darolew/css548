@@ -37,10 +37,21 @@ void PointerType::resolve()
 
 void PointerType::generateCode(string ident)
 {
+    //TODO: This function is a mess.
     if (identifier != "")
         cout << identifier << " " << ident;
-    else
-        cout << pointeeName << " *" << ident;
+    else if (type) {
+        type->generateCode("");
+        cout << "*" << ident;
+    } else {
+        Symbol *sym = symTable.lookup(symTable.SIT(), pointeeName);
+        AbstractType *pt = (AbstractType*)sym;    
+        if (pt) {
+            pt->generateCode("");
+            cout << "*" << ident;
+        } else
+            cout << pointeeName << " *" << ident;
+    }
 }
 
 void PointerType::generateDefinition(string ident)
@@ -57,9 +68,10 @@ void PointerType::generateDefinition(string ident)
     //print the pointee name. If the type is not known, this is a
     //foward reference, and the only forward references we support
     //are for records, so output the "struct" keyword.
-    if (pt)
-        cout << pointeeName << " *" << ident;
-    else
+    if (pt) {
+        pt->generateCode("");
+        cout << "*" << ident;
+    } else
         cout << "struct " << pointeeName << " *" << ident;
 }
 

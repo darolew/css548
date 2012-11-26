@@ -17,6 +17,16 @@ public:
     MemFunction(string id) : Symbol(id)
     {
     }
+    
+    virtual bool isFunction()
+    {
+        return true;
+    }
+    
+    virtual bool isMemFunction()
+    {
+        return true;
+    }
 };
 
 #endif

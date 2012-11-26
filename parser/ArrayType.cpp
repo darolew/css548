@@ -58,3 +58,8 @@ void ArrayType::generateCode(string ident)
         cout << "[" << size << "]";
     }
 }
+
+void ArrayType::resolve()
+{
+    type->resolve();
+}

@@ -30,7 +30,7 @@ void Function::generateDefinition(string ident)
     cout << " " << identifier << "(";
     
     //Parameters
-    list<Variable>::iterator it = params.begin();
+    list<Parameter>::iterator it = params.begin();
     for (; it != params.end(); it++) {
         it->generateDefinition("");
         if (it != --params.end())
@@ -47,7 +47,40 @@ void Function::generateDefinition(string ident)
         << "{" 
         //Add the new line and indentation
         << nlindent();
+}
 
+//Insert this function into the current scope, to allow for recursion; and
+//then insert each of its formal paramaters into the current scope. The
+//function is inserted into its parent's scope elsewhere.
+bool Function::insertInto()
+{
+    //Insert the function into its own scope.
+    Symbol::insertInto();
+
+    //Insert the formal parameters into the current scope.
+    list<Parameter>::iterator it = params.begin();
+    for (; it!=params.end(); ++it)
+        it->insertInto();
+
+    return true;
+}
+
+//Add a formal parameter. A wrapper method to keep a private object
+//encapsulated.
+void Function::addParam(Parameter *param)
+{
+    params.push_back(*param);
+}
+
+//Set the return type. A wrapper method to keep private object encapsulated.
+void Function::setReturnType(AbstractType *rt)
+{
+    returnType = rt;
+}
+
+bool Function::isFunction()
+{
+    return true;
 }
 
 //Returns a description of the function in the format:
@@ -80,39 +113,10 @@ string Function::toStringLong()
 {
     stringstream ss (stringstream::in | stringstream::out);
     ss << toString();
-    list<Variable>::iterator it = params.begin();
+    list<Parameter>::iterator it = params.begin();
     for (; it != params.end(); it++) {
         ss << "    " << it->toString();
     }
     ss << nlindent();
     return ss.str();
-}
-
-//Insert this function into the current scope, to allow for recursion; and
-//then insert each of its formal paramaters into the current scope. The
-//function is inserted into its parent's scope elsewhere.
-bool Function::insertInto()
-{
-    //Insert the function into its own scope.
-    Symbol::insertInto();
-
-    //Insert the formal parameters into the current scope.
-    list<Variable>::iterator it = params.begin();
-    for (; it!=params.end(); ++it)
-        it->insertInto();
-
-    return true;
-}
-
-//Add a formal parameter. A wrapper method to keep a private object
-//encapsulated.
-void Function::addParam(Variable *param)
-{
-    params.push_back(*param);
-}
-
-//Set the return type. A wrapper method to keep private object encapsulated.
-void Function::setReturnType(AbstractType *rt)
-{
-    returnType = rt;
 }

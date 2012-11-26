@@ -54,6 +54,21 @@ bool Symbol::isType()
     return false;
 }
 
+bool Symbol::isFunction()
+{
+    return false;
+}
+
+bool Symbol::isIoFunction()
+{
+    return false;
+}
+
+bool Symbol::isMemFunction()
+{
+    return false;
+}
+
 //Returns a string representation of the symbol.
 string Symbol::toString()
 {

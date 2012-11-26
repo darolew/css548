@@ -21,7 +21,7 @@ string BaseType::className()
     return "BaseType";
 }
 
-void BaseType::generateCode(ostream &out, string ident)
+void BaseType::generateCode(string ident)
 {
-    out << cName << " " << ident;
+    cout << cName << " " << ident;
 }

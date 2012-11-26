@@ -9,19 +9,25 @@ const
   grades = 5;                             (* number of grades to be averaged *)
   avgPosition = 6;                        (* position of grade average *)
   size = 4;                               (* number of students *)
+  fooconst = 1.234;
+  barconst = false;
 
 type
   integerArray = array [1..6] of integer;
+
+  fooType = real;
 
   cellPtr = ^cell;
   cell = record
      id: integer;
      info: integerArray;
      temp: ^integer;
+     temp3: ^fooType;
      next: cellPtr
   end;
 
 var
+  temp2: ^integer;
   testArray : array [1..3, 3..8] of ^boolean;  
   list, newrec: cellPtr;
   count, classNum: integer;
@@ -126,6 +132,8 @@ begin
         write('Student');
         for i := 1 to grades do 
            write(i);  
+        for i := 1 downto grades do 
+           write(i);
         writeln('        Average');
         for i := 1 to grades+2 do
            write('-----------');

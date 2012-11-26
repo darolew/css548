@@ -2,7 +2,7 @@
 // Aaron Hoffer and Daniel Lewis
 //
 // This file contains the definition of the Variable class. Note that Variable
-// objects are also used for record fields and function parameters.
+// objects are also used for record fields.
 
 #ifndef VARIABLE_H
 #define VARIABLE_H
@@ -11,9 +11,9 @@
 using namespace std;
 
 class Variable: public Symbol {
-    AbstractType *type; // a variable has a type
-
 public:
+    AbstractType *type; // a variable has a type
+    
     Variable(string, AbstractType *);
     virtual ~Variable();
     virtual void generateCode(string);

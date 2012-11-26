@@ -27,7 +27,7 @@ static void patch_comment(char*);
 static void die(const char*);
 
 /* Capture a token's attribute value so it can be used by the parser. */
-static void capture(void);
+static void capture(bool);
 
 /* 
  * If EOF encountered in the middle of a comment, set this flag so the main 
@@ -69,6 +69,7 @@ case                    {return ycase;}
 ":"                     {return ycolon;}
 ","                     {return ycomma;}
 const                   {return yconst;}
+dispose                 {return ydispose;}
 div                     {return ydiv;}
 "/"                     {return ydivide;}
 do                      {return ydo;}
@@ -94,6 +95,7 @@ label                   {return yunknown;}      /* Unsupported keyword */
 "-"                     {return yminus;}
 mod                     {return ymod;}
 "*"                     {return ymultiply;}
+new                     {return ynew;}
 nil                     {return ynil;}
 not                     {return ynot;}
 "<>"                    {return ynotequal;}
@@ -116,10 +118,10 @@ until                   {return yuntil;}
 var                     {return yvar;}
 while                   {return ywhile;}
 with                    {return yunknown;}      /* Unsupported keyword */
-{ID}                    {capture(); return yident;}
+{ID}                    {capture(false); return yident;}
 {BCOMMENT}              {print_comment("{");}
-{NUMBER}                {capture(); return ynumber;}
-{STRING}                {capture(); return ystring;}
+{NUMBER}                {capture(false); return ynumber;}
+{STRING}                {capture(true); return ystring;}
 <INITIAL>\(\*           {BEGIN(IN_COMMENT); yymore();}
 <IN_COMMENT><<EOF>>     {eof = true; return yunknown;}
 <IN_COMMENT>[^*]*\*+    {BEGIN(WARNING); yymore();}
@@ -135,7 +137,7 @@ with                    {return yunknown;}      /* Unsupported keyword */
 /* 
  * Capture a token's attribute value so it can be used  by the parser.
  */
-static void capture(void)
+static void capture(bool preserveCase)
 {
     /* Copy yytext because it can be changed before we use it. */
     if (yytext[0] == '\'' || yytext[0] == '"') {
@@ -145,11 +147,13 @@ static void capture(void)
     } else
     	yylval.str = strdup(yytext);
 
-    /* Convert string to lower case */
-    char *ptr = yylval.str;
-    for(; *ptr; ++ptr)
-        *ptr = tolower(*ptr);
-
+    if (!preserveCase) {
+        /* Convert string to lower case */
+        char *ptr = yylval.str;
+        for (; *ptr; ++ptr)
+            *ptr = tolower(*ptr);
+    }
+    
     /*fprintf(stderr, "[yylval] %s\n", yylval.str);*/
 }
 

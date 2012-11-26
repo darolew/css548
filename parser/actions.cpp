@@ -12,6 +12,7 @@ list<PointerType*> ptrList; // list of pointers that need types
 list<Variable> fieldList;   // list of fields to add to a record
 list<string*> dsgList;      // stack of designator strings
 Function *currFunction;     // current function object
+IoFunction *currIoFunc;     //
 AbstractType *currType;     // current type being constructed
 
 //This method iterates through the list of pointers declared in a just-parsed
@@ -77,7 +78,7 @@ void addRange(const Terminal *low, const Terminal *high)
 
 //Remove an identifer and turn it into a variable as part of a record's fields.
 void addField()
-{
+{   
     while (!idList.empty()) {
         string id = idList.front();
         if (isDuplicateField(id)) {
@@ -104,12 +105,12 @@ bool isDuplicateField(string id)
 
 //Create a formal method parameter from a list of identifiers. Add the
 //parameter to the object for the current function.
-void addFormalParam(string typeName)
+void addFormalParam(string typeName, bool varflag)
 {
     while (!idList.empty()) {
         string name = idList.front();
         AbstractType *formalType = symTable.lookupType(typeName);
-        Variable *formalParam = new Variable(name, formalType);
+        Parameter *formalParam = new Parameter(name, formalType, varflag);
         currFunction->addParam(formalParam);
         delete formalParam;
         idList.pop_front();

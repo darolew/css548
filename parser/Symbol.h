@@ -26,6 +26,9 @@ public:
     virtual bool insertInto();
     virtual void resolve();
     virtual bool isType();
+    virtual bool isFunction();
+    virtual bool isIoFunction();
+    virtual bool isMemFunction();
     virtual string toString();
 };
 

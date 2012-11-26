@@ -159,6 +159,13 @@ Table *SymTable::front()
     return scopes.front();
 }
 
+//
+Table *SymTable::SIT()
+{
+    assertStack();
+    return scopes.back();
+}
+
 //TODO:comment
 int SymTable::size()
 {

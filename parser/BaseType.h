@@ -21,7 +21,7 @@ public:
     BaseType(string, string);
     virtual string cTypeName();
     virtual string className();
-    virtual void generateCode(ostream &out, string);
+    virtual void generateCode(string);
 };
 
 #endif
