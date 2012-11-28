@@ -78,6 +78,19 @@ bool AbstractType::isType()
     return true;
 }
 
+//Named types are typedefs
+//Unamed types are composite types used in variable declarations.
+//For example, in the statement:
+//
+//  x : array [1..10] of integer
+//
+//  the "array [1..10] of integer" is a composite type, 
+//but has no special name.
+bool AbstractType::isNamedType()
+{
+    return identifier != "";
+}
+
 //Returns a string representing this type as it would be used to give a
 //type to an identifier (e.g., variable or field). If this type is a
 //typedef, return just the name. Thus, a type created for:

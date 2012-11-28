@@ -18,6 +18,7 @@ public:
     virtual ~Variable();
     virtual void generateCode(string);
     virtual void generateDefinition(string);
+    virtual void generateNewStatement();
     virtual string toString();
 };
 

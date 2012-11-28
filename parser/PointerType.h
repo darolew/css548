@@ -19,6 +19,8 @@ public:
     virtual void resolve();
     virtual void generateCode(string);
     virtual void generateDefinition(string);
+    string cPointeeName();
+    virtual bool isPointer();
     virtual string toString();
 };
 

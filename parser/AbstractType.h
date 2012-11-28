@@ -32,6 +32,7 @@ public:
     virtual ~AbstractType();
     virtual string cTypeName();
     virtual bool isType();
+    virtual bool isNamedType();
     virtual void generateCode(string);
     virtual void generateDefinition(string);
     virtual string toIdentTypeString();

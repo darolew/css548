@@ -29,6 +29,7 @@ public:
     virtual bool isFunction();
     virtual bool isIoFunction();
     virtual bool isMemFunction();
+    virtual bool isPointer();
     virtual string toString();
 };
 

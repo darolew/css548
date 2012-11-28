@@ -339,12 +339,12 @@ StatementSequence   : Statement
                     | StatementSequence ysemicolon Statement
                     ;
 Statement           : Assignment
-                	{
-                    	cout << ";" << nlindent();
+                    {
+                        cout << ";" << nlindent();
                     }
                     | ProcedureCall
-                	{
-                    	cout << ";" << nlindent();
+                    {
+                        cout << ";" << nlindent();
                     }
                     | IfStatement
                     | CaseStatement
@@ -352,17 +352,17 @@ Statement           : Assignment
                     | RepeatStatement
                     | ForStatement
                     | MemoryStatement
-                	{
-                    	cout << ";" << nlindent();
+                    {
+                        cout << ";" << nlindent();
                     }
                     | ybegin StatementSequence yend
                     | /*** empty ***/
                     ;
 Assignment          : Designator yassign 
-					{
-						cout << " = "; 
-					}
-					Expression
+                    {
+                        cout << " = "; 
+                    }
+                    Expression
                     ;
 ProcedureCall       : yident
                     {
@@ -506,7 +506,8 @@ MemoryStatement     : ynew yleftparen yident yrightparen
                         //TODO: Make sure ident exists and is pointer.
                         //Using malloc() is easier than using new since it is
                         //not necessary to lookup the pointed-to type.
-                        cout << $3 << " = malloc(sizeof(*" << $3 << "))";
+                        Variable *var = (Variable*) symTable.lookup($3);
+                        var->generateNewStatement();
                     }
                     | ydispose yleftparen yident yrightparen
                     {
@@ -517,10 +518,10 @@ MemoryStatement     : ynew yleftparen yident yrightparen
 /***************************  Designator Stuff  ******************************/
 
 Designator          : yident 
-					{
-						cout << $1;
-					}
-					  DesignatorStuff
+                    {
+                        cout << $1;
+                    }
+                      DesignatorStuff
                     ;
 DesignatorStuff     : /*** empty ***/
                     | DesignatorStuff theDesignatorStuff
@@ -532,11 +533,11 @@ theDesignatorStuff  : ydot yident /*Record field access*/
                     }
                     | yleftbracket 
                     {
-                    	cout << "[";
+                        cout << "[";
                     }
                       ExpList yrightbracket /*Array element access*/
                     {
-                    	cout << "]";
+                        cout << "]";
                     }
                     | ycaret
                     {
@@ -550,15 +551,15 @@ theDesignatorStuff  : ydot yident /*Record field access*/
                     }
                     ;
 ActualParameters    : yleftparen 
-					{
-					    if (!currIoFunc)
-    						cout << "(";
-					}
-					  ExpList yrightparen
-					{
-						if (!currIoFunc)
-    						cout << ")";
-					}
+                    {
+                        if (!currIoFunc)
+                            cout << "(";
+                    }
+                      ExpList yrightparen
+                    {
+                        if (!currIoFunc)
+                            cout << ")";
+                    }
                     ;
 ExpList             : Expression
                     | ExpList ycomma
@@ -566,7 +567,7 @@ ExpList             : Expression
                         if (currIoFunc)
                             currIoFunc->generateSep();
                         else
-                        	cout << ", ";
+                            cout << ", ";
                     }
                       Expression
                     ;
@@ -578,7 +579,7 @@ Expression          : SimpleExpression
 SimpleExpression    : TermExpr
                     | UnaryOperator 
                     {
-                    	cout << $1;
+                        cout << $1;
                     }
                     TermExpr
                     ;
@@ -589,40 +590,40 @@ Term                : Factor
                     | Term MultOperator Factor
                     ;
 Factor              : ynumber
-					{
-						cout << $1;
-					}
+                    {
+                        cout << $1;
+                    }
                     | ynil
                     {
-                    	cout << "NULL";
+                        cout << "NULL";
                     }
                     | ystring
                     {
-                    	cout << "\"" << $1 << "\"";
+                        cout << "\"" << $1 << "\"";
                     }
                     | Designator
                     | yleftparen 
                     {
-                    	cout << "(";
+                        cout << "(";
                     }
                       Expression yrightparen
                     {
-                    	cout << ")";
+                        cout << ")";
                     }
                     | ynot 
                     {
-                    	cout << "!";
+                        cout << "!";
                     }
                     Factor
                     | Setvalue
                     | FunctionCall
                     ;
 FunctionCall        : yident
-					{
-						cout << $1;
-						free($1);
-					}
- 					  ActualParameters
+                    {
+                        cout << $1;
+                        free($1);
+                    }
+                       ActualParameters
                     ;
 Setvalue            : yleftbracket ElementList yrightbracket
                     | yleftbracket yrightbracket
@@ -718,44 +719,44 @@ UnaryOperator       : yplus     { $$ = '+'; }
                     | yminus    { $$ = '-'; }
                     ;
 MultOperator        : ymultiply
-					{
-						//TODO: type checking and coercion
-						cout << " * ";
-					} 
-					| ydivide 
-					{
-						//TODO: type checking and coersion
-						cout << " / ";
-					}
-					| ydiv 
-					{ //With the exception of Div and Mod, which accept only integer expressions as operands,
-					  //all operators accept real and integer expressions as operands. 
-					  cout << " / ";
-					}
-					| ymod 
-					{
-						cout << " % ";
-					}
-					| yand
-					{
-						//TODO:Boolean operators can only have boolean type 
-						//operands, and the resulting type is always boolean.
-						cout << " && ";
-					}
-	
+                    {
+                        //TODO: type checking and coercion
+                        cout << " * ";
+                    } 
+                    | ydivide 
+                    {
+                        //TODO: type checking and coersion
+                        cout << " / ";
+                    }
+                    | ydiv 
+                    { //With the exception of Div and Mod, which accept only integer expressions as operands,
+                      //all operators accept real and integer expressions as operands. 
+                      cout << " / ";
+                    }
+                    | ymod 
+                    {
+                        cout << " % ";
+                    }
+                    | yand
+                    {
+                        //TODO:Boolean operators can only have boolean type 
+                        //operands, and the resulting type is always boolean.
+                        cout << " && ";
+                    }
+    
                     ;
 AddOperator         : yplus 
-					{
-						cout << " + ";
-					}	
-					| yminus
-					{
-						cout << " - ";
-					}
-					| yor
-					{
-						cout << " || ";
-					}
+                    {
+                        cout << " + ";
+                    }    
+                    | yminus
+                    {
+                        cout << " - ";
+                    }
+                    | yor
+                    {
+                        cout << " || ";
+                    }
                     ;
 Relation            : yequal        { cout << " == "; }
                     | ynotequal     { cout << " != "; }

@@ -69,6 +69,11 @@ bool Symbol::isMemFunction()
     return false;
 }
 
+bool Symbol::isPointer()
+{
+    return false;
+}
+
 //Returns a string representation of the symbol.
 string Symbol::toString()
 {

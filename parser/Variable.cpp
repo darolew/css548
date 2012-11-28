@@ -5,6 +5,7 @@
 
 #include <cassert>
 #include "Variable.h"
+#include "PointerType.h"
 
 //A constructor for a Variable. Saves the id and type.
 Variable::Variable(string id, AbstractType *type) : Symbol(id)
@@ -37,6 +38,18 @@ void Variable::generateDefinition(string ident)
 {
     //Ignore parameter "ident"
     generateCode(identifier);
+}
+
+void Variable::generateNewStatement()
+{
+    generateDefinition("");
+    cout << " = new ";
+    
+    if(!type->isPointer())
+        cerr << "***ERROR " << type->identifier << " is not a pointer\n" << endl;
+
+    AbstractType *pointeeType = type->type;
+    pointeeType->generateCode("");
 }
 
 //Returns a string representation of a variable.
