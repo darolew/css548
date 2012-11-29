@@ -42,14 +42,14 @@ void PointerType::generateCode(string varName)
     //variable (if there is one). No asterisk (*) is needed because the
     //asterisk was part of the type def.
     if (isNamedType()) {
-        cout << identifier;
+        cout << identifier << " ";
         //Do not print a space if the parameter varName is an empty string.
         //varName will be an empty parameter when this type is used outside
         //the context of a variable declaration, such as the type of a paramter
         //in a function declaration, like "void cleanup(cellptr* &list)" where
         //cellptr is the PointerType object's identifier.
         if (!varName.empty()) {
-            cout << " " << varName;
+            cout << varName;
         } 
         //My work here is done. Exit fucntion to prevent executing 
         //code unrealted (cout << "*"....) below.

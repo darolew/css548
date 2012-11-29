@@ -74,6 +74,11 @@ bool Symbol::isPointer()
     return false;
 }
 
+bool Symbol::isProcedure()
+{
+    return false;
+}
+
 //Returns a string representation of the symbol.
 string Symbol::toString()
 {

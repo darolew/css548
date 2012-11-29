@@ -7,8 +7,11 @@
 #include <sstream>
 #include <list>
 #include "Function.h"
+#include "SymTable.h"
 #include "main.h"
 using namespace std;
+
+extern SymTable symTable;
 
 //The constructor used for a function before its name, return type, or
 //parameters are known. Functions objects are always created under those
@@ -30,11 +33,12 @@ void Function::generateDefinition(string ident)
     cout << " " << identifier << "(";
     
     //Parameters
-    list<Parameter>::iterator it = params.begin();
+    list<Parameter*>::iterator it = params.begin();
     for (; it != params.end(); it++) {
-        it->generateDefinition("");
-        if (it != --params.end())
-            cout << ", ";
+    	if (it != params.begin())
+    		cout << ", ";
+    	Parameter *param = *it;
+        param->generateDefinition("");
     }
  
     cout 
@@ -47,6 +51,15 @@ void Function::generateDefinition(string ident)
         << "{" 
         //Add the new line and indentation
         << nlindent();
+       
+    //If this is a function (and not a procedure), create a variable to 
+    //capture the return type.
+    if (returnType) {
+	    cout
+	    	<< returnType->cTypeName() 
+	    	<< " " << identifier 
+	    	<< "_;" << nlindent();
+    }
 }
 
 //Insert this function into the current scope, to allow for recursion; and
@@ -56,12 +69,6 @@ bool Function::insertInto()
 {
     //Insert the function into its own scope.
     Symbol::insertInto();
-
-    //Insert the formal parameters into the current scope.
-    list<Parameter>::iterator it = params.begin();
-    for (; it!=params.end(); ++it)
-        it->insertInto();
-
     return true;
 }
 
@@ -69,7 +76,8 @@ bool Function::insertInto()
 //encapsulated.
 void Function::addParam(Parameter *param)
 {
-    params.push_back(*param);
+    params.push_back(param);
+    symTable.insert(param);
 }
 
 //Set the return type. A wrapper method to keep private object encapsulated.
@@ -78,10 +86,26 @@ void Function::setReturnType(AbstractType *rt)
     returnType = rt;
 }
 
+//TODO: Change the name of isFunction to something more generic like 
+//isSubRoutine
 bool Function::isFunction()
 {
     return true;
 }
+
+bool Function::isProcedure()
+{
+	return !returnType;
+}
+
+void Function::endFunction() 
+{
+	if (returnType)
+        cout << "return " << identifier << "_;" << nlindent();
+
+	cout << "\n}\n\n";
+}
+
 
 //Returns a description of the function in the format:
 //
@@ -113,9 +137,10 @@ string Function::toStringLong()
 {
     stringstream ss (stringstream::in | stringstream::out);
     ss << toString();
-    list<Parameter>::iterator it = params.begin();
+    list<Parameter*>::iterator it = params.begin();
     for (; it != params.end(); it++) {
-        ss << "    " << it->toString();
+    	Parameter *param = *it;
+        ss << "    " << param->toString();
     }
     ss << nlindent();
     return ss.str();

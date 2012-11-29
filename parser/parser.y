@@ -511,7 +511,7 @@ MemoryStatement     : ynew yleftparen yident yrightparen
                     }
                     | ydispose yleftparen yident yrightparen
                     {
-                        cout << "free(" << $3 << ")";
+                        cout << "delete " << $3;
                     }
                     ;
                    
@@ -520,6 +520,31 @@ MemoryStatement     : ynew yleftparen yident yrightparen
 Designator          : yident 
                     {
                         cout << $1;
+                    	
+                    	Symbol* sym = symTable.lookup($1);
+                    	if (sym) {
+                    		if (sym->isFunction()) {
+                    			if (!sym->isProcedure()) {
+									if (sym->identifier == string($1)) {
+										cout << "_";
+									}
+									else {
+										cerr << "***ERROR: Assigning return "
+										<< "value to a different function. Should be " 
+										<< sym->identifier 
+										<< endl;
+									}
+								}
+								else {
+									//This is a procedure and not a function
+									cerr << "***ERROR: Procedure cannnot return a value\n";
+								}
+							
+                    		}
+                    	}
+                    	else {
+                    		cerr << "***ERROR: Undefined identifier " << $1 << endl;
+                    	}
                     }
                       DesignatorStuff
                     ;
@@ -647,7 +672,7 @@ ProcedureDecl       : CreateFunc ProcedureHeading ysemicolon
                     }
                     Block
                     {
-                        cout << "\n}\n\n";
+                        currFunction->endFunction();
                         symTable.endScope();
                     }
                     ;
@@ -659,7 +684,7 @@ FunctionDecl        : CreateFunc FunctionHeading ycolon yident ysemicolon
                     }
                     Block
                     {
-                        cout << "\n}\n\n";
+                        currFunction->endFunction();
                         symTable.endScope();
                     }
                     ;

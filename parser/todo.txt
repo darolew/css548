@@ -1,5 +1,4 @@
 todo:
-    - replace malloc/free with free/delete
     - function return values
     - array index fixes
     - function calls within writeln/write.

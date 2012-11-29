@@ -39,6 +39,12 @@ SymTable::SymTable()
 
     insert(new MemFunction("new"));
     insert(new MemFunction("dispose"));
+    
+    
+    //TODO: true and false are not types, they are values.
+    //But it is convenient to put them in the symbol table
+    insert(new BaseType("true", "true"));
+    insert(new BaseType("false", "false"));
 }
 
 //Destructor for the symbol table.

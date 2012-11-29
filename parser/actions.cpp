@@ -112,7 +112,6 @@ void addFormalParam(string typeName, bool varflag)
         AbstractType *formalType = symTable.lookupType(typeName);
         Parameter *formalParam = new Parameter(name, formalType, varflag);
         currFunction->addParam(formalParam);
-        delete formalParam;
         idList.pop_front();
     }
 }

@@ -42,8 +42,7 @@ void Variable::generateDefinition(string ident)
 
 void Variable::generateNewStatement()
 {
-    generateDefinition("");
-    cout << " = new ";
+    cout << identifier << " = new ";
     
     if(!type->isPointer())
         cerr << "***ERROR " << type->identifier << " is not a pointer\n" << endl;

@@ -14,7 +14,7 @@
 class Function : public Symbol {
 
 private:
-    list<Parameter> params;   // formal parameters (ordered list)
+    list<Parameter*> params;  // formal parameters (ordered list)
     AbstractType *returnType; // return type; left NULL for procedures
 
 public:
@@ -24,6 +24,8 @@ public:
     void addParam(Parameter *param);
     void setReturnType(AbstractType *rt);
     virtual bool isFunction();
+    virtual bool isProcedure();
+    void endFunction();
     virtual string toString();
     virtual string toStringLong();
 };
