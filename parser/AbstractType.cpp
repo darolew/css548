@@ -78,6 +78,17 @@ bool AbstractType::isType()
     return true;
 }
 
+bool AbstractType::isArrayType() 
+{
+    return false;
+}
+
+bool AbstractType::isRecordType() 
+{
+    return false;
+}
+
+
 //Named types are typedefs
 //Unamed types are composite types used in variable declarations.
 //For example, in the statement:

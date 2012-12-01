@@ -30,6 +30,24 @@ void RecordType::generateCode(string ident)
     cout << "} " << ident;
 }
 
+bool RecordType::isRecordType() 
+{
+    return true;
+}
+
+Variable * RecordType::lookup(string ident) 
+{
+    Variable *var;
+    list<Variable>::iterator it = fields.begin();
+    for (; it != fields.end(); it++) {
+        if (ident == it->identifier)
+            return &*it;
+    }
+    
+    return NULL;
+}
+
+
 //Returns a string representation. The cell record is formatted:
 //
 //    cell

@@ -51,6 +51,20 @@ void Variable::generateNewStatement()
     pointeeType->generateCode("");
 }
 
+bool Variable::isArray()
+{
+    if (type)
+        return type->isArrayType();
+    else return false;
+}
+
+bool Variable::isRecord()
+{
+    if (type)
+        return type->isRecordType();
+    else return false;
+}
+
 //Returns a string representation of a variable.
 string Variable::toString()
 {

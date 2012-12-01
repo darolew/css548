@@ -3,7 +3,8 @@
 //
 // This file contains the method definitions of the ArrayType class.
 
-#include <sstream>
+#include <sstream> 
+#include <stdio.h>
 #include "ArrayType.h"
 #include "main.h"
 #include "y.tab.h"
@@ -13,7 +14,44 @@
 ArrayType::ArrayType(AbstractType *type, list<Range> ranges)
     : AbstractType(type)
 {
-    this->ranges = ranges;
+    list<Range>::iterator it = ranges.begin();
+    for (; it != ranges.end(); it++) {
+        this->ranges.push_back(*it);
+    }
+}
+
+//Zero-based counting
+string ArrayType::offsetForDim(int dim)
+{
+//TODO: This needs to be tested for character array bounds
+//TODO: Refactor this mess.
+    //Validate input.
+    if (dim < 0 || dim > (ranges.size()-1)) {
+        cout << "***ERROR: invalid arrary access for dim " << dim << endl;
+        return "ERROR";
+    }
+    
+    //Examples:
+    //  If the low bound is 5, return -(5)
+    //  If the low bound is -5, return -(-5)
+    //  If the low bound is +5, return -(+5)
+    //  If the low bound is 'a', return -(0)
+    Terminal low = ranges[dim].low;
+    string expr = "-(";
+    if (low.unaryOp)
+        expr += low.unaryOp; //Account for unary operator
+    
+    if (low.token == ystring) {
+        int lowBound = low.str[0] - 'a'; //Account for dimensions indexed by chars
+        char str[256];
+        sprintf(str, "%d", lowBound);
+        expr += str;
+    }
+    else {
+        expr += low.str;
+    }
+    expr += ")";
+    return expr;
 }
 
 //Return the array type as an identifier, followed its ranges and type.
@@ -22,7 +60,7 @@ string ArrayType::toString()
 {
     stringstream ss (stringstream::in | stringstream::out);
     ss << identifier << " ";
-    list<Range>::iterator it = ranges.begin();
+    vector<Range>::iterator it = ranges.begin();
     for (; it != ranges.end(); it++) {
         if (it != ranges.begin())
             ss << ",";
@@ -43,11 +81,11 @@ string ArrayType::toString()
 void ArrayType::generateCode(string ident)
 {
     type->generateCode(ident);
-    list<Range>::iterator it = ranges.begin();
+    vector<Range>::iterator it = ranges.begin();
     for (; it != ranges.end(); it++) {
         Range r = *it;
         if (r.low.token != ynumber || r.high.token != ynumber) {
-            cerr << "error -- unsupported array type" << endl;
+            cerr << "***ERROR: unsupported array type" << endl;
             return;
         }
         
@@ -57,6 +95,11 @@ void ArrayType::generateCode(string ident)
         size = (high - low + 1);
         cout << "[" << size << "]";
     }
+}
+
+bool ArrayType::isArrayType() 
+{
+    return true;
 }
 
 void ArrayType::resolve()

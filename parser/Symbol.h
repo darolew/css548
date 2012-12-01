@@ -31,6 +31,8 @@ public:
     virtual bool isMemFunction();
     virtual bool isPointer();
     virtual bool isProcedure();
+    virtual bool isArray();
+    virtual bool isRecord();
     virtual string toString();
 };
 

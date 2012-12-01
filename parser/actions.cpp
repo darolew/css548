@@ -11,7 +11,10 @@ list<Range> rangeList;      // list of ranges, like for an array
 list<PointerType*> ptrList; // list of pointers that need types
 list<Variable> fieldList;   // list of fields to add to a record
 list<string*> dsgList;      // stack of designator strings
+
+ArrayType* currArray;       // current array
 Function *currFunction;     // current function object
+RecordType* currRecord;     // current record type
 IoFunction *currIoFunc;     //
 AbstractType *currType;     // current type being constructed
 

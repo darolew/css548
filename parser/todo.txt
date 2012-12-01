@@ -1,4 +1,7 @@
 todo:
-    - function return values
-    - array index fixes
+    - test pointers to array
+    - fix array index for:
+        -records with an array field
+        -records with a pointer to an array
     - function calls within writeln/write.
+    - character indexes/bounds for arrays

@@ -79,6 +79,16 @@ bool Symbol::isProcedure()
     return false;
 }
 
+bool Symbol::isArray()
+{
+    return false;
+}
+
+bool Symbol::isRecord()
+{
+    return false;
+}
+
 //Returns a string representation of the symbol.
 string Symbol::toString()
 {

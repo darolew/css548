@@ -28,9 +28,9 @@ type
 
 var
   temp2: ^integer;
-  testArray : array [1..3, 3..8] of ^boolean;  
+  testArray : array [1..3, 3..8] of integer;  
   list, newrec: cellPtr;
-  count, classNum: integer;
+  count, classNum: integer; 
 
 (* ************************************************************************* *)
 (* procedure insert                                                          *)
@@ -42,8 +42,12 @@ var
   str: char;
   current: cellPtr;
   found: boolean;
+  temp3: array [2..5] of integer;
+  twoDim: array [5..10,6..8] of integer;
 
 begin
+    temp3[3] := 99;
+    twoDim[5,8] := 99;
     x := 42;
     str := "hello";
     str := 'world';

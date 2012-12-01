@@ -33,6 +33,8 @@ public:
     virtual string cTypeName();
     virtual bool isType();
     virtual bool isNamedType();
+    virtual bool isArrayType();
+    virtual bool isRecordType();
     virtual void generateCode(string);
     virtual void generateDefinition(string);
     virtual string toIdentTypeString();

@@ -22,6 +22,8 @@ public:
     //Refer to the .cpp file for descriptions of these methods.
     RecordType(list<Variable>);
     virtual void generateCode(string);
+    virtual bool isRecordType();
+    Variable *lookup(string);
     virtual string toString();
 };
 

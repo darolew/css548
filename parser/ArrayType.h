@@ -12,21 +12,26 @@
 #ifndef ARRAYTYPE_H
 #define ARRAYTYPE_H
 
-#include <list>
+#include <vector>
+#include <string>
 #include "AbstractType.h"
 #include "Range.h"
 #include "main.h"
 using namespace std;
 
 class ArrayType : public AbstractType {
-    //A list of the array ranges, e.g., 1..5, 'a'..'z', etc.
-    list<Range> ranges;
 
 public:
+    //A lit of the array ranges, e.g., 1..5, 'a'..'z', etc.
+    vector<Range> ranges;
+
     ArrayType(AbstractType *, list<Range>);
     virtual void generateCode(string);
     virtual void resolve();
+    virtual bool isArrayType();
+    string offsetForDim(int);
     virtual string toString();
+
 };
 
 #endif

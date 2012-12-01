@@ -27,6 +27,8 @@
 void yyerror(char const *);
 int yylex(); /* needed by g++ */
 
+int exprCount;
+
 %}
 
 /* Yacc definition section */
@@ -368,7 +370,7 @@ ProcedureCall       : yident
                     {
                         Symbol *sym = symTable.lookup($1);
                         if (!sym || !sym->isFunction())
-                            cerr << "***ERROR: " << $1 << " is not a function" << endl;
+                            cout << "***ERROR: " << $1 << " is not a function" << endl;
                         else if (sym->isIoFunction()) {
                             IoFunction *iofunc = (IoFunction*)sym;
                             iofunc->generateInit();
@@ -384,7 +386,7 @@ ProcedureCall       : yident
                     {
                         Symbol *sym = symTable.lookup($1);
                         if (!sym || !sym->isFunction())
-                            cerr << "***ERROR: " << $1 << " is not a function" << endl;
+                            cout << "***ERROR: " << $1 << " is not a function" << endl;
                         else if (sym->isIoFunction()) {
                             currIoFunc = (IoFunction*)sym;
                             currIoFunc->generateInit();
@@ -519,9 +521,27 @@ MemoryStatement     : ynew yleftparen yident yrightparen
 
 Designator          : yident 
                     {
+                        //TODO: This code is duplicated in the theDesignatorStuff
+                        //Lookup the current designator. If it is the identifier
+                        //for an array, adjust the array bounds.
+                        Symbol *sym = symTable.lookup($1);
+                        if (sym && sym->isArray()) {
+                            currArray = (ArrayType*) ((Variable*) sym)->type;
+                        }
+                        else {
+                            currArray = NULL;
+                        }
+                        
+                        if (sym && sym->isRecord()) {
+                            currRecord = (RecordType*) ((Variable *)sym)->type; //Set current record type
+                        }
+                        else {
+                            currRecord = NULL;
+                        }
+                        
+                        
                         cout << $1;
-                    	
-                    	Symbol* sym = symTable.lookup($1);
+
                     	if (sym) {
                     		if (sym->isFunction()) {
                     			if (!sym->isProcedure()) {
@@ -529,7 +549,7 @@ Designator          : yident
 										cout << "_";
 									}
 									else {
-										cerr << "***ERROR: Assigning return "
+										cout << "***ERROR: Assigning return "
 										<< "value to a different function. Should be " 
 										<< sym->identifier 
 										<< endl;
@@ -537,13 +557,13 @@ Designator          : yident
 								}
 								else {
 									//This is a procedure and not a function
-									cerr << "***ERROR: Procedure cannnot return a value\n";
+									cout << "***ERROR: Procedure cannnot return a value\n";
 								}
 							
                     		}
                     	}
                     	else {
-                    		cerr << "***ERROR: Undefined identifier " << $1 << endl;
+                    		cout << "***ERROR: Undefined identifier " << $1 << endl;
                     	}
                     }
                       DesignatorStuff
@@ -553,16 +573,29 @@ DesignatorStuff     : /*** empty ***/
                     ;
 theDesignatorStuff  : ydot yident /*Record field access*/
                     {
+                        if (currRecord) {
+                            Variable *var = currRecord->lookup($2);
+                            if (var && var->isArray()) {
+                                currArray = (ArrayType*) var->type;
+                            }
+                            else {
+                                currArray = NULL;
+                            }
+                        }
+                    
                         cout << "." << $2;
                         free($2);
-                    }
+                    } 
                     | yleftbracket 
                     {
+                        //Start the first dimension
                         cout << "[";
+                        exprCount = 0; //Reset the array dimension index
                     }
-                      ExpList yrightbracket /*Array element access*/
+                    ExpList yrightbracket /*Array element access*/
                     {
-                        cout << "]";
+                        //This is now printed in expression/exp list
+                        //cout << "]";
                     }
                     | ycaret
                     {
@@ -587,14 +620,41 @@ ActualParameters    : yleftparen
                     }
                     ;
 ExpList             : Expression
-                    | ExpList ycomma
                     {
-                        if (currIoFunc)
-                            currIoFunc->generateSep();
-                        else
-                            cout << ", ";
+                        //Track which dimension of an array is being indexed
+                        //TODO: This code is duplicated in ExpList
+                        if (currArray) {
+                            cout << currArray->offsetForDim(exprCount);
+                            exprCount++;  
+                            cout << "]"; //close array index
+                            //cout << "\n<<<<A expr count " << exprCount << " >>>>\n";                        
+                        }
                     }
-                      Expression
+
+                    | ExpList ycomma
+                    {                    
+                        //Track which dimension of an array is being indexed
+                        if (currArray) {
+                            cout << "[";
+                            //cout << "\n<<<<B expr count " << exprCount << " >>>>\n";                        
+                        }
+                        
+                        else {
+                            if (currIoFunc)
+                                currIoFunc->generateSep();
+                        else
+                            cout << ", "; //comma separated list
+                        }
+                    }
+                    Expression
+                    {
+                        //Close the [] array access for multi-dimensional arrays
+                        if(currArray) {
+                            cout << currArray->offsetForDim(exprCount);
+                            exprCount++;  
+                            cout << "]";
+                        }
+                    }
                     ;
 
 /***************************  Expression Stuff  ******************************/
