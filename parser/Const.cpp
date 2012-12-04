@@ -27,16 +27,16 @@ void Const::generateDefinition(string ident)
         break;
     case yident:
         if (term.str != "true" && term.str != "false") {
-            cerr << "unsupported constant identifier: " << term.str << endl;
+            cout << "***ERROR: unsupported constant identifier: " << term.str << endl;
             return;
         }
         cout << "const bool";
         break;
     case ynil:
-        cerr << "unsupported use of nil in constant" << endl;
+        cout << "ERROR: unsupported use of nil in constant" << endl;
         return;
     default:
-        cerr << "internal error: invalid token " << term.token << endl;
+        cout << "ERROR: internal error: invalid token " << term.token << endl;
         return;
     }
     

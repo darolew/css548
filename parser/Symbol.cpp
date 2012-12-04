@@ -35,7 +35,7 @@ bool Symbol::insertInto()
     Table *table = symTable.front();
     Symbol *sym = symTable.lookup(table, identifier);
     if (sym) {
-        cerr << "error: " << identifier << " already exists in scope\n";
+        cout << "***ERROR: " << identifier << " already exists in scope\n";
         return false;
     }
 

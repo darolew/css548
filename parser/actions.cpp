@@ -85,7 +85,7 @@ void addField()
     while (!idList.empty()) {
         string id = idList.front();
         if (isDuplicateField(id)) {
-            cerr << "error: " << id << " already exists in record\n";
+            cout << "***ERROR: " << id << " already exists in record\n";
         } else {
             Variable field(id, currType);
             fieldList.push_front(field);

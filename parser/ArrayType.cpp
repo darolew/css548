@@ -85,7 +85,7 @@ void ArrayType::generateCode(string ident)
     for (; it != ranges.end(); it++) {
         Range r = *it;
         if (r.low.token != yinteger || r.high.token != yinteger) {
-            cerr << "***ERROR: unsupported array type" << endl;
+            cout << "***ERROR: unsupported array type" << endl;
             return;
         }
         

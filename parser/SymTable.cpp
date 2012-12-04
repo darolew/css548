@@ -152,7 +152,7 @@ AbstractType *SymTable::lookupType(string key)
 {
     Symbol *sym = lookup(key);
     if (!sym || !sym->isType()) {
-        cerr << "error: " << key << " is not a type" << endl;
+        cout << "***ERROR: " << key << " is not a type" << endl;
         sym = NULL;
     }
     return (AbstractType*)sym;

@@ -35,7 +35,7 @@ public:
         else if (isRead())
             cout << "cin";
         else
-            cerr << "internal error: unsupported i/o function" << endl;
+            cout << "***ERROR: unsupported i/o function" << endl;
     }
     
     void generateSep()

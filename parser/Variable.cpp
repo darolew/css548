@@ -45,7 +45,7 @@ void Variable::generateNewStatement()
     cout << identifier << " = new ";
     
     if(!type->isPointer())
-        cerr << "***ERROR " << type->identifier << " is not a pointer\n" << endl;
+        cout << "***ERROR " << type->identifier << " is not a pointer\n" << endl;
 
     AbstractType *pointeeType = type->type;
     pointeeType->generateCode("");
