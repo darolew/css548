@@ -59,10 +59,10 @@ int exprCount;
 //from which they were included.
 %type <term> ConstFactor ConstExpression
 %type <chr> UnaryOperator
-%type <tkn> WhichWay
+%type <tkn> WhichWay MultOperator
 %type <flag> FormalParamFlag
 
-%type <type> Term Factor FunctionCall
+%type <type> Term Factor FunctionCall 
 
 //The union is used for two reasons. The first is to capture information about
 //lexemes from the scanner. The second is to define the data captured in parser
@@ -714,7 +714,7 @@ Term                : Factor
                     			break;
                     		
                     		case ymultiply:
-                    			if ($1.base == BT_INTEGER && $4.base == INTEGER) {
+                    			if ($1.base == BT_INTEGER && $4.base == BT_INTEGER) {
                     				$$.base = BT_INTEGER;
                     				break;
                     			}
@@ -749,25 +749,25 @@ Term                : Factor
 Factor              : yinteger
                     {
                     	$$.complex = CT_NONE;
-                    	$$.base = CT_INTEGER;
+                    	$$.base = BT_INTEGER;
                         cout << $1;
                     }
                     | yreal
                     {
-                    	$$.complex = CT_NONE;
-                    	$$.base = CT_REAL;
+                    	$$.complex = BT_NONE;
+                    	$$.base = BT_REAL;
                         cout << $1;
                     }
                     | ynil
                     {
                     	$$.complex = CT_POINTER;
-                    	$$.base = CT_NONE;
+                    	$$.base = BT_NONE;
                         cout << "NULL";
                     }
                     | ystring
                     {
                     	$$.complex = CT_NONE;
-                    	$$.base = CT_CHARACTER;
+                    	$$.base = BT_CHARACTER;
                         cout << "\"" << $1 << "\"";
                     }
                     | Designator
@@ -792,8 +792,13 @@ FunctionCall        : yident
                     	Symbol *sym = symTable.lookup($1);
                     	if (sym && (sym->complexType() == CT_FUNCTION)) {
                     		Function *func = (Function*)sym;
-                    		$$.complex = func->returnType->complexType();
-                    		$$.base = func->returnType->baseType();
+                            
+                            //TODO: returnType is private
+                    		//$$.complex = func->returnType->complexType();
+                            
+                            //TODO: returnType is private
+                    		//$$.base = func->returnType->baseType();
+                            
                     	} else {
                     		cout << "***ERROR: " << $1 << " is not a function\n";
                     	}
