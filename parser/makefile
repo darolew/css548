@@ -4,10 +4,10 @@
 
 OBJ = y.tab.o lex.yy.o main.o AbstractType.o actions.o ArrayType.o \
     BaseType.o Const.o Function.o Parameter.o PointerType.o RecordType.o \
-    SetType.o Symbol.o SymTable.o Variable.o
+    SetType.o Symbol.o Tracker.o SymTable.o Variable.o
 H = y.tab.h actions.h  AbstractType.h ArrayType.h BaseType.h Const.h \
     Function.h IoFunction.h MemFunction.h Parameter.h PointerType.h Range.h \
-    RecordType.h SetType.h Symbol.h SymTable.h Variable.h
+    RecordType.h SetType.h Symbol.h SymTable.h Tracker.h Variable.h
 CC = g++
 
 all: all_quiet
@@ -60,6 +60,9 @@ SymTable.o: $H SymTable.cpp
 
 Symbol.o: $H Symbol.cpp
 	@$(CC) -g -c Symbol.cpp
+
+Tracker.o: $H Tracker.cpp
+	@$(CC) -g -c Tracker.cpp
 
 Variable.o: $H Variable.cpp
 	@$(CC) -g -c Variable.cpp
