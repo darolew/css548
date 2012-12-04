@@ -50,7 +50,7 @@ int exprCount;
 
 //Some tokens have lexemes that must be captured.
 //These tokens are declared to use the str field of the union.
-%token <str> yident ynumber ystring
+%token <str> yident yinteger yreal ystring
 
 //Some token values are be captured.
 %token <tkn> yplus yminus
@@ -62,6 +62,8 @@ int exprCount;
 %type <tkn> WhichWay
 %type <flag> FormalParamFlag
 
+%type <type> Term Factor FunctionCall
+
 //The union is used for two reasons. The first is to capture information about
 //lexemes from the scanner. The second is to define the data captured in parser
 //rules.
@@ -71,6 +73,10 @@ int exprCount;
     int chr;
     int tkn;
     bool flag;
+    struct {
+    	int complex;
+    	int base;
+    } type;
 };
 
 %%
@@ -251,9 +257,14 @@ ConstFactor         : yident
                         $$ = newTerminal($1, yident);
                         free($1);
                     }
-                    | ynumber
+                    | yinteger
                     {
-                        $$ = newTerminal($1, ynumber);
+                        $$ = newTerminal($1, yinteger);
+                        free($1);
+                    }
+                    | yreal
+                    {
+                        $$ = newTerminal($1, yreal);
                         free($1);
                     }
                     | ynil
@@ -496,7 +507,7 @@ ForStatement        : yfor yident yassign
                     ;
 WhichWay            : yto
                     {
-                        $$ = yto;
+                        $$ = yto; //TODO: Is this redundant?
                     }
                     | ydownto
                     {
@@ -630,23 +641,21 @@ ExpList             : Expression
                             //cout << "\n<<<<A expr count " << exprCount << " >>>>\n";                        
                         }
                     }
-
                     | ExpList ycomma
                     {                    
                         //Track which dimension of an array is being indexed
                         if (currArray) {
                             cout << "[";
                             //cout << "\n<<<<B expr count " << exprCount << " >>>>\n";                        
-                        }
-                        
+                        }                     
                         else {
                             if (currIoFunc)
                                 currIoFunc->generateSep();
-                        else
-                            cout << ", "; //comma separated list
+	                        else
+    	                        cout << ", "; //comma separated list
                         }
                     }
-                    Expression
+                      Expression
                     {
                         //Close the [] array access for multi-dimensional arrays
                         if(currArray) {
@@ -672,18 +681,93 @@ TermExpr            : Term
                     | TermExpr AddOperator Term
                     ;
 Term                : Factor
-                    | Term MultOperator Factor
-                    ;
-Factor              : ynumber
+                    | Term MultOperator
                     {
+                    	switch ($2) {
+                    		case yand:
+                    			cout << " && ";
+                    			break;
+                    		case ymultiply:
+                    			cout << " * ";
+                    			break;							
+                    		case ydivide:
+                    		case ydiv:
+                    			cout << " / ";
+                    			break;
+                    		case ymod:
+                    			cout << " % ";
+                    			break;						
+                    		default:
+                    			cout << "***ERROR: Internal error, unhandled MultOperator\n";
+                    			break;
+                    	}
+                    }
+                      Factor
+                    {
+               			$$.complex = CT_NONE;
+
+                    	switch ($2) {
+                    		case yand:
+                    			if ($1.base != BT_BOOLEAN || $4.base != BT_BOOLEAN)
+                    				cout << "***ERROR: && expected boolean\n";
+                    			$$.base = BT_BOOLEAN;
+                    			break;
+                    		
+                    		case ymultiply:
+                    			if ($1.base == BT_INTEGER && $4.base == INTEGER) {
+                    				$$.base = BT_INTEGER;
+                    				break;
+                    			}
+ 
+								/* fall-through */
+								
+                    		case ydivide:
+                    			if ($1.base != BT_INTEGER && $1.base != BT_REAL) {
+                    				cout << "***ERROR: / or * expected number\n";
+                    				break;
+                    			}
+                    			if ($4.base != BT_INTEGER && $4.base != BT_REAL) {
+                    				cout << "***ERROR: / or * expected number\n";
+                    				break;
+                    			}
+                    			$$.base = BT_REAL;
+                    			break;
+
+                    		case ydiv:
+                    		case ymod:
+                    			if ($1.base != BT_INTEGER || $4.base != BT_INTEGER)
+                    				cout << "***ERROR: div or mod expected integer\n";
+                    			$$.base = BT_INTEGER;
+                    			break;
+							
+                    		default:
+                    			cout << "***ERROR: Internal error, unhandled MultOperator\n";
+                    			break;
+                    	}
+                    }
+                    ;
+Factor              : yinteger
+                    {
+                    	$$.complex = CT_NONE;
+                    	$$.base = CT_INTEGER;
+                        cout << $1;
+                    }
+                    | yreal
+                    {
+                    	$$.complex = CT_NONE;
+                    	$$.base = CT_REAL;
                         cout << $1;
                     }
                     | ynil
                     {
+                    	$$.complex = CT_POINTER;
+                    	$$.base = CT_NONE;
                         cout << "NULL";
                     }
                     | ystring
                     {
+                    	$$.complex = CT_NONE;
+                    	$$.base = CT_CHARACTER;
                         cout << "\"" << $1 << "\"";
                     }
                     | Designator
@@ -697,7 +781,7 @@ Factor              : ynumber
                     }
                     | ynot 
                     {
-                        cout << "!";
+                        cout << "!"; //TODO: typechecking -- must be bool
                     }
                     Factor
                     | Setvalue
@@ -705,10 +789,18 @@ Factor              : ynumber
                     ;
 FunctionCall        : yident
                     {
+                    	Symbol *sym = symTable.lookup($1);
+                    	if (sym && (sym->complexType() == CT_FUNCTION)) {
+                    		Function *func = (Function*)sym;
+                    		$$.complex = func->returnType->complexType();
+                    		$$.base = func->returnType->baseType();
+                    	} else {
+                    		cout << "***ERROR: " << $1 << " is not a function\n";
+                    	}
                         cout << $1;
                         free($1);
                     }
-                       ActualParameters
+                      ActualParameters
                     ;
 Setvalue            : yleftbracket ElementList yrightbracket
                     | yleftbracket yrightbracket
@@ -803,32 +895,11 @@ FormalParamFlag     : /*** nothing ***/
 UnaryOperator       : yplus     { $$ = '+'; }
                     | yminus    { $$ = '-'; }
                     ;
-MultOperator        : ymultiply
-                    {
-                        //TODO: type checking and coercion
-                        cout << " * ";
-                    } 
-                    | ydivide 
-                    {
-                        //TODO: type checking and coersion
-                        cout << " / ";
-                    }
-                    | ydiv 
-                    { //With the exception of Div and Mod, which accept only integer expressions as operands,
-                      //all operators accept real and integer expressions as operands. 
-                      cout << " / ";
-                    }
-                    | ymod 
-                    {
-                        cout << " % ";
-                    }
-                    | yand
-                    {
-                        //TODO:Boolean operators can only have boolean type 
-                        //operands, and the resulting type is always boolean.
-                        cout << " && ";
-                    }
-    
+MultOperator        : ymultiply	{ $$ = ymultiply; }
+                    | ydivide 	{ $$ = ydivide; }
+                    | ydiv 		{ $$ = ydiv; }
+                    | ymod 		{ $$ = ymod; }
+                    | yand		{ $$ = yand; }
                     ;
 AddOperator         : yplus 
                     {

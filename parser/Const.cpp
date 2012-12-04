@@ -19,14 +19,12 @@ Const::Const(string id, Terminal term) : Symbol(id)
 void Const::generateDefinition(string ident)
 {
     switch (term.token) {
-    case ynumber: {
-        size_t found = term.str.find('.');
-        if (found == string::npos)
-            cout << "const int";
-        else
-            cout << "const double";
+    case yinteger:
+        cout << "const int";
         break;
-    }
+    case yreal:
+        cout << "const double";
+        break;
     case yident:
         if (term.str != "true" && term.str != "false") {
             cerr << "unsupported constant identifier: " << term.str << endl;

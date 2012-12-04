@@ -11,6 +11,23 @@
 #include <string>
 using namespace std;
 
+typedef enum {
+	CT_NONE,
+	CT_POINTER,
+	CT_ARRAY,
+	CT_FUNCTION,
+	CT_PROCEDURE,
+	CT_RECORD
+} COMPLEXTYPE;
+
+typedef enum {
+	BT_NONE,
+	BT_INTEGER,
+	BT_REAL,
+	BT_BOOLEAN,
+	BT_CHARACTER
+} BASETYPE;
+
 class Symbol;
 typedef list<Symbol*> Table;
 class SymTable;
@@ -25,6 +42,8 @@ public:
     virtual string className();
     virtual bool insertInto();
     virtual void resolve();
+	virtual COMPLEXTYPE complexType();
+	virtual BASETYPE baseType();
     virtual bool isType();
     virtual bool isFunction();
     virtual bool isIoFunction();

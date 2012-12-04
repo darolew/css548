@@ -48,7 +48,6 @@ BCOMMENT    \{[^}]*\}
 INT         {DIGIT}+
 EXP         [Ee][+-]?{INT}
 REAL        {INT}\.{INT}{EXP}?
-NUMBER      {INT}|{REAL}
 STRINGDQ    \"[^"]*\"
 STRINGSQ    \'[^']*\'
 STRING      {STRINGDQ}|{STRINGSQ}
@@ -120,7 +119,8 @@ while                   {return ywhile;}
 with                    {return yunknown;}      /* Unsupported keyword */
 {ID}                    {capture(false); return yident;}
 {BCOMMENT}              {print_comment("{");}
-{NUMBER}                {capture(false); return ynumber;}
+{INT}                   {capture(false); return yinteger;}
+{REAL}                  {capture(false); return yreal;}
 {STRING}                {capture(true); return ystring;}
 <INITIAL>\(\*           {BEGIN(IN_COMMENT); yymore();}
 <IN_COMMENT><<EOF>>     {eof = true; return yunknown;}

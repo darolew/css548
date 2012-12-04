@@ -80,6 +80,9 @@ bool AbstractType::isType()
 
 bool AbstractType::isArrayType() 
 {
+	if (type)
+		return type->isArrayType();
+
     return false;
 }
 

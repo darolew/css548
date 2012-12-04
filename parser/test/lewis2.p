@@ -13,7 +13,7 @@ const
   barconst = false;
 
 type
-  integerArray = array [1..6] of integer;
+  integerArray = array [2..6] of integer;
 
   fooType = real;
 
@@ -44,10 +44,12 @@ var
   found: boolean;
   temp3: array [2..5] of integer;
   twoDim: array [5..10,6..8] of integer;
+  tda: integerArray;
 
 begin
     temp3[3] := 99;
     twoDim[5,8] := 99;
+    tda[3] := 9;
     x := 42;
     str := "hello";
     str := 'world';
