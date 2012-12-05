@@ -3,8 +3,9 @@
 //
 // This file contains the method definitions of the AbstractType class.
 
-#include "AbstractType.h"
 #include <string>
+#include "AbstractType.h"
+#include "actions.h"
 
 //This constructor is used for nameless types that do not refer to another
 //type. The empty string represents the lack of a name.
@@ -113,4 +114,9 @@ AbstractType* AbstractType::getType()
         return type->getType();
         
     return this;
+}
+
+void AbstractType::push() 
+{
+    tracker.push(identifier, this);
 }

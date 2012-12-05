@@ -38,6 +38,7 @@ public:
     string identifier; // the identifier associated with this symbol
 
     Symbol(string);
+    virtual void push();
     virtual ~Symbol();
     virtual bool insertInto();
     virtual void resolve();

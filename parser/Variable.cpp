@@ -6,6 +6,7 @@
 #include <cassert>
 #include "Variable.h"
 #include "PointerType.h"
+#include "actions.h"
 
 //A constructor for a Variable. Saves the id and type.
 Variable::Variable(string id, AbstractType *type) : Symbol(id)
@@ -65,9 +66,12 @@ bool Variable::isRecord()
     else return false;
 }
 
-AbstractType *Variable::getType() {
-    
+AbstractType *Variable::getType() 
+{
     return type->getType();
-    
 }
 
+void Variable::push() 
+{
+    tracker.push(identifier, getType());
+}

@@ -17,23 +17,29 @@
 #include "RecordType.h"
 #include "SetType.h"
 
+typedef struct frame {
+    AbstractType* type;
+    string str;
+} frame;
+
 using namespace std;
 
 class Tracker {
 private:
-   list<AbstractType *> typeStack;
-   list<int> functionParamCountStack;
-   AbstractType *pop();   
-   AbstractType *peek();
-   void push(AbstractType *);
+   list<frame> typeStack;
+   frame pop();   
+   frame peek();
+   void push(frame);
+
 
 public:
+    void push(string, AbstractType*);
     void push(string);
     void deref();
     void binaryOp(int);
     bool isArrayInContext();
     string arrayIndexOffset(int);
-    void debugPrint();
+    void debugPrint(string = "");
     
 };
 

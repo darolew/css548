@@ -22,7 +22,7 @@ Symbol::~Symbol()
 {
 }
 
-//Insert this symbol into the synbol table. An error is produced if the symbol
+//Insert this symbol into the symbol table. An error is produced if the symbol
 //already exists in the current scope. Returns whether the insert succeeded.
 bool Symbol::insertInto()
 {
@@ -110,4 +110,11 @@ string Symbol::className()
         cstr++;
         
     return string(cstr);
+}
+
+void Symbol::push()
+{
+    cout 
+        << "\n***ERROR: Class Symbol cannot be added to the type tracker (" 
+        << identifier << ")\n";
 }

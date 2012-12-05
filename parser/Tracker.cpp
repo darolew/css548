@@ -1,60 +1,85 @@
+#include <typeinfo>
 #include "Tracker.h"
 #include "Parameter.h"
 #include "actions.h"
+
+//Debug print macro
+#define ERR(X) (cout << "\n***ERROR: " << X << " | " << __FILE__ << " line " << __LINE__ << endl)
 
 //A new identifier has been encoutered. It is either:
 //  -Defined in the symbol table (Designator: yident)
 //  -A field of a record (theDesignatorStuff: ydot yident)
 void Tracker::push(string ident)
 {
+    //Ident could represent:
+    // 1. Instance of Variable. 
+    //    An lvalue like "x". It would have been declared and entered into 
+    //    the symbol table when the parser encountered "x:integer;"  
+    // 2. Field of a record.
+    // 3. SIT global identifier like "false".
+    
+    //TODO: Handle constants. Push their type onto the stack.
+        
     //Look up the yident in the symbol table.
     Symbol *sym = symTable.lookup(ident);
     
-    //If identifier is in symbol table, verify that the sym is a variable.
-    //dynamic_cast is always successful when we cast a class to one of its 
-    //base classes.  dynamic_cast performs a special checking during runtime
-    //to ensure that the expression yields a valid complete object 
-     Variable * var;
-    if(sym) {
-        var = dynamic_cast<Variable *>(sym);
-        if (!var) {
-            var = dynamic_cast<Parameter *>(sym);
-            if (!var)
-                cout << "***ERROR: expected variable or parameter. " << __FILE__ << " " << __LINE__ << endl << flush;
+    //If yident is in the symbol table, push it and exit.
+    if (sym) {
+        sym->push();
+        return;
+    }
+ 
+    //If identifier is not in the symbol table, it might be a field in a record.
+    RecordType *rec = dynamic_cast<RecordType *>(peek().type);
+    if(rec) {       
+        //Yes, a record type is on the top of the stack
+        Variable *var = rec->lookup(ident);
+        if (var) {
+            //Yes, the yident is actually a field in the record. 
+            
+            //REMOVE RECORD TYPE ON THE TOP OF THE STACK. The record is no 
+            //longer the current type. The field of the reocrd is now the 
+            //the curernt type
+            pop();
+        
+            //Push it. Push it real good.
+            var->push();          
+            
+            //Exit method input was sucessfullly recognized.
+            return;            
         }
     }
-    
-    //If identifier is not in the symbol table, it might be a field in a record.
-    if (!sym) {
-        RecordType *rec = dynamic_cast<RecordType *>(peek());
-            if(!rec) {
-                cout << "***ERROR: " << flush;
-                cout << ident << " is not in symbol table and record is not on top of stack " << __FILE__ << " " << __LINE__ << endl;
-            }
-            else {
-                var = rec->lookup(ident);
-                if (!var) {
-                    cout << "***ERROR: " << flush;
-                    cout << ident << " a member of " << var->identifier << " " << __FILE__ << " " << __LINE__ << endl;
-                }
-                //REMOVE RECORD TYPE ON THE TOP OF THE STACK
-                pop();
-            }//end else
-
-    }//end if
-
-    typeStack.push_front(var->getType());
-    //cout << "----->Adding var: " << var->identifier << endl;
-    
-}//end method
-
-//Deference a pointer type
+}
+//----------------------------------------------------------------------------
 void Tracker::deref()
 {
+    //Deference a pointer type
+    
     //TODO: If top of stack is not a pointer, throw an error.
-    AbstractType *type = pop();
-    push(type->type->getType());
+    frame f = pop();
+    PointerType *type = dynamic_cast<PointerType *>(f.type);
+    if (!type)
+       ERR("expected a pointer type");
+    
+    //Get the pointee type. Not pretty.
+    //Example 1 - pointer to a base type
+    //
+    //   PointerType->BaseType : BaseType
+    //
+    //Example 2- pointer to a typedef of a typedef of a base type
+    //
+    //    PointerType->TypeDef->TypeDef->BaseType : still BaseType
+    //
+    
+    //cerr << "\n<<<<<<<< f.type " << f.type->className() << endl;
+    //cerr << "\n<<<<<<<< f.type->getType() " << f.type->getType()->className() << endl;
+    //cerr << "\n<<<<<<<< f.type->type->getType() " << f.type->type->getType()->className() << endl;
+    f.type = f.type->type->getType();
+        
+    //Put pointee on the type stack
+    push(f);
 }
+//----------------------------------------------------------------------------
 void Tracker::binaryOp(int token)
 {
     //TODO: this method will have the worlds longest switch statement.
@@ -63,23 +88,25 @@ void Tracker::binaryOp(int token)
     
     //It will pop both of the top operand types off the stack and 
     //and push on the type that results from the operation.
-    
 }
-
+//----------------------------------------------------------------------------
 string Tracker::arrayIndexOffset(int dim)
 {
-    //TODO: Assert that array is in context
-    //TODO: Assret that an integer is on the top of the stack (because
-    //  only integers are valid indexes).
     //TODO: In ArrayType, store array bounds and indexes as ints, not strings.
 
     //Pop the integer off the top of the stack because it being used to
     //index an array.
+    //TODO: Assret that an integer is on the top of the stack (because
+    //  only integers are valid indexes).
     pop();
     
     //Top the stack must now be an array.
-    ArrayType *array = dynamic_cast<ArrayType *>(peek());
+    //TODO: Assert the array pointer is not void.
+    ArrayType *array = dynamic_cast<ArrayType *>(peek().type);
  
+    if(!array)
+        ERR(string("fatal error - expected ArrayType, but found ") + peek().type->className());    
+
     //Get the bound offset for the C translation
     string offset = array->offsetForDim(dim);
   
@@ -88,57 +115,67 @@ string Tracker::arrayIndexOffset(int dim)
     //in the array
     //(REMEMBER that dim is zero-based)
     if (dim == array->numDimensions()-1) {
-        pop();
-        push(array->type->getType());
+        frame f = pop();
+        
+        //Example 1: 
+        f.type = f.type->type->getType();
+        push(f);
     }
     
     return offset;
 }
-
-AbstractType * Tracker::peek()
+//----------------------------------------------------------------------------
+frame Tracker::peek()
 {
     if (typeStack.empty()) {
-        cerr << "***ERROR: invalid type stack access " << __FILE__ << " " << __LINE__ << endl;
+        cout << "***ERROR: invalid type stack access " << __FILE__ << " " << __LINE__ << endl;
         exit(-1);
     }
     
     return typeStack.front();
     
-}//end method
+}
+//----------------------------------------------------------------------------
+void Tracker::debugPrint(string msg) {
 
-#include <typeinfo>
-
-void Tracker::debugPrint() {
-
-    cout << "\n---------- TRACKER (top) ----------\n";
-    list<AbstractType *>::iterator it = typeStack.begin();
+    cout << "\n--" << msg << "-------- TRACKER (top) ----------\n";
+    list<frame>::iterator it = typeStack.begin();
     for(; it != typeStack.end(); ++it) {
+        cout <<  it->type->className()  << "\t" << it->str << endl;
     }
     cout << "------------- (bottom)-------------\n";
 }
-
-
-AbstractType *Tracker::pop() 
+//----------------------------------------------------------------------------
+frame Tracker::pop() 
 {   
-    AbstractType *type = peek();
+    frame f = peek();
     typeStack.pop_front();
-    
-    //TODO: Handle popping a function
+    //debugPrint("pop");
         
-    return type;    
+    return f;    
 }
-
-void Tracker::push(AbstractType *type)
-{
-    typeStack.push_front(type);
-}
-
+//----------------------------------------------------------------------------
 bool Tracker::isArrayInContext() 
 {
     //Examine the top of the stack.
-    ArrayType *array = dynamic_cast<ArrayType *>(peek());
+    frame f = peek();
+    ArrayType *array = dynamic_cast<ArrayType *>(f.type);
    
     //The cast will fail if the object is an an ArrayType.
     //If the cast fails, the pointer will be null   
     return !array;     
+}
+//----------------------------------------------------------------------------
+void Tracker::push(string description, AbstractType *type)
+{
+    frame f;
+    f.str = description;
+    f.type = type;
+    push(f);
+}
+//----------------------------------------------------------------------------
+void Tracker::push(frame f) 
+{
+    typeStack.push_front(f);
+    //debugPrint("push");
 }

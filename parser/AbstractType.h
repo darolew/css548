@@ -38,6 +38,7 @@ public:
     virtual void generateCode(string);
     virtual void generateDefinition(string);
     virtual AbstractType* getType();
+    virtual void push();
 };
 
 #endif

@@ -22,6 +22,7 @@ public:
     virtual bool isArray();
     virtual bool isRecord();
     virtual AbstractType *getType();
+    virtual void push();
 };
 
 #endif

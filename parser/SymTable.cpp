@@ -13,6 +13,7 @@
 #include "MemFunction.h"
 #include "IoFunction.h"
 #include "main.h"
+#include "y.tab.h"
 
 //
 //Public SymTable methods
@@ -27,10 +28,10 @@ SymTable::SymTable()
     //Start standard identifier.
     beginScope("Standard Identifier Table");
 
-    insert(new BaseType("integer", "int"));
-    insert(new BaseType("boolean", "bool"));
-    insert(new BaseType("real", "double"));
-    insert(new BaseType("char", "string")); //TODO: Using char as an array index.
+    insert(new BaseType("integer", "int", yinteger));
+    insert(new BaseType("boolean", "bool", yident));
+    insert(new BaseType("real", "double", yreal));
+    insert(new BaseType("char", "string", ystring)); //TODO: Using char as an array index.
 
     insert(new IoFunction("write"));
     insert(new IoFunction("writeln"));
@@ -43,8 +44,8 @@ SymTable::SymTable()
     
     //TODO: true and false are not types, they are values.
     //But it is convenient to put them in the symbol table
-    insert(new BaseType("true", "true"));
-    insert(new BaseType("false", "false"));
+    insert(new BaseType("true", "true", ytrue));
+    insert(new BaseType("false", "false", yfalse));
 }
 
 //Destructor for the symbol table.

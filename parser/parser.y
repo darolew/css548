@@ -42,11 +42,11 @@ int exprCount;
 %start  CompilationUnit
 //TODO: fix line lengths
 %token  yand yarray yassign ybegin ycaret ycase ycolon ycomma yconst ydispose ydiv
-        ydivide ydo ydot ydotdot ydownto yelse yend yequal yfor yfunction
+        ydivide ydo ydot ydotdot ydownto yelse yend yequal yfalse yfor yfunction
         ygreater ygreaterequal yif yin yleftbracket yleftparen yless
         ylessequal ymod ymultiply ynew ynil ynot ynotequal yof yor yprocedure
         yprogram yrecord yrepeat yrightbracket yrightparen ysemicolon yset
-        ythen yto ytype yunknown yuntil yvar ywhile
+        ythen yto ytrue ytype yunknown yuntil yvar ywhile
 
 //Some tokens have lexemes that must be captured.
 //These tokens are declared to use the str field of the union.
@@ -188,7 +188,12 @@ VariableDeclList    : VariableDecl ysemicolon
 ConstantDef         : yident yequal ConstExpression
                     {
                         Const *c = new Const($1, *$3);
+                        
+                        //What are we inserting here?
+                        cout << "<<<<<<<<<<<Inserting " << $1 << endl;
                         symTable.insert(c);
+                        
+                        
                         c->generateDefinition($1);
                         cout << ";" << nlindent();
                         free($1);
@@ -703,44 +708,44 @@ Term                : Factor
                     {
                            $$.complex = CT_NONE;
 
-                        switch ($2) {
-                            case yand:
-                                if ($1.base != BT_BOOLEAN || $4.base != BT_BOOLEAN)
-                                    cout << "***ERROR: && expected boolean\n";
-                                $$.base = BT_BOOLEAN;
-                                break;
+                        // switch ($2) {
+                            // case yand:
+                                // if ($1.base != BT_BOOLEAN || $4.base != BT_BOOLEAN)
+                                    // cout << "***ERROR: && expected boolean\n";
+                                // $$.base = BT_BOOLEAN;
+                                // break;
                             
-                            case ymultiply:
-                                if ($1.base == BT_INTEGER && $4.base == BT_INTEGER) {
-                                    $$.base = BT_INTEGER;
-                                    break;
-                                }
+                            // case ymultiply:
+                                // if ($1.base == BT_INTEGER && $4.base == BT_INTEGER) {
+                                    // $$.base = BT_INTEGER;
+                                    // break;
+                                // }
  
-                                /* fall-through */
+                                // /* fall-through */
                                 
-                            case ydivide:
-                                if ($1.base != BT_INTEGER && $1.base != BT_REAL) {
-                                    cout << "***ERROR: / or * expected number\n";
-                                    break;
-                                }
-                                if ($4.base != BT_INTEGER && $4.base != BT_REAL) {
-                                    cout << "***ERROR: / or * expected number\n";
-                                    break;
-                                }
-                                $$.base = BT_REAL;
-                                break;
+                            // case ydivide:
+                                // if ($1.base != BT_INTEGER && $1.base != BT_REAL) {
+                                    // cout << "***ERROR: / or * expected number\n";
+                                    // break;
+                                // }
+                                // if ($4.base != BT_INTEGER && $4.base != BT_REAL) {
+                                    // cout << "***ERROR: / or * expected number\n";
+                                    // break;
+                                // }
+                                // $$.base = BT_REAL;
+                                // break;
 
-                            case ydiv:
-                            case ymod:
-                                if ($1.base != BT_INTEGER || $4.base != BT_INTEGER)
-                                    cout << "***ERROR: div or mod expected integer\n";
-                                $$.base = BT_INTEGER;
-                                break;
+                            // case ydiv:
+                            // case ymod:
+                                // if ($1.base != BT_INTEGER || $4.base != BT_INTEGER)
+                                    // cout << "***ERROR: div or mod expected integer\n";
+                                // $$.base = BT_INTEGER;
+                                // break;
                             
-                            default:
-                                cout << "***ERROR: Internal error, unhandled MultOperator\n";
-                                break;
-                        }
+                            // default:
+                                // cout << "***ERROR: Internal error, unhandled MultOperator\n";
+                                // break;
+                        // }
                     }
                     ;
 Factor              : yinteger

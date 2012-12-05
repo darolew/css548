@@ -6,9 +6,10 @@
 #include "BaseType.h"
 using namespace std;
 
-BaseType::BaseType(string id, string cName) : AbstractType(id)
+BaseType::BaseType(string id, string cName, int token) : AbstractType(id)
 {
     this->cName = cName;
+    this->token = token; 
 }
 
 string BaseType::cTypeName() 
