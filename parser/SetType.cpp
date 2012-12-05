@@ -12,13 +12,3 @@ SetType::SetType(Range range) : AbstractType()
 {
     this->range = range;
 }
-
-//Returns a string representation of the SetType class. Used for printST()
-//and for debugging.
-string SetType::toString()
-{
-    stringstream ss (stringstream::in | stringstream::out);
-    ss << identifier << " ";
-    ss << range.low.str << ".." << range.high.str << nlindent();
-    return ss.str();
-}

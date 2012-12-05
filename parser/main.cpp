@@ -5,8 +5,7 @@
 // program is executed. This program is integrated with a Flex scanner and
 // Yacc parser. The main method kicks off the parser (which in turn invokes
 // the scanner). This file also contains some global methods for handling
-// indentation levels used by the toString() methods, toIdentTypeString()
-// methods and the SymTable::printST() method.
+// indentation levels.
 
 #include <iostream>
 #include <sstream>
@@ -17,10 +16,8 @@
 //object because it is accessed almost everywhere.
 SymTable symTable;
 
-//Create the global indentation level. This value is used to control the
-//indentation in the printST(), toString(), toIdentTypeString() methods,
-//and is modified when the program and functions come into scope and
-//leave scope.
+//Create the global indentation level.It is modified when the program and 
+//functions come into scope and leave scope.
 unsigned indent;
 
 //Forward declaration of the yyparse() method.

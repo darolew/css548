@@ -38,8 +38,6 @@ public:
     virtual void generateCode(string);
     virtual void generateDefinition(string);
     virtual string className();
-    virtual string toIdentTypeString();
-    virtual string toString();
     virtual AbstractType* getType();
 };
 

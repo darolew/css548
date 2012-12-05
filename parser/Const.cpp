@@ -45,17 +45,3 @@ void Const::generateDefinition(string ident)
         cout << term.unaryOp;
     cout << term.str;
 }
-
-//Print the const and its value. For example:
-//
-//    const a = -5;
-//
-//is represented as "a -5". Used for printST() and debugging.
-string Const::toString()
-{
-    string s = identifier + " ";
-    if (term.unaryOp != NO_UNARY_OP)
-        s += term.unaryOp;
-    s += term.str + nlindent();
-    return s;
-}

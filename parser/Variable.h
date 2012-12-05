@@ -21,7 +21,6 @@ public:
     virtual void generateNewStatement();
     virtual bool isArray();
     virtual bool isRecord();
-    virtual string toString();
     virtual string className();
     virtual AbstractType *getType();
 };

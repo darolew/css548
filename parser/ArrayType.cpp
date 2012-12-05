@@ -54,25 +54,6 @@ string ArrayType::offsetForDim(int dim)
     return expr;
 }
 
-//Return the array type as an identifier, followed its ranges and type.
-//Used only for printST() and debugging.
-string ArrayType::toString()
-{
-    stringstream ss (stringstream::in | stringstream::out);
-    ss << identifier << " ";
-    vector<Range>::iterator it = ranges.begin();
-    for (; it != ranges.end(); it++) {
-        if (it != ranges.begin())
-            ss << ",";
-        ss << it->low.str << ".." << it->high.str;
-    }
-    if (type)
-        ss << " " << type->toIdentTypeString();
-    else
-        ss << " <bogus_type>" << nlindent();
-    return ss.str();
-}
-
 //TODO:
 //  - Support character ranges
 //  - Support constant ranges

@@ -65,22 +65,10 @@ bool Variable::isRecord()
     else return false;
 }
 
-//Returns a string representation of a variable.
-string Variable::toString()
-{
-    string s = identifier + " ";
-    if (type)
-        s += type->toIdentTypeString();
-    else
-        s += "<unknown_type>" + nlindent(); // should never see this
-    return s;
-}
-
 string Variable::className() 
 {
     return "Variable";
 }
-
 
 AbstractType *Variable::getType() {
     

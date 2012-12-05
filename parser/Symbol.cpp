@@ -31,7 +31,6 @@ string Symbol::className()
 //already exists in the current scope. Returns whether the insert succeeded.
 bool Symbol::insertInto()
 {
-    //cout << "inserting " << toString();
     Table *table = symTable.front();
     Symbol *sym = symTable.lookup(table, identifier);
     if (sym) {
@@ -97,10 +96,4 @@ bool Symbol::isArray()
 bool Symbol::isRecord()
 {
     return false;
-}
-
-//Returns a string representation of the symbol.
-string Symbol::toString()
-{
-    return identifier + nlindent();
 }

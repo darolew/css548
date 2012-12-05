@@ -20,7 +20,6 @@ private:
 
 public:
     SetType(Range);
-    virtual string toString();
 };
 
 #endif

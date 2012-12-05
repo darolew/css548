@@ -105,44 +105,6 @@ bool AbstractType::isNamedType()
     return identifier != "";
 }
 
-//Returns a string representing this type as it would be used to give a
-//type to an identifier (e.g., variable or field). If this type is a
-//typedef, return just the name. Thus, a type created for:
-//
-//    intArray = array [1..16] of integer;
-//
-//would return just "intArray", but a nameless type created ad hoc like
-//this:
-//
-//    a : array [1..16] of integer;
-//
-//would return "1..16 integer".
-//
-//Used only for printST() and debugging.
-string AbstractType::toIdentTypeString()
-{
-    if (identifier != "")
-        return identifier + nlindent();
-
-    return toString();
-}
-
-//Return the name/alias of the type and details about the type it represents.
-//For example, given the typedef:
-//
-//  myint = integer;
-//
-// this returns "myint integer".
-//
-//Used only for printST() and debugging.
-string AbstractType::toString()
-{
-    if (type)
-        return identifier + " " + type->toIdentTypeString();
-    return identifier + nlindent();
-}
-
-
  string AbstractType::className() {
     return "AbstractType";
 }

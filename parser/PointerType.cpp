@@ -131,13 +131,3 @@ string PointerType::cPointeeName()
         return pointeeName;
     }
 }
-
-//Format this object as a string in this format:
-//  cellPtr ^ cell
-string PointerType::toString()
-{
-    if (!type)
-        return identifier + " ^ <bogus_type>" + nlindent();
-
-    return identifier + " ^ " + type->toIdentTypeString();
-}

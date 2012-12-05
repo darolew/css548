@@ -26,8 +26,6 @@ public:
     virtual bool isFunction();
     virtual bool isProcedure();
     void endFunction();
-    virtual string toString();
-    virtual string toStringLong();
 };
 
 #endif

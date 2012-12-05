@@ -182,48 +182,6 @@ int SymTable::size()
 //Private SymTable methods
 //
 
-//Print out the symbol table for the current scope.
-void SymTable::printST()
-{
-    //We want to print the "long" version of the function symbol when we
-    //display its scope, in order to see the function parameters. This
-    //must be handled as a special case here. Note, however, that not all
-    //scopes are functions; the SIT and the global scope will not exist
-    //in the symbol table.
-    string scopeName = scopeNames.front();
-    Symbol *sym = lookup(scopeName);
-    if (sym) {
-        Function *func = (Function*)sym;
-
-        //This is kind of ugly, but we want the function symbol to be
-        //printed at the indentation level of its parent, not at the
-        //current indentation level.
-        indent--;                     // reduce indentation level
-        cout << indentation();        // prepend indentation
-        cout << func->toStringLong(); // print out the function and params
-        indent++;                     // increase indentation level
-
-        //The indentation for the next line is one level short, since
-        //it was printed at a reduced indentation level.
-        cout << "    ";
-    } else {
-        //We need to print the indentation prior to outputting the first
-        //symbol. Such is not necessary for subsequent symbols, since all
-        //the toString() methods end with the necessary newline and
-        //indentation for the next symbol (a bit ugly, but necessary to
-        //get the indentation right).
-        cout << indentation();
-    }
-
-    //Iterate through the symbols at this scope and print them. We
-    //iterate in reverse since new symbols are pushed to the front
-    //of the stack.
-    Table *tbl = front();
-    list<Symbol*>::reverse_iterator it = tbl->rbegin();
-    for (; it != tbl->rend(); it++)
-        cout << (*it)->toString();
-}
-
 //Print out a line of a given character, specified by divider.
 void SymTable::printLine(string divider)
 {

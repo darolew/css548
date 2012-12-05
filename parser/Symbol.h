@@ -52,7 +52,6 @@ public:
     virtual bool isProcedure();
     virtual bool isArray();
     virtual bool isRecord();
-    virtual string toString();
 };
 
 #endif

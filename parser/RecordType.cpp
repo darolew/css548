@@ -47,24 +47,6 @@ Variable * RecordType::lookup(string ident)
     return NULL;
 }
 
-
-//Returns a string representation. The cell record is formatted:
-//
-//    cell
-//         id integer
-//         info int3d
-//         next cellptr
-//
-string RecordType::toString()
-{
-    stringstream ss (stringstream::in | stringstream::out);
-    ss << nlindent();
-    list<Variable>::iterator it = fields.begin();
-    for (; it != fields.end(); it++)
-        ss << "    " << it->toString();
-    return ss.str();
-}
-
 string RecordType::className() 
 {
     return "RecordType";
