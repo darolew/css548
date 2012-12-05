@@ -22,6 +22,8 @@ public:
     virtual bool isArray();
     virtual bool isRecord();
     virtual string toString();
+    virtual string className();
+    virtual AbstractType *getType();
 };
 
 #endif

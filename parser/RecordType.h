@@ -25,6 +25,7 @@ public:
     virtual bool isRecordType();
     Variable *lookup(string);
     virtual string toString();
+    virtual string className();
 };
 
 #endif

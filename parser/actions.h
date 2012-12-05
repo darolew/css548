@@ -20,9 +20,11 @@
 #include "Function.h"
 #include "IoFunction.h"
 #include "Range.h"
+#include "Tracker.h"
 
 //The symbol table is a global object declared in main.cpp.
 extern SymTable symTable;
+extern Tracker tracker;
 
 //***Variable declarations for temporary containers***
 //These vars are used to collect objects when Yacc evaluates rules. For
@@ -33,6 +35,7 @@ extern list<Range> rangeList;      // list of ranges, like for an array
 extern list<PointerType*> ptrList; // list of pointers that need types
 extern list<Variable> fieldList;   // list of fields to add to a record
 extern list<string*> dsgList;      // stack of designator strings
+
 
 extern ArrayType* currArray;       // current array type 
 extern Function *currFunction;     // current function object

@@ -75,3 +75,16 @@ string Variable::toString()
         s += "<unknown_type>" + nlindent(); // should never see this
     return s;
 }
+
+string Variable::className() 
+{
+    return "Variable";
+}
+
+
+AbstractType *Variable::getType() {
+    
+    return type->getType();
+    
+}
+

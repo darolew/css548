@@ -19,21 +19,25 @@
 
 class Tracker {
 private:
-   list<Symbol*> typeStack;
-   list<int> arrayCountStack;
-   list<int> functionCountStack;
+   list<AbstractType *> typeStack;
+   //list<int> arrayDimStack;
+   list<int> functionParamCountStack;
    bool arrayInContext;
-   
-   Symbol *peek();
+   AbstractType *pop();   
+   AbstractType *peek();
+   void push(AbstractType *);
 
 public:
+    Tracker();
     void push(string);
     void deref();
     void binaryOp(int);
     void startArrayAccess();
     void endArrayAccess();
+    bool isArrayInContext();
     string arrayIndexOffset(int);
     void endFunctionCall();
+    void debugPrint();
     
 };
 

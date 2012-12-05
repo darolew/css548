@@ -64,3 +64,9 @@ string RecordType::toString()
         ss << "    " << it->toString();
     return ss.str();
 }
+
+string RecordType::className() 
+{
+    return "RecordType";
+}
+

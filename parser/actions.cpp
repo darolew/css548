@@ -5,6 +5,8 @@
 
 #include "actions.h"
 
+Tracker tracker;
+
 //Create variables used by the semantic actions to collect objects.
 list<string> idList;        // list of identifiers
 list<Range> rangeList;      // list of ranges, like for an array

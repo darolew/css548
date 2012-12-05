@@ -30,7 +30,9 @@ public:
     virtual void resolve();
     virtual bool isArrayType();
     string offsetForDim(int);
+    int numDimensions();
     virtual string toString();
+    virtual string className();
 
 };
 

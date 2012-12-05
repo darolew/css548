@@ -141,3 +141,19 @@ string AbstractType::toString()
         return identifier + " " + type->toIdentTypeString();
     return identifier + nlindent();
 }
+
+
+ string AbstractType::className() {
+    return "AbstractType";
+}
+
+
+AbstractType* AbstractType::getType()
+{
+    //TODO: Add a class for type defs.
+    //If this is type def, we want to return the point which it alaises.
+    if (className() == "AbstractType")
+        return type->getType();
+        
+    return this;
+}

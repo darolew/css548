@@ -26,7 +26,7 @@ string ArrayType::offsetForDim(int dim)
 //TODO: This needs to be tested for character array bounds
 //TODO: Refactor this mess.
     //Validate input.
-    if (dim < 0 || dim > (ranges.size()-1)) {
+    if (dim < 0 || dim > (numDimensions()-1)) {
         cout << "***ERROR: invalid arrary access for dim " << dim << endl;
         return "ERROR";
     }
@@ -105,4 +105,17 @@ bool ArrayType::isArrayType()
 void ArrayType::resolve()
 {
     type->resolve();
+}
+
+
+string ArrayType::className() 
+{
+
+    return "ArrayType";
+
+}
+
+int ArrayType::numDimensions() 
+{
+    return ranges.size();
 }
