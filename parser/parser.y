@@ -74,8 +74,8 @@ int exprCount;
     int tkn;
     bool flag;
     struct {
-    	int complex;
-    	int base;
+        int complex;
+        int base;
     } type;
 };
 
@@ -541,29 +541,29 @@ Designator          : yident
                         cout << $1;
                         
                         Symbol *sym = symTable.lookup($1);
-                    	if (sym) {
-                    		if (sym->isFunction()) {
-                    			if (!sym->isProcedure()) {
-									if (sym->identifier == string($1)) {
-										cout << "_";
-									}
-									else {
-										cout << "***ERROR: Assigning return "
-										<< "value to a different function. Should be " 
-										<< sym->identifier 
-										<< endl;
-									}
-								}
-								else {
-									//This is a procedure and not a function
-									cout << "***ERROR: Procedure cannnot return a value\n";
-								}
-							
-                    		}
-                    	}
-                    	else {
-                    		cout << "***ERROR: Undefined identifier " << $1 << endl;
-                    	}
+                        if (sym) {
+                            if (sym->isFunction()) {
+                                if (!sym->isProcedure()) {
+                                    if (sym->identifier == string($1)) {
+                                        cout << "_";
+                                    }
+                                    else {
+                                        cout << "***ERROR: Assigning return "
+                                        << "value to a different function. Should be " 
+                                        << sym->identifier 
+                                        << endl;
+                                    }
+                                }
+                                else {
+                                    //This is a procedure and not a function
+                                    cout << "***ERROR: Procedure cannnot return a value\n";
+                                }
+                            
+                            }
+                        }
+                        else {
+                            cout << "***ERROR: Undefined identifier " << $1 << endl;
+                        }
                     }
                       DesignatorStuff
                     ;
@@ -680,91 +680,91 @@ TermExpr            : Term
 Term                : Factor
                     | Term MultOperator
                     {
-                    	switch ($2) {
-                    		case yand:
-                    			cout << " && ";
-                    			break;
-                    		case ymultiply:
-                    			cout << " * ";
-                    			break;							
-                    		case ydivide:
-                    		case ydiv:
-                    			cout << " / ";
-                    			break;
-                    		case ymod:
-                    			cout << " % ";
-                    			break;						
-                    		default:
-                    			cout << "***ERROR: Internal error, unhandled MultOperator\n";
-                    			break;
-                    	}
+                        switch ($2) {
+                            case yand:
+                                cout << " && ";
+                                break;
+                            case ymultiply:
+                                cout << " * ";
+                                break;                            
+                            case ydivide:
+                            case ydiv:
+                                cout << " / ";
+                                break;
+                            case ymod:
+                                cout << " % ";
+                                break;                        
+                            default:
+                                cout << "***ERROR: Internal error, unhandled MultOperator\n";
+                                break;
+                        }
                     }
                       Factor
                     {
-               			$$.complex = CT_NONE;
+                           $$.complex = CT_NONE;
 
-                    	switch ($2) {
-                    		case yand:
-                    			if ($1.base != BT_BOOLEAN || $4.base != BT_BOOLEAN)
-                    				cout << "***ERROR: && expected boolean\n";
-                    			$$.base = BT_BOOLEAN;
-                    			break;
-                    		
-                    		case ymultiply:
-                    			if ($1.base == BT_INTEGER && $4.base == BT_INTEGER) {
-                    				$$.base = BT_INTEGER;
-                    				break;
-                    			}
+                        switch ($2) {
+                            case yand:
+                                if ($1.base != BT_BOOLEAN || $4.base != BT_BOOLEAN)
+                                    cout << "***ERROR: && expected boolean\n";
+                                $$.base = BT_BOOLEAN;
+                                break;
+                            
+                            case ymultiply:
+                                if ($1.base == BT_INTEGER && $4.base == BT_INTEGER) {
+                                    $$.base = BT_INTEGER;
+                                    break;
+                                }
  
-								/* fall-through */
-								
-                    		case ydivide:
-                    			if ($1.base != BT_INTEGER && $1.base != BT_REAL) {
-                    				cout << "***ERROR: / or * expected number\n";
-                    				break;
-                    			}
-                    			if ($4.base != BT_INTEGER && $4.base != BT_REAL) {
-                    				cout << "***ERROR: / or * expected number\n";
-                    				break;
-                    			}
-                    			$$.base = BT_REAL;
-                    			break;
+                                /* fall-through */
+                                
+                            case ydivide:
+                                if ($1.base != BT_INTEGER && $1.base != BT_REAL) {
+                                    cout << "***ERROR: / or * expected number\n";
+                                    break;
+                                }
+                                if ($4.base != BT_INTEGER && $4.base != BT_REAL) {
+                                    cout << "***ERROR: / or * expected number\n";
+                                    break;
+                                }
+                                $$.base = BT_REAL;
+                                break;
 
-                    		case ydiv:
-                    		case ymod:
-                    			if ($1.base != BT_INTEGER || $4.base != BT_INTEGER)
-                    				cout << "***ERROR: div or mod expected integer\n";
-                    			$$.base = BT_INTEGER;
-                    			break;
-							
-                    		default:
-                    			cout << "***ERROR: Internal error, unhandled MultOperator\n";
-                    			break;
-                    	}
+                            case ydiv:
+                            case ymod:
+                                if ($1.base != BT_INTEGER || $4.base != BT_INTEGER)
+                                    cout << "***ERROR: div or mod expected integer\n";
+                                $$.base = BT_INTEGER;
+                                break;
+                            
+                            default:
+                                cout << "***ERROR: Internal error, unhandled MultOperator\n";
+                                break;
+                        }
                     }
                     ;
 Factor              : yinteger
                     {
-                    	$$.complex = CT_NONE;
-                    	$$.base = BT_INTEGER;
+                        $$.complex = CT_NONE;
+                        $$.base = BT_INTEGER;
                         cout << $1;
                     }
                     | yreal
                     {
-                    	$$.complex = BT_NONE;
-                    	$$.base = BT_REAL;
+                        $$.complex = BT_NONE;
+                        $$.base = BT_REAL;
                         cout << $1;
                     }
                     | ynil
                     {
-                    	$$.complex = CT_POINTER;
-                    	$$.base = BT_NONE;
+                        $$.complex = CT_POINTER;
+                        $$.base = BT_NONE;
                         cout << "NULL";
                     }
                     | ystring
                     {
-                    	$$.complex = CT_NONE;
-                    	$$.base = BT_CHARACTER;
+                        $$.complex = CT_NONE;
+                        $$.base = BT_CHARACTER;
                         cout << "\"" << $1 << "\"";
                     }
                     | Designator
@@ -786,19 +786,19 @@ Factor              : yinteger
                     ;
 FunctionCall        : yident
                     {
-                    	Symbol *sym = symTable.lookup($1);
-                    	if (sym && (sym->complexType() == CT_FUNCTION)) {
-                    		Function *func = (Function*)sym;
+                        Symbol *sym = symTable.lookup($1);
+                        if (sym && (sym->complexType() == CT_FUNCTION)) {
+                            Function *func = (Function*)sym;
                             
                             //TODO: returnType is private
-                    		//$$.complex = func->returnType->complexType();
+                            //$$.complex = func->returnType->complexType();
                             
                             //TODO: returnType is private
-                    		//$$.base = func->returnType->baseType();
+                            //$$.base = func->returnType->baseType();
                             
-                    	} else {
-                    		cout << "***ERROR: " << $1 << " is not a function\n";
-                    	}
+                        } else {
+                            cout << "***ERROR: " << $1 << " is not a function\n";
+                        }
                         cout << $1;
                         free($1);
                     }
@@ -897,11 +897,11 @@ FormalParamFlag     : /*** nothing ***/
 UnaryOperator       : yplus     { $$ = '+'; }
                     | yminus    { $$ = '-'; }
                     ;
-MultOperator        : ymultiply	{ $$ = ymultiply; }
-                    | ydivide 	{ $$ = ydivide; }
-                    | ydiv 		{ $$ = ydiv; }
-                    | ymod 		{ $$ = ymod; }
-                    | yand		{ $$ = yand; }
+MultOperator        : ymultiply    { $$ = ymultiply; }
+                    | ydivide     { $$ = ydivide; }
+                    | ydiv         { $$ = ydiv; }
+                    | ymod         { $$ = ymod; }
+                    | yand        { $$ = yand; }
                     ;
 AddOperator         : yplus 
                     {

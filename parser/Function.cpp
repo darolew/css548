@@ -35,9 +35,9 @@ void Function::generateDefinition(string ident)
     //Parameters
     list<Parameter*>::iterator it = params.begin();
     for (; it != params.end(); it++) {
-    	if (it != params.begin())
-    		cout << ", ";
-    	Parameter *param = *it;
+        if (it != params.begin())
+            cout << ", ";
+        Parameter *param = *it;
         param->generateDefinition("");
     }
  
@@ -55,10 +55,10 @@ void Function::generateDefinition(string ident)
     //If this is a function (and not a procedure), create a variable to 
     //capture the return type.
     if (returnType) {
-	    cout
-	    	<< returnType->cTypeName() 
-	    	<< " " << identifier 
-	    	<< "_;" << nlindent();
+        cout
+            << returnType->cTypeName() 
+            << " " << identifier 
+            << "_;" << nlindent();
     }
 }
 
@@ -95,15 +95,15 @@ bool Function::isFunction()
 
 bool Function::isProcedure()
 {
-	return !returnType;
+    return !returnType;
 }
 
 void Function::endFunction() 
 {
-	if (returnType)
+    if (returnType)
         cout << "return " << identifier << "_;" << nlindent();
 
-	cout << "\n}\n\n";
+    cout << "\n}\n\n";
 }
 
 
@@ -139,7 +139,7 @@ string Function::toStringLong()
     ss << toString();
     list<Parameter*>::iterator it = params.begin();
     for (; it != params.end(); it++) {
-    	Parameter *param = *it;
+        Parameter *param = *it;
         ss << "    " << param->toString();
     }
     ss << nlindent();
