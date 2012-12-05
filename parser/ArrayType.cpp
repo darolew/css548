@@ -88,14 +88,6 @@ void ArrayType::resolve()
     type->resolve();
 }
 
-
-string ArrayType::className() 
-{
-
-    return "ArrayType";
-
-}
-
 int ArrayType::numDimensions() 
 {
     return ranges.size();

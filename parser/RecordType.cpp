@@ -46,9 +46,3 @@ Variable * RecordType::lookup(string ident)
     
     return NULL;
 }
-
-string RecordType::className() 
-{
-    return "RecordType";
-}
-

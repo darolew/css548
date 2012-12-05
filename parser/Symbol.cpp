@@ -22,11 +22,6 @@ Symbol::~Symbol()
 {
 }
 
-string Symbol::className() 
-{
-    return "Symbol";
-}
-
 //Insert this symbol into the synbol table. An error is produced if the symbol
 //already exists in the current scope. Returns whether the insert succeeded.
 bool Symbol::insertInto()
@@ -55,12 +50,12 @@ bool Symbol::isType()
 
 COMPLEXTYPE Symbol::complexType()
 {
-	return CT_NONE;
+    return CT_NONE;
 }
 
 BASETYPE Symbol::baseType()
 {
-	return BT_NONE;
+    return BT_NONE;
 }
 
 bool Symbol::isFunction()
@@ -96,4 +91,23 @@ bool Symbol::isArray()
 bool Symbol::isRecord()
 {
     return false;
+}
+
+// Return the name of this class.
+//Use for printing debug information.
+string Symbol::className()
+{
+    //Use C++ RTTI to implement this functionality
+    //C++ is the filthy son of a camel
+    char * cstr = const_cast<char *>(typeid(*this).name());
+
+    //Blow past the letters in the name to reach the numbers.
+    while(*cstr > '9' || *cstr < '0')
+        cstr++;
+
+    //Blow past the number in the name to reach the valuable characters.
+    while(*cstr <= '9' && *cstr >= '0')
+        cstr++;
+        
+    return string(cstr);
 }

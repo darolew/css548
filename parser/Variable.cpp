@@ -65,11 +65,6 @@ bool Variable::isRecord()
     else return false;
 }
 
-string Variable::className() 
-{
-    return "Variable";
-}
-
 AbstractType *Variable::getType() {
     
     return type->getType();

@@ -20,7 +20,6 @@ class BaseType : public AbstractType {
 public:
     BaseType(string, string);
     virtual string cTypeName();
-    virtual string className();
     virtual void generateCode(string);
 };
 

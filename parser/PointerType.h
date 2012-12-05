@@ -14,7 +14,6 @@ public:
     string pointeeName;
 
     PointerType(string, string);
-    virtual string className();
     virtual bool insertInto();
     virtual void resolve();
     virtual void generateCode(string);

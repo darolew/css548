@@ -105,11 +105,6 @@ bool AbstractType::isNamedType()
     return identifier != "";
 }
 
- string AbstractType::className() {
-    return "AbstractType";
-}
-
-
 AbstractType* AbstractType::getType()
 {
     //TODO: Add a class for type defs.

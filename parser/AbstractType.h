@@ -37,7 +37,6 @@ public:
     virtual bool isRecordType();
     virtual void generateCode(string);
     virtual void generateDefinition(string);
-    virtual string className();
     virtual AbstractType* getType();
 };
 

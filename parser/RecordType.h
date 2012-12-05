@@ -24,7 +24,6 @@ public:
     virtual void generateCode(string);
     virtual bool isRecordType();
     Variable *lookup(string);
-    virtual string className();
 };
 
 #endif

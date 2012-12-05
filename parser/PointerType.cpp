@@ -17,11 +17,6 @@ PointerType::PointerType(string id, string pointeeName) : AbstractType(id)
     this->pointeeName = pointeeName;
 }
 
-string PointerType::className() 
-{
-    return "PointerType";
-}
-
 //Pointer types are special: they are allowed to be declared before
 //the type they point to has been declared. Thus, this method skips
 //the symbol checking of the superclass method.

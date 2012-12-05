@@ -15,11 +15,6 @@ string BaseType::cTypeName()
 {
     return cName;
 }
-    
-string BaseType::className() 
-{
-    return "BaseType";
-}
 
 void BaseType::generateCode(string ident)
 {
