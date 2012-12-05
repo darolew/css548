@@ -2,12 +2,6 @@
 #include "Parameter.h"
 #include "actions.h"
 
-Tracker::Tracker() 
-{
-    arrayInContext = false;
-}
-
-
 //A new identifier has been encoutered. It is either:
 //  -Defined in the symbol table (Designator: yident)
 //  -A field of a record (theDesignatorStuff: ydot yident)
@@ -39,9 +33,10 @@ void Tracker::push(string ident)
             }
             else {
                 var = rec->lookup(ident);
-                if (!var)
+                if (!var) {
                     cout << "***ERROR: " << flush;
                     cout << ident << " a member of " << var->identifier << " " << __FILE__ << " " << __LINE__ << endl;
+                }
                 //REMOVE RECORD TYPE ON THE TOP OF THE STACK
                 pop();
             }//end else
@@ -70,20 +65,13 @@ void Tracker::binaryOp(int token)
     //and push on the type that results from the operation.
     
 }
-void Tracker::startArrayAccess()
-{
-    arrayInContext = true;
-}
-void Tracker::endArrayAccess()
-{
-    arrayInContext = true;
-}
+
 string Tracker::arrayIndexOffset(int dim)
 {
     //TODO: Assert that array is in context
-    //TODO: Assret that an intenger is on the top of the stack because
-    //  only integers are valid indexes.
-    //TODO: Store array bounds and indexes as ints, not strings.
+    //TODO: Assret that an integer is on the top of the stack (because
+    //  only integers are valid indexes).
+    //TODO: In ArrayType, store array bounds and indexes as ints, not strings.
 
     //Pop the integer off the top of the stack because it being used to
     //index an array.
@@ -91,9 +79,10 @@ string Tracker::arrayIndexOffset(int dim)
     
     //Top the stack must now be an array.
     ArrayType *array = dynamic_cast<ArrayType *>(peek());
-    
+ 
+    //Get the bound offset for the C translation
     string offset = array->offsetForDim(dim);
-    
+  
     //If we have access the last dimension of the array, pop the array
     //type off the stack and replace it with the type of whatever is stored
     //in the array
@@ -102,12 +91,8 @@ string Tracker::arrayIndexOffset(int dim)
         pop();
         push(array->type->getType());
     }
-}
-
-void Tracker::endFunctionCall()
-{
-    //TODO
-
+    
+    return offset;
 }
 
 AbstractType * Tracker::peek()
@@ -121,15 +106,15 @@ AbstractType * Tracker::peek()
     
 }//end method
 
+#include <typeinfo>
 
 void Tracker::debugPrint() {
 
-    cout << "\n---------- TRACKER ----------\n";
+    cout << "\n---------- TRACKER (top) ----------\n";
     list<AbstractType *>::iterator it = typeStack.begin();
     for(; it != typeStack.end(); ++it) {
-        cout << (*it)->className() << endl;
     }
-    cout << "------------------------------\n";
+    cout << "------------- (bottom)-------------\n";
 }
 
 
@@ -138,27 +123,22 @@ AbstractType *Tracker::pop()
     AbstractType *type = peek();
     typeStack.pop_front();
     
-    //When popping an arrary, also pop the stack that holds the number of dimesions in an array.
-    //if(type->isArrayType()) 
-    //  arrayDimStack.pop_front();
-    
     //TODO: Handle popping a function
         
-    return type;
-    
+    return type;    
 }
 
 void Tracker::push(AbstractType *type)
 {
     typeStack.push_front(type);
-    
-    //When pushing an array, push the stack that hold the number of dimensions in the array
-    //if(type->isArrayType()) 
-    //  arrayDimStack.push_front( ((ArrayType *)type)->numDimensions() );
-    
 }
 
 bool Tracker::isArrayInContext() 
 {
-    return arrayInContext;
+    //Examine the top of the stack.
+    ArrayType *array = dynamic_cast<ArrayType *>(peek());
+   
+    //The cast will fail if the object is an an ArrayType.
+    //If the cast fails, the pointer will be null   
+    return !array;     
 }

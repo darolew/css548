@@ -17,26 +17,22 @@
 #include "RecordType.h"
 #include "SetType.h"
 
+using namespace std;
+
 class Tracker {
 private:
    list<AbstractType *> typeStack;
-   //list<int> arrayDimStack;
    list<int> functionParamCountStack;
-   bool arrayInContext;
    AbstractType *pop();   
    AbstractType *peek();
    void push(AbstractType *);
 
 public:
-    Tracker();
     void push(string);
     void deref();
     void binaryOp(int);
-    void startArrayAccess();
-    void endArrayAccess();
     bool isArrayInContext();
     string arrayIndexOffset(int);
-    void endFunctionCall();
     void debugPrint();
     
 };

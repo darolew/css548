@@ -508,7 +508,7 @@ ForStatement        : yfor yident yassign
                     ;
 WhichWay            : yto
                     {
-                        $$ = yto; //TODO: Is this redundant?
+                        $$ = yto; //TODO: Is the assignemnt $$ = yto redundant?
                     }
                     | ydownto
                     {
@@ -534,9 +534,8 @@ MemoryStatement     : ynew yleftparen yident yrightparen
 Designator          : yident 
                     {
                         //--------------------------------------
-                          cout << "\nPushing: " << $1;
                           tracker.push($1);
-                          tracker.debugPrint();
+                          //tracker.debugPrint();
                         //--------------------------------------
                         
                         cout << $1;
@@ -572,12 +571,11 @@ DesignatorStuff     : /*** empty ***/
                     | DesignatorStuff theDesignatorStuff
                     ;
 theDesignatorStuff  : ydot yident /*Record field access*/
-                    {
-                    
+                    {                    
                         //--------------------------------------
                         //PUSH A FIELD INTO THE TRACKER
                           tracker.push($2);
-                          tracker.debugPrint();
+                          //tracker.debugPrint();
                         //--------------------------------------
                         
                         cout << "." << $2;
@@ -585,31 +583,21 @@ theDesignatorStuff  : ydot yident /*Record field access*/
                     } 
                     | yleftbracket 
                     {
-                        //--------------------------------------
-                        //START ACESSING AN ARRAY
-                          tracker.startArrayAccess();
-                        //--------------------------------------
-                    
-                    
                         //Start the first dimension
                         cout << "[";
                         exprCount = 0; //Reset the array dimension index
                     }
                     ExpList yrightbracket /*Array element access*/
                     {
-                        //--------------------------------------
-                        //END ARRAY ACCESS 
-                          tracker.endArrayAccess();
-                        //--------------------------------------
-                    
                         //This is now printed in expression/exp list
                         //cout << "]";
                     }
                     | ycaret
                     {
                         //--------------------------------------
+                        //DEREFERENCE A PONITER
                           tracker.deref();
-                          tracker.debugPrint();
+                          //tracker.debugPrint();
                         //--------------------------------------
                         
                         //In Pascal, the pointer deference is on the right
@@ -636,6 +624,9 @@ ExpList             : Expression
                     {
                         //TODO: THIS IS DUPLICATED CODE
                         //-----------------------------------------------
+                        //GET BOUND OFFSET
+                        //NOTE: Important and necessary side-effects happen
+                        //when arrayIndexOffset() is called.
                         if (tracker.isArrayInContext()) {
                             //Print offset 
                             cout << tracker.arrayIndexOffset(exprCount);
@@ -655,7 +646,7 @@ ExpList             : Expression
                         if (tracker.isArrayInContext()) {
                             //Print offset 
                             cout << tracker.arrayIndexOffset(exprCount);
-                            
+
                             //Increment the expression count
                             exprCount++;
                             
