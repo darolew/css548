@@ -21,6 +21,7 @@ public:
     //Refer to the .cpp file for information about these methods.
     Const(string, Terminal);
     virtual void generateDefinition(string);
+    virtual void push();
 };
 
 #endif

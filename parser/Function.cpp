@@ -65,10 +65,10 @@ void Function::generateDefinition(string ident)
 //Insert this function into the current scope, to allow for recursion; and
 //then insert each of its formal paramaters into the current scope. The
 //function is inserted into its parent's scope elsewhere.
-bool Function::insertInto()
+bool Function::insert()
 {
     //Insert the function into its own scope.
-    Symbol::insertInto();
+    Symbol::insert();
     return true;
 }
 
@@ -77,7 +77,7 @@ bool Function::insertInto()
 void Function::addParam(Parameter *param)
 {
     params.push_back(param);
-    symTable.insert(param);
+    param->insert();
 }
 
 //Set the return type. A wrapper method to keep private object encapsulated.

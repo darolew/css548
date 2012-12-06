@@ -24,7 +24,7 @@ Symbol::~Symbol()
 
 //Insert this symbol into the symbol table. An error is produced if the symbol
 //already exists in the current scope. Returns whether the insert succeeded.
-bool Symbol::insertInto()
+bool Symbol::insert()
 {
     Table *table = symTable.front();
     Symbol *sym = symTable.lookup(table, identifier);
@@ -115,6 +115,11 @@ string Symbol::className()
 void Symbol::push()
 {
     cout 
-        << "\n***ERROR: Class Symbol cannot be added to the type tracker (" 
-        << identifier << ")\n";
+        << "\n***ERROR: "
+        << "\"" << className() << "\""
+        << " does not implement push(). "
+        << "\"" 
+        << identifier 
+        << "\"" 
+        << " cannot be added to the type tracker\n";
 }

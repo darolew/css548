@@ -141,6 +141,9 @@ void Tracker::debugPrint(string msg) {
     cout << "\n--" << msg << "-------- TRACKER (top) ----------\n";
     list<frame>::iterator it = typeStack.begin();
     for(; it != typeStack.end(); ++it) {
+        if (it->type == NULL)
+            ERR("fatal err - encountered null on type stack");
+            
         cout <<  it->type->className()  << "\t" << it->str << endl;
     }
     cout << "------------- (bottom)-------------\n";
@@ -168,6 +171,9 @@ bool Tracker::isArrayInContext()
 //----------------------------------------------------------------------------
 void Tracker::push(string description, AbstractType *type)
 {
+    if (!type)
+        ERR(string("fatal error - type is null (") + "id=" + description + ") ");
+
     frame f;
     f.str = description;
     f.type = type;

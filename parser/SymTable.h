@@ -11,6 +11,7 @@
 #include <list>
 #include "Symbol.h"
 #include "AbstractType.h"
+#include "BaseType.h"
 #include "Variable.h"
 using namespace std;
 
@@ -28,6 +29,8 @@ private:
     //For debugging purposes, each scope in the above list has a name.
     list<string> scopeNames;
 
+
+    
 public:
     //See the .cpp file for descriptions of these methods.
     SymTable();
@@ -37,6 +40,7 @@ public:
     bool insert(Symbol *);
     Symbol *lookup(string key);
     Symbol *lookup(Table *, string);
+    BaseType* lookupSIT(int);
     AbstractType *lookupType(string);
     Table *front();
     Table *SIT();

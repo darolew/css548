@@ -40,7 +40,7 @@ public:
     Symbol(string);
     virtual void push();
     virtual ~Symbol();
-    virtual bool insertInto();
+    virtual bool insert();
     virtual void resolve();
     virtual COMPLEXTYPE complexType();
     virtual BASETYPE baseType();

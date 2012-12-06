@@ -20,9 +20,9 @@ PointerType::PointerType(string id, string pointeeName) : AbstractType(id)
 //Pointer types are special: they are allowed to be declared before
 //the type they point to has been declared. Thus, this method skips
 //the symbol checking of the superclass method.
-bool PointerType::insertInto()
+bool PointerType::insert()
 {
-    return Symbol::insertInto();
+    return Symbol::insert();
 }
 
 void PointerType::resolve()

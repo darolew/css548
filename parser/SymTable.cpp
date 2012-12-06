@@ -113,7 +113,7 @@ void SymTable::endScope()
 bool SymTable::insert(Symbol *symbol)
 {
     assertStack();
-    return symbol->insertInto();
+    return symbol->insert();
 }
 
 //Drill down through the list of scopes, front to back, and look for the
@@ -222,4 +222,20 @@ bool SymTable::empty()
 void SymTable::assertStack()
 {
     assert(!empty());
+}
+
+//Lookup a base type in the SIT
+BaseType* SymTable::lookupSIT(int token) 
+{
+    //This si a little kludgy
+    string id;
+    if (token == yinteger) id = "integer";
+    if (token == yinteger) id = "real";
+    if (token == yinteger) id = "boolean";
+    if (token == yinteger) id = "char";
+    if (token == yinteger) id = "false";
+    if (token == yinteger) id = "true";
+    
+    Symbol *sym = lookup(SIT(), id); 
+    return dynamic_cast<BaseType *>(sym);
 }

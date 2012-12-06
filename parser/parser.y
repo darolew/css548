@@ -188,12 +188,7 @@ VariableDeclList    : VariableDecl ysemicolon
 ConstantDef         : yident yequal ConstExpression
                     {
                         Const *c = new Const($1, *$3);
-                        
-                        //What are we inserting here?
-                        cout << "<<<<<<<<<<<Inserting " << $1 << endl;
-                        symTable.insert(c);
-                        
-                        
+                        c->insert();              
                         c->generateDefinition($1);
                         cout << ";" << nlindent();
                         free($1);
@@ -203,7 +198,7 @@ ConstantDef         : yident yequal ConstExpression
 TypeDef             : yident yequal NPType
                     {
                         AbstractType *td = new AbstractType($1, currType);
-                        symTable.insert(td);
+                        td->insert();
                         cout << "typedef ";
                         currType->generateDefinition($1);
                         free($1);
@@ -236,7 +231,7 @@ VariableDecl        : IdentList ycolon Type
                             string name = idList.front();
                             Variable *var = new Variable(name, currType);
                             var->generateDefinition(name);
-                            symTable.insert(var);
+                            var->insert();
                             idList.pop_front();
                             cout << ";" << nlindent();
                         }

@@ -41,7 +41,7 @@ PointerType *addPointerToList(string nameOfPointer, string nameOfPointee)
 {
     PointerType *ptrType = new PointerType(nameOfPointer, nameOfPointee);
     ptrList.push_front(ptrType);
-    symTable.insert(ptrType);
+    ptrType->insert();
     return ptrType;
 }
 
@@ -125,6 +125,6 @@ void addFormalParam(string typeName, bool varflag)
 void beginScope(const char *name)
 {
     currFunction->identifier = name;
-    symTable.insert(currFunction);
+    currFunction->insert();
     symTable.beginScope(name);
 }

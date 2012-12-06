@@ -20,7 +20,7 @@ private:
 public:
     Function();
     virtual void generateDefinition(string);
-    virtual bool insertInto();
+    virtual bool insert();
     void addParam(Parameter *param);
     void setReturnType(AbstractType *rt);
     virtual bool isFunction();
