@@ -28,8 +28,6 @@ void Tracker::push(string ident)
     // 2. Field of a record.
     // 3. SIT global identifier like "false".
     
-    //TODO: Handle constants. Push their type onto the stack.
-        
     //Look up the yident in the symbol table.
     Symbol *sym = symTable.lookup(ident);
     

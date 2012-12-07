@@ -28,9 +28,9 @@ class Tracker {
 
 private:
    list<Frame> typeStack;
-   frame pop();   
-   frame peek();
-   void push(frame);
+   Frame pop();   
+   Frame peek();
+   void push(Frame);
 
 public:
     void push(string, AbstractType*);

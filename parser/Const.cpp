@@ -17,7 +17,6 @@ Const::Const(string id, Terminal term) : Symbol(id)
     this->term = term;    
 }
 
-//
 void Const::generateDefinition(string ident)
 {
     switch (term.token) {
@@ -27,11 +26,9 @@ void Const::generateDefinition(string ident)
     case yreal:
         cout << "const double";
         break;
-    //
-    //TODO: Using yfalse and ytrue needs to be reverted back to yident.
-    //
-    case yfalse:
-    case ytrue:
+
+        //yboolean is not scanned or parsed. It is used to simplify type checking
+    case yboolean:
         cout << "const bool";
         break;
     case ynil:
@@ -51,10 +48,11 @@ void Const::generateDefinition(string ident)
 //Push the type represented by this constant onto the type stack
 void Const::push() 
 {
+    //TODO: Consider constants point to a BaseType of string, int, real or boolean.
+    //This would simplify things.
+
     //Constants can only be base types. Look up the type in the SIT    
     BaseType *type = dynamic_cast<BaseType*>(symTable.lookupSIT(term.token));
     
     tracker.push(identifier, type);
-    
-    tracker.debugPrint();
 }

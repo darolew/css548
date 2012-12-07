@@ -51,11 +51,15 @@ int exprCount;
 //      that they *cannot* be tokens.
 //
 %token  yand yarray yassign ybegin ycaret ycase ycolon ycomma yconst ydispose
-        ydiv ydivide ydo ydot ydotdot ydownto yelse yend yequal yfalse yfor
+        ydiv ydivide ydo ydot ydotdot ydownto yelse yend yequal yfor
         yfunction ygreater ygreaterequal yif yin yleftbracket yleftparen yless
         ylessequal ymod ymultiply ynew ynil ynot ynotequal yof yor yprocedure
         yprogram yrecord yrepeat yrightbracket yrightparen ysemicolon yset
-        ythen yto ytrue ytype yunknown yuntil yvar ywhile
+        ythen yto ytype yunknown yuntil yvar ywhile
+
+//This token is not used by the lexer or parser. It is used as a symbolic 
+//constanct by the type checking routines.        
+%token yboolean;
 
 //Some tokens have lexemes that must be captured.
 //These tokens are declared to use the str field of the union.

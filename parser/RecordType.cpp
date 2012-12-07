@@ -37,11 +37,16 @@ bool RecordType::isRecordType()
 
 Variable *RecordType::lookup(string ident) 
 {
-    Variable *var;
     list<Variable>::iterator it = fields.begin();
     for (; it != fields.end(); it++) {
         if (ident == it->identifier)
-            return &*it; //TODO: Fix this: '&*it' means 'it'
+            //Return pointer to the record's field.
+            //Cannot return the iterator directly. g++ gives this error message:
+            //cannot convert ‘std::_List_iterator<Variable>’ to ‘Variable*’
+            //The work-around is to dereference the iterator to get 
+            //the object, then take the address of that object. 
+            //Remind me why C++ needs to continue its tortued existence?
+            return &*it; 
     }
     
     return NULL;

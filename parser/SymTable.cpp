@@ -28,11 +28,23 @@ SymTable::SymTable()
     //Start standard identifier.
     beginScope("Standard Identifier Table");
 
+    //Base types
     insert(new BaseType("integer", "int", yinteger));
-    insert(new BaseType("boolean", "bool", yident));
     insert(new BaseType("real", "double", yreal));
     insert(new BaseType("char", "string", ystring)); //TODO: Using char as an array index.
-
+    
+    //Tracking booleans by token is convenient
+    insert(new BaseType("boolean", "bool", yboolean));
+    //insert(new BaseType("boolean", "bool", yident);
+    
+    //If true and false are not in the symbol table, then the parser prints
+    //and error when it parses the rule "Designator : yident:
+    //If the identifiers "fase" and "true" are not found in the symbol table
+    //the parser prints the message "***ERROR: Undefined identifier" 
+    insert(new BaseType("true", "true", yident));
+    insert(new BaseType("false", "false", yident));
+    
+    //Keyword functions
     insert(new IoFunction("write"));
     insert(new IoFunction("writeln"));
     insert(new IoFunction("read"));
@@ -40,11 +52,6 @@ SymTable::SymTable()
 
     insert(new MemFunction("new"));
     insert(new MemFunction("dispose"));
-    
-    //TODO: true and false are not types, they are values.
-    //But it is convenient to put them in the symbol table
-    insert(new BaseType("true", "true", ytrue));
-    insert(new BaseType("false", "false", yfalse));
 }
 
 //Destructor for the symbol table.
