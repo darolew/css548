@@ -24,17 +24,15 @@ Variable::~Variable()
 }
 
 void Variable::generateCode(string ident)
-{
-    //Example 1. ident==list
-    //  cellptr list
+{   
     type->generateCode(ident);
 }
 
-//TODO: Most places the parameter "ident" is not used.
-//It makes the code a little harder to follow when there is an ident parameter,
-//but it doesn't hurt anything. Consider writing virtual function
-//Symbol::generateCode() that just calls generateCode(identifier)
-//Definitely a low priority.
+//TODO: Most places the parameter "ident" is not used. It makes the code a
+//      little harder to follow when there is an ident parameter, but it
+//      doesn't hurt anything. Consider writing virtual function
+//      Symbol::generateCode() that just calls generateCode(identifier)
+//      Definitely a low priority.
 void Variable::generateDefinition(string ident)
 {
     //Ignore parameter "ident"
@@ -54,16 +52,12 @@ void Variable::generateNewStatement()
 
 bool Variable::isArray()
 {
-    if (type)
-        return type->isArrayType();
-    else return false;
+    return type && type->isArrayType();
 }
 
 bool Variable::isRecord()
 {
-    if (type)
-        return type->isRecordType();
-    else return false;
+    return type && type->isRecordType();
 }
 
 AbstractType *Variable::getType() 

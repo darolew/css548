@@ -32,25 +32,23 @@ void PointerType::resolve()
 
 void PointerType::generateCode(string varName)
 {
-    //If this is typdef whose type is a pointer, like "cellptr", 
-    //print the type name and then the name of a 
-    //variable (if there is one). No asterisk (*) is needed because the
-    //asterisk was part of the type def.
+    //If this is typdef whose type is a pointer, like "cellptr", print the type
+    //name and then the name of a variable (if there is one). No asterisk is
+    //needed because the asterisk was part of the typedef.
     if (isNamedType()) {
         cout << identifier << " ";
+
         //Do not print a space if the parameter varName is an empty string.
         //varName will be an empty parameter when this type is used outside
         //the context of a variable declaration, such as the type of a paramter
         //in a function declaration, like "void cleanup(cellptr* &list)" where
         //cellptr is the PointerType object's identifier.
-        if (!varName.empty()) {
+        if (!varName.empty())
             cout << varName;
-        } 
-        //My work here is done. Exit fucntion to prevent executing 
-        //code unrealted (cout << "*"....) below.
+
         return;
     }
-    //***********************************************************
+
     //If the pointee type object exists, ask it to print its type name 
     //and then print the pointer symbol (*) and finally the name of 
     //a variable. This is used in declaring variables that point to other
@@ -61,16 +59,14 @@ void PointerType::generateCode(string varName)
     //
     if (type) 
         type->generateCode("");
-     else 
+    else 
         cout << cPointeeName();
         
     cout << "*" << varName;
-
 }
 
 void PointerType::generateDefinition(string ident)
 {
-
 //TODO: This code does not appear to be used
 /*
     AbstractType *pt = type; // initialize to class's type
@@ -91,7 +87,7 @@ void PointerType::generateDefinition(string ident)
         cout << " *" << ident; 
     } else
         cout << "struct " << pointeeName << " *" << ident;
-        */
+*/
     
     //Only the last line of the commented-out section (above) was being used.
     //Here it is:
@@ -107,18 +103,16 @@ bool PointerType::isPointer()
 string PointerType::cPointeeName()
 {
     //Check if the pointee's name is in the SIT.
-   Symbol *sym = symTable.lookup(symTable.SIT(), pointeeName);
+    Symbol *sym = symTable.lookup(symTable.SIT(), pointeeName);
     AbstractType *pt = (AbstractType*)sym;    
-    if (pt)
-        //The pointee is in the SIT. Return its C name.
-        //For example, if the type is "integer", the proper
-        //C name is not "integer", but "int"
+    if (pt) {
+        //The pointee is in the SIT. Return its C name. For example, if the
+        //type is "integer", the proper C name is not "integer", but "int".
         return pt->cTypeName();
-    else {
-        //The pointee is not in the SIT. Return the pointee name 
-        //stored in this object.
-        //This is only encourntered when there is a pointer to a
-        //a typedef alias. For example:
+    } else {
+        //The pointee is not in the SIT. Return the pointee name stored in this
+        //object. This is only encountered when there is a pointer to a typedef
+        //alias. For example:
         //
         //  typedef double footype;                                                                                                                                                                                  
         //  footype *temp3;     

@@ -92,24 +92,21 @@ bool AbstractType::isRecordType()
     return false;
 }
 
-
-//Named types are typedefs
-//Unamed types are composite types used in variable declarations.
-//For example, in the statement:
+//Named types are typedefs, unnamed types are composite types used in variable
+//declarations. For example, the statement:
 //
 //  x : array [1..10] of integer
 //
-//  the "array [1..10] of integer" is a composite type, 
-//but has no special name.
+//the "array [1..10] of integer" is a composite type, but has no special name.
 bool AbstractType::isNamedType()
 {
     return identifier != "";
 }
 
-AbstractType* AbstractType::getType()
+AbstractType *AbstractType::getType()
 {
-    //TODO: Add a class for type defs.
-    //If this is type def, we want to return the point which it alaises.
+    //TODO: Add a class for typedefs.
+    //If this is typedef, we want to return the type which it aliases.
     if (className() == "AbstractType")
         return type->getType();
         

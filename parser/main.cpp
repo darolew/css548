@@ -16,7 +16,7 @@
 //object because it is accessed almost everywhere.
 SymTable symTable;
 
-//Create the global indentation level.It is modified when the program and 
+//Create the global indentation level. It is modified when the program and 
 //functions come into scope and leave scope.
 unsigned indent;
 
@@ -51,11 +51,9 @@ string nlindent()
     return "\n" + indentation();
 }
 
-//Formatting hack...
+//TODO: This idea did not work; remove remaining usages.
 string unindent()
 {
-    //The "\b" is backspace and we use four spaces for indentation.
-    //return "\b\b\b\b";
     return "";
 }
 

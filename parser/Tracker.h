@@ -1,8 +1,8 @@
 // CSS 548; Autumn 2012
 // Aaron Hoffer and Daniel Lewis
 //
-// This file contains the definition of the Tracker class. 
-//The tracker is used to tracking types and type checking.
+// This file contains the definition of the Tracker class. The tracker is used
+// to tracking types and perform type checking.
 
 #ifndef TRACKER_H
 #define TRACKER_H
@@ -17,20 +17,20 @@
 #include "RecordType.h"
 #include "SetType.h"
 
-typedef struct frame {
-    AbstractType* type;
+typedef struct Frame {
+    AbstractType *type;
     string str;
-} frame;
+} Frame;
 
 using namespace std;
 
 class Tracker {
+
 private:
-   list<frame> typeStack;
+   list<Frame> typeStack;
    frame pop();   
    frame peek();
    void push(frame);
-
 
 public:
     void push(string, AbstractType*);

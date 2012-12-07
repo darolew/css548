@@ -93,20 +93,18 @@ bool Symbol::isRecord()
     return false;
 }
 
-// Return the name of this class.
-//Use for printing debug information.
+//Return the name of this class. Used for printing debug information.
 string Symbol::className()
 {
     //Use C++ RTTI to implement this functionality
-    //C++ is the filthy son of a camel
-    char * cstr = const_cast<char *>(typeid(*this).name());
+    char *cstr = const_cast<char *>(typeid(*this).name());
 
     //Blow past the letters in the name to reach the numbers.
-    while(*cstr > '9' || *cstr < '0')
+    while (*cstr > '9' || *cstr < '0')
         cstr++;
 
     //Blow past the number in the name to reach the valuable characters.
-    while(*cstr <= '9' && *cstr >= '0')
+    while (*cstr <= '9' && *cstr >= '0')
         cstr++;
         
     return string(cstr);

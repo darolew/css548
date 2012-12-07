@@ -26,8 +26,8 @@ string ArrayType::offsetForDim(int dim)
 //TODO: This needs to be tested for character array bounds
 //TODO: Refactor this mess.
     //Validate input.
-    if (dim < 0 || dim > (numDimensions()-1)) {
-        cout << "***ERROR: invalid arrary access for dim " << dim << endl;
+    if (dim < 0 || dim > numDimensions()-1) {
+        cout << "***ERROR: invalid array access for dim " << dim << endl;
         return "ERROR";
     }
     
@@ -43,11 +43,14 @@ string ArrayType::offsetForDim(int dim)
     
     if (low.token == ystring) {
         int lowBound = low.str[0] - 'a'; //Account for dimensions indexed by chars
+        //
+        //TODO: The below code is awkward. Fix this once character indices
+        //      are working and can be tested.
+        //
         char str[256];
         sprintf(str, "%d", lowBound);
         expr += str;
-    }
-    else {
+    } else {
         expr += low.str;
     }
     expr += ")";

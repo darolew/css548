@@ -27,6 +27,10 @@
 void yyerror(char const *);
 int yylex(); /* needed by g++ */
 
+//
+//TODO: This does not work for nested array accesses. For example:
+//          a[i, b[ii, jj, kk], j]
+//
 int exprCount;
 
 %}
@@ -40,10 +44,15 @@ int exprCount;
 %file-prefix = "y"
 
 %start  CompilationUnit
-//TODO: fix line lengths
-%token  yand yarray yassign ybegin ycaret ycase ycolon ycomma yconst ydispose ydiv
-        ydivide ydo ydot ydotdot ydownto yelse yend yequal yfalse yfor yfunction
-        ygreater ygreaterequal yif yin yleftbracket yleftparen yless
+//
+//TODO: Why were ytrue and yfalse added to this list? This cannot be working,
+//      since the lexer does not return those tokens. Also, Prof. Zander never
+//      conceded that "true" and "false" would never be redefined, which means
+//      that they *cannot* be tokens.
+//
+%token  yand yarray yassign ybegin ycaret ycase ycolon ycomma yconst ydispose
+        ydiv ydivide ydo ydot ydotdot ydownto yelse yend yequal yfalse yfor
+        yfunction ygreater ygreaterequal yif yin yleftbracket yleftparen yless
         ylessequal ymod ymultiply ynew ynil ynot ynotequal yof yor yprocedure
         yprogram yrecord yrepeat yrightbracket yrightparen ysemicolon yset
         ythen yto ytrue ytype yunknown yuntil yvar ywhile
@@ -61,7 +70,6 @@ int exprCount;
 %type <chr> UnaryOperator
 %type <tkn> WhichWay MultOperator
 %type <flag> FormalParamFlag
-
 %type <type> Term Factor FunctionCall 
 
 //The union is used for two reasons. The first is to capture information about
@@ -220,13 +228,13 @@ VariableDecl        : IdentList ycolon Type
                         //resolved immediately.
                         currType->resolve();
                     
-                        /*Walk the list of variable names being declared. For
-                        example, the declaration "a,b,c : interger;" includes
-                        a list of variables {a, b, c} and their type, integer.
-                        For each one, a new variable object is created, 
-                        assigned a type, and entered into the symbol table. 
-                        The list is emptied as the variables are inserted into
-                        the symbol table.*/
+                        //Walk the list of variable names being declared. For
+                        //example, the declaration "a,b,c : interger;" includes
+                        //a list of variables {a, b, c} and their type, integer.
+                        //For each one, a new variable object is created, 
+                        //assigned a type, and entered into the symbol table. 
+                        //The list is emptied as the variables are inserted into
+                        //the symbol table.
                         while (!idList.empty()) {
                             string name = idList.front();
                             Variable *var = new Variable(name, currType);
@@ -518,8 +526,6 @@ WhichWay            : yto
 MemoryStatement     : ynew yleftparen yident yrightparen  
                     {
                         //TODO: Make sure ident exists and is pointer.
-                        //Using malloc() is easier than using new since it is
-                        //not necessary to lookup the pointed-to type.
                         Variable *var = (Variable*) symTable.lookup($3);
                         var->generateNewStatement();
                     }
@@ -546,22 +552,19 @@ Designator          : yident
                                 if (!sym->isProcedure()) {
                                     if (sym->identifier == string($1)) {
                                         cout << "_";
-                                    }
-                                    else {
+                                    } else {
                                         cout << "***ERROR: Assigning return "
                                         << "value to a different function. Should be " 
                                         << sym->identifier 
                                         << endl;
                                     }
-                                }
-                                else {
+                                } else {
                                     //This is a procedure and not a function
                                     cout << "***ERROR: Procedure cannnot return a value\n";
                                 }
                             
                             }
-                        }
-                        else {
+                        } else {
                             cout << "***ERROR: Undefined identifier " << $1 << endl;
                         }
                     }
@@ -570,10 +573,14 @@ Designator          : yident
 DesignatorStuff     : /*** empty ***/
                     | DesignatorStuff theDesignatorStuff
                     ;
-theDesignatorStuff  : ydot yident /*Record field access*/
+theDesignatorStuff  : ydot yident
                     {                    
                         //--------------------------------------
                         //PUSH A FIELD INTO THE TRACKER
+//
+//TODO: This is broken for reasons stated in a comment aboe Tracker::push().
+//      Needs to be refactored into a separate pushRecord().
+//
                           tracker.push($2);
                           //tracker.debugPrint();
                         //--------------------------------------
@@ -587,7 +594,7 @@ theDesignatorStuff  : ydot yident /*Record field access*/
                         cout << "[";
                         exprCount = 0; //Reset the array dimension index
                     }
-                    ExpList yrightbracket /*Array element access*/
+                    ExpList yrightbracket
                     {
                         //This is now printed in expression/exp list
                         //cout << "]";
@@ -660,7 +667,7 @@ ExpList             : Expression
                         else
                             cout << ", "; //comma separated list
                     }
-                    Expression
+                      Expression
                     ;
 
 /***************************  Expression Stuff  ******************************/
@@ -703,6 +710,10 @@ Term                : Factor
                     {
                            $$.complex = CT_NONE;
 
+                           //
+                           //TODO: This was commented-out without explanation.
+                           //      What was the reason?
+                           //
                         // switch ($2) {
                             // case yand:
                                 // if ($1.base != BT_BOOLEAN || $4.base != BT_BOOLEAN)

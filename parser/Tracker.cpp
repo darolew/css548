@@ -9,6 +9,16 @@
 //A new identifier has been encoutered. It is either:
 //  -Defined in the symbol table (Designator: yident)
 //  -A field of a record (theDesignatorStuff: ydot yident)
+//
+//TODO: This manner of handling record fields is broken. Consider the code:
+//          var
+//              field : integer;
+//              rec : rectype;
+//          begin
+//              rec.field := 1;
+//          end
+//      Here, 'field' should refer to the record field, but since it also
+//      exists in the symbol table, the below code will do the wrong thing.
 void Tracker::push(string ident)
 {
     //Ident could represent:
@@ -30,7 +40,7 @@ void Tracker::push(string ident)
     }
  
     //If identifier is not in the symbol table, it might be a field in a record.
-    RecordType *rec = dynamic_cast<RecordType *>(peek().type);
+    RecordType *rec = dynamic_cast<RecordType*>(peek().type);
     if(rec) {       
         //Yes, a record type is on the top of the stack
         Variable *var = rec->lookup(ident);
@@ -38,26 +48,24 @@ void Tracker::push(string ident)
             //Yes, the yident is actually a field in the record. 
             
             //REMOVE RECORD TYPE ON THE TOP OF THE STACK. The record is no 
-            //longer the current type. The field of the reocrd is now the 
+            //longer the current type. The field of the record is now the 
             //the curernt type
             pop();
         
-            //Push it. Push it real good.
-            var->push();          
-            
-            //Exit method input was sucessfullly recognized.
-            return;            
+            //Push it.
+            var->push();         
         }
     }
 }
+
 //----------------------------------------------------------------------------
 void Tracker::deref()
 {
     //Deference a pointer type
     
     //TODO: If top of stack is not a pointer, throw an error.
-    frame f = pop();
-    PointerType *type = dynamic_cast<PointerType *>(f.type);
+    Frame f = pop();
+    PointerType *type = dynamic_cast<PointerType*>(f.type);
     if (!type)
        ERR("expected a pointer type");
     
@@ -79,6 +87,7 @@ void Tracker::deref()
     //Put pointee on the type stack
     push(f);
 }
+
 //----------------------------------------------------------------------------
 void Tracker::binaryOp(int token)
 {
@@ -89,6 +98,7 @@ void Tracker::binaryOp(int token)
     //It will pop both of the top operand types off the stack and 
     //and push on the type that results from the operation.
 }
+
 //----------------------------------------------------------------------------
 string Tracker::arrayIndexOffset(int dim)
 {
@@ -115,7 +125,7 @@ string Tracker::arrayIndexOffset(int dim)
     //in the array
     //(REMEMBER that dim is zero-based)
     if (dim == array->numDimensions()-1) {
-        frame f = pop();
+        Frame f = pop();
         
         //Example 1: 
         f.type = f.type->type->getType();
@@ -124,8 +134,9 @@ string Tracker::arrayIndexOffset(int dim)
     
     return offset;
 }
+
 //----------------------------------------------------------------------------
-frame Tracker::peek()
+Frame Tracker::peek()
 {
     if (typeStack.empty()) {
         cout << "***ERROR: invalid type stack access " << __FILE__ << " " << __LINE__ << endl;
@@ -133,54 +144,57 @@ frame Tracker::peek()
     }
     
     return typeStack.front();
-    
 }
+
 //----------------------------------------------------------------------------
 void Tracker::debugPrint(string msg) {
 
     cout << "\n--" << msg << "-------- TRACKER (top) ----------\n";
-    list<frame>::iterator it = typeStack.begin();
+    list<Frame>::iterator it = typeStack.begin();
     for(; it != typeStack.end(); ++it) {
-        if (it->type == NULL)
+        if (!it->type)
             ERR("fatal err - encountered null on type stack");
             
         cout <<  it->type->className()  << "\t" << it->str << endl;
     }
     cout << "------------- (bottom)-------------\n";
 }
+
 //----------------------------------------------------------------------------
-frame Tracker::pop() 
+Frame Tracker::pop() 
 {   
-    frame f = peek();
+    Frame f = peek();
     typeStack.pop_front();
     //debugPrint("pop");
         
     return f;    
 }
+
 //----------------------------------------------------------------------------
 bool Tracker::isArrayInContext() 
 {
     //Examine the top of the stack.
-    frame f = peek();
+    Frame f = peek();
     ArrayType *array = dynamic_cast<ArrayType *>(f.type);
    
-    //The cast will fail if the object is an an ArrayType.
-    //If the cast fails, the pointer will be null   
+    //The cast fails if the object is not an ArrayType, returning NULL.
     return !array;     
 }
+
 //----------------------------------------------------------------------------
 void Tracker::push(string description, AbstractType *type)
 {
     if (!type)
         ERR(string("fatal error - type is null (") + "id=" + description + ") ");
 
-    frame f;
+    Frame f;
     f.str = description;
     f.type = type;
     push(f);
 }
+
 //----------------------------------------------------------------------------
-void Tracker::push(frame f) 
+void Tracker::push(Frame f) 
 {
     typeStack.push_front(f);
     //debugPrint("push");

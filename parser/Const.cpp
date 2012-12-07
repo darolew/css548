@@ -27,6 +27,9 @@ void Const::generateDefinition(string ident)
     case yreal:
         cout << "const double";
         break;
+    //
+    //TODO: Using yfalse and ytrue needs to be reverted back to yident.
+    //
     case yfalse:
     case ytrue:
         cout << "const bool";
@@ -48,9 +51,7 @@ void Const::generateDefinition(string ident)
 //Push the type represented by this constant onto the type stack
 void Const::push() 
 {
-    //Constants can only be base types. Look up the type in the SIT
-    
-    
+    //Constants can only be base types. Look up the type in the SIT    
     BaseType *type = dynamic_cast<BaseType*>(symTable.lookupSIT(term.token));
     
     tracker.push(identifier, type);

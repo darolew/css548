@@ -41,7 +41,6 @@ SymTable::SymTable()
     insert(new MemFunction("new"));
     insert(new MemFunction("dispose"));
     
-    
     //TODO: true and false are not types, they are values.
     //But it is convenient to put them in the symbol table
     insert(new BaseType("true", "true", ytrue));
@@ -76,31 +75,14 @@ void SymTable::beginScope(string name)
 
     scopes.push_front(new Table());
     scopeNames.push_front(name);
-
-#ifdef PRINTST
-    //Print the new scope banner.
-    cout << "\nENTER " << name << endl;
-    printLine("-");
-#endif
 }
 
 //Pop and discard the current scope.
 //Pop and discard the current scope.
 void SymTable::endScope()
 {
-#ifdef PRINTST
-    //Print the symbols that are about to be destroyed.
-    printST();
-#endif
-
     if (indent > 0)
         indent--;
-
-#ifdef PRINTST
-    //Print the end scope banner.
-    cout << "\nEXIT " << scopeNames.front() << endl;
-    printLine("=");
-#endif
 
     //Destroy the scope.
     delTopScope();
@@ -225,10 +207,13 @@ void SymTable::assertStack()
 }
 
 //Lookup a base type in the SIT
-BaseType* SymTable::lookupSIT(int token) 
+BaseType *SymTable::lookupSIT(int token) 
 {
-    //This si a little kludgy
+    //This is a little kludgy
     string id;
+    //
+    //TODO: Every if statement is (token == yinteger)...
+    //
     if (token == yinteger) id = "integer";
     if (token == yinteger) id = "real";
     if (token == yinteger) id = "boolean";

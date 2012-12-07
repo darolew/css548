@@ -35,13 +35,13 @@ bool RecordType::isRecordType()
     return true;
 }
 
-Variable * RecordType::lookup(string ident) 
+Variable *RecordType::lookup(string ident) 
 {
     Variable *var;
     list<Variable>::iterator it = fields.begin();
     for (; it != fields.end(); it++) {
         if (ident == it->identifier)
-            return &*it;
+            return &*it; //TODO: Fix this: '&*it' means 'it'
     }
     
     return NULL;
