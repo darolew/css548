@@ -22,6 +22,9 @@
 #include "Range.h"
 #include "Tracker.h"
 
+//Debug print macro
+#define ERR(X) (cout << "\n***ERROR: " << X << " | " << __FILE__ << " line " << __LINE__ << endl)
+
 //The symbol table is a global object declared in main.cpp.
 extern SymTable symTable;
 extern Tracker tracker;

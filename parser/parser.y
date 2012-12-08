@@ -31,6 +31,20 @@ int yylex(); /* needed by g++ */
 //TODO: This does not work for nested array accesses. For example:
 //          a[i, b[ii, jj, kk], j]
 //
+// This also does not work for
+//  1. nested function calls
+//  2. any array access inside a function call
+//  3. any function call inside an array access.
+//
+// The original implementation of tracker includes a stack that stored
+// the number of dimension of each array it encountered. The parser signalled
+// the tracker every time a dimension was the array was accessed. These numbers
+// would be tracked together in one stack frame. When the
+// number of acesses == the number of dimension on the the stack, 
+// the couting stack is popped, the array type is popped off the type stack, 
+// and type of the array was pushed
+//
+// We would have to do the same thing for the number of parameters in a function.
 int exprCount;
 
 %}
@@ -44,12 +58,7 @@ int exprCount;
 %file-prefix = "y"
 
 %start  CompilationUnit
-//
-//TODO: Why were ytrue and yfalse added to this list? This cannot be working,
-//      since the lexer does not return those tokens. Also, Prof. Zander never
-//      conceded that "true" and "false" would never be redefined, which means
-//      that they *cannot* be tokens.
-//
+
 %token  yand yarray yassign ybegin ycaret ycase ycolon ycomma yconst ydispose
         ydiv ydivide ydo ydot ydotdot ydownto yelse yend yequal yfor
         yfunction ygreater ygreaterequal yif yin yleftbracket yleftparen yless
@@ -58,7 +67,7 @@ int exprCount;
         ythen yto ytype yunknown yuntil yvar ywhile
 
 //This token is not used by the lexer or parser. It is used as a symbolic 
-//constanct by the type checking routines.        
+//constant by the type checking routines.        
 %token yboolean;
 
 //Some tokens have lexemes that must be captured.
@@ -254,10 +263,13 @@ VariableDecl        : IdentList ycolon Type
 
 ConstExpression     : UnaryOperator ConstFactor
                     {
+                        //These are used for case statements, sets, and the 
+                        //definition of const values.
+                   
                         $$ = $2;
                         $$->unaryOp = $1;
                     }
-                    | ConstFactor
+                    | ConstFactor 
                     | ystring
                     {
                         $$ = newTerminal($1, ystring);
@@ -647,7 +659,16 @@ ExpList             : Expression
                             
                             //Close array access
                             cout << "]";
-                        }                            
+                        }   
+
+                        if (tracker.isFunctionInContext()) {
+                            //Inform the tracker that an expression has been parsed
+                            tracker.endParameter(exprCount);
+                            
+                            //Increment the expression count
+                            exprCount++;
+                        }
+                            
                         //-----------------------------------------------
                     }
                     | ExpList ycomma
@@ -657,6 +678,7 @@ ExpList             : Expression
                         if (tracker.isArrayInContext()) {
                             //Print offset 
                             cout << tracker.arrayIndexOffset(exprCount);
+                            tracker.endArrayDimension(exprCount);
 
                             //Increment the expression count
                             exprCount++;
@@ -712,6 +734,7 @@ Term                : Factor
                     }
                       Factor
                     {
+                    
                            $$.complex = CT_NONE;
 
                            //
@@ -760,24 +783,40 @@ Term                : Factor
                     ;
 Factor              : yinteger
                     {
+                        //Push the type onto the tracker
+                        tracker.push($1, symTable.lookupSIT(yinteger));
+                        
                         $$.complex = CT_NONE;
                         $$.base = BT_INTEGER;
-                        cout << $1;
+                       
+                       cout << $1;
                     }
                     | yreal
-                    {
+                    {                       
+                        //Push the type onto the tracker
+                        tracker.push($1, symTable.lookupSIT(yreal));
+                        
                         $$.complex = BT_NONE;
                         $$.base = BT_REAL;
+                        
                         cout << $1;
                     }
                     | ynil
                     {
+                        //Push the type onto the tracker
+                        BaseType *type = symTable.lookupSIT(ynil);
+                        tracker.push("", type);
+
                         $$.complex = CT_POINTER;
                         $$.base = BT_NONE;
-                        cout << "NULL";
+                        
+                        type->generateCode("");
                     }
                     | ystring
                     {
+                        //Push the type onto the tracker
+                        tracker.push($1, symTable.lookupSIT(ystring));
+                    
                         $$.complex = CT_NONE;
                         $$.base = BT_CHARACTER;
                         cout << "\"" << $1 << "\"";
@@ -801,6 +840,10 @@ Factor              : yinteger
                     ;
 FunctionCall        : yident
                     {
+                    
+                        //Add the function to the type tracker
+                        tracker.push($1);
+                        
                         Symbol *sym = symTable.lookup($1);
                         if (sym && (sym->complexType() == CT_FUNCTION)) {
                             Function *func = (Function*)sym;
@@ -816,6 +859,11 @@ FunctionCall        : yident
                         }
                         cout << $1;
                         free($1);
+                        
+                        //Reset the expression count because it is used to 
+                        //determine which parameter is being parsed.
+                        exprCount = 0;
+                        
                     }
                       ActualParameters
                     ;

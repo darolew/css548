@@ -3,9 +3,6 @@
 #include "Parameter.h"
 #include "actions.h"
 
-//Debug print macro
-#define ERR(X) (cout << "\n***ERROR: " << X << " | " << __FILE__ << " line " << __LINE__ << endl)
-
 //A new identifier has been encoutered. It is either:
 //  -Defined in the symbol table (Designator: yident)
 //  -A field of a record (theDesignatorStuff: ydot yident)
@@ -70,11 +67,11 @@ void Tracker::deref()
     //Get the pointee type. Not pretty.
     //Example 1 - pointer to a base type
     //
-    //   PointerType->BaseType : BaseType
+    //   PointerType->BaseType => BaseType
     //
     //Example 2- pointer to a typedef of a typedef of a base type
     //
-    //    PointerType->TypeDef->TypeDef->BaseType : still BaseType
+    //    PointerType->TypeDef->TypeDef->BaseType => still BaseType
     //
     
     //cerr << "\n<<<<<<<< f.type " << f.type->className() << endl;
@@ -100,44 +97,33 @@ void Tracker::binaryOp(int token)
 //----------------------------------------------------------------------------
 string Tracker::arrayIndexOffset(int dim)
 {
+debugPrint();
+
     //TODO: In ArrayType, store array bounds and indexes as ints, not strings.
-
-    //Pop the integer off the top of the stack because it being used to
-    //index an array.
-    //TODO: Assret that an integer is on the top of the stack (because
-    //  only integers are valid indexes).
-    pop();
+   
+    //An integer must be the top of the stack because integers are the only 
+    //valid index types. Pop the stack and validate integer type.
+    Frame f = pop();
+    BaseType *type = dynamic_cast<BaseType *>(f.type);
     
-    //Top the stack must now be an array.
-    //TODO: Assert the array pointer is not void.
-    ArrayType *array = dynamic_cast<ArrayType *>(peek().type);
- 
-    if(!array)
-        ERR(string("fatal error - expected ArrayType, but found ") + peek().type->className());    
-
-    //Get the bound offset for the C translation
-    string offset = array->offsetForDim(dim);
+    //Vaidate that an integer is on top of the stack.
+    if (!(type && type->isLegalArrayIndexType()))
+      ERR(string("expected integer for acessesing array - found ") + f.type->dump());
   
-    //If we have access the last dimension of the array, pop the array
-    //type off the stack and replace it with the type of whatever is stored
-    //in the array
-    //(REMEMBER that dim is zero-based)
-    if (dim == array->numDimensions()-1) {
-        Frame f = pop();
+    //Top the stack must now be an array.
+    if(!isArrayInContext())
+        ERR(string("expected ArrayType, but found ") + peek().type->className());    
         
-        //Example 1: 
-        f.type = f.type->type->getType();
-        push(f);
-    }
-    
-    return offset;
+    //Get the bound offset for the C translation
+    ArrayType *array = dynamic_cast<ArrayType *>(peek().type);
+    return array->offsetForDim(dim);
 }
 
 //----------------------------------------------------------------------------
 Frame Tracker::peek()
 {
     if (typeStack.empty()) {
-        cout << "***ERROR: invalid type stack access " << __FILE__ << " " << __LINE__ << endl;
+        ERR("invalid type stack access");
         exit(-1);
     }
     
@@ -153,7 +139,7 @@ void Tracker::debugPrint(string msg) {
         if (!it->type)
             ERR("fatal err - encountered null on type stack");
             
-        cout <<  it->type->className()  << "\t" << it->str << endl;
+        cout <<  it->str << "\t" << it->type->dump() << endl;
     }
     cout << "------------- (bottom)-------------\n";
 }
@@ -171,19 +157,33 @@ Frame Tracker::pop()
 //----------------------------------------------------------------------------
 bool Tracker::isArrayInContext() 
 {
+    //TODO: This code is almost identify toe ifFunctionInContext().
+    //Find a way to consolidate duplicated code.
+    
     //Examine the top of the stack.
     Frame f = peek();
     ArrayType *array = dynamic_cast<ArrayType *>(f.type);
-   
+  
     //The cast fails if the object is not an ArrayType, returning NULL.
-    return !array;     
+    return array;     
+}
+
+//----------------------------------------------------------------------------
+bool Tracker::isFunctionInContext() 
+{
+    //Examine the top of the stack.
+    Frame f = peek();
+    Function *func = dynamic_cast<Function *>(f.type);
+   
+    //The cast fails if the object is not the correct type, returning NULL.
+    return func;     
 }
 
 //----------------------------------------------------------------------------
 void Tracker::push(string description, AbstractType *type)
 {
     if (!type)
-        ERR(string("fatal error - type is null (") + "id=" + description + ") ");
+        ERR(string("attempted to push null onto type stack (") + "id=" + description + ") ");
 
     Frame f;
     f.str = description;
@@ -196,4 +196,60 @@ void Tracker::push(Frame f)
 {
     typeStack.push_front(f);
     //debugPrint("push");
+}
+
+//----------------------------------------------------------------------------
+//This method is called after the parser has parsed an expression for an actual
+//parameter. The integer index is the zero-based index of which parameter was
+//parsed. The left-most parameter is index 0;
+void Tracker::endParameter(int index)
+{
+    //The top of the stack should be the actual parameter of a function call.
+    //Verify that the actual parameter type matches the formal parameter type.
+    Frame f = pop();
+    AbstractType *actualParamType = f.type;
+    
+    //The function itself should now be on the top of the stack.
+    if(!isFunctionInContext())
+        ERR("expected function to  be in context");
+
+    Function *func = dynamic_cast<Function *>(peek().type);
+
+    //TODO: Validate bounds on the collection of parameters
+    //so we don't try and access a parameter does not exist
+    Parameter *formalParam = func->getParam(index);
+    AbstractType *formalParamType = formalParam->type->getType();
+    if (formalParamType->compatible(actualParamType)) {
+        //The parameter types match. Pop the actual param type off the stack
+        pop();
+    }
+    else {
+        ERR(string("expected formal param of type ") + formalParamType->className() + " but actual param is of type " + actualParamType->className());
+
+    //If this is the last parameter in the function call, 
+    //pop the function off the stack
+    if (index == func->numParams()-1)
+        pop();
+
+    //If the function had a return type (i.e. it was not a procedure), push the 
+    //return type onto the stack.
+    if (func->isFunction())
+        push("function return ", func->returnType->getType());
+   }
+}
+
+//----------------------------------------------------------------------------
+//If we have accessed the last dimension of the current array, pop the array
+//type off the stack and replace it with the type of whatever is stored
+//in the array (REMEMBER that dim is zero-based)
+void Tracker::endArrayDimension(int dim)
+{
+    Frame f = peek();
+    ArrayType *array = dynamic_cast<ArrayType *>(f.type);
+
+    if (dim == array->numDimensions()-1) {
+        Frame f = pop();
+        f.type = f.type->type->getType();
+        push(f);
+    }
 }

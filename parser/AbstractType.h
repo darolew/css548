@@ -39,6 +39,7 @@ public:
     virtual void generateDefinition(string);
     virtual AbstractType* getType();
     virtual void push();
+    virtual bool compatible(AbstractType *);
 };
 
 #endif

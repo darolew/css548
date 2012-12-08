@@ -5,18 +5,16 @@
 
 #include <iostream>
 #include <sstream>
-#include <list>
 #include "Function.h"
 #include "SymTable.h"
 #include "main.h"
+#include "actions.h"
 using namespace std;
-
-extern SymTable symTable;
 
 //The constructor used for a function before its name, return type, or
 //parameters are known. Functions objects are always created under those
 //conditions, so this is the only constructor.
-Function::Function() : Symbol("")
+Function::Function()
 {
     //A NULL value indicates that there is no return type.
     returnType = NULL;
@@ -33,7 +31,7 @@ void Function::generateDefinition(string ident)
     cout << " " << identifier << "(";
     
     //Parameters
-    list<Parameter*>::iterator it = params.begin();
+    vector<Parameter*>::iterator it = params.begin();
     for (; it != params.end(); it++) {
         if (it != params.begin())
             cout << ", ";
@@ -104,4 +102,55 @@ void Function::endFunction()
         cout << "return " << identifier << "_;" << nlindent();
 
     cout << "\n}\n\n";
+}
+
+void Function::push() 
+{
+    //Idea was not to push the function onto the tracker because it is not 
+    //a type. Instead, the idea was to push the return type (if it is a 
+    //function and not a procuedure) and then push the parameters on to 
+    //the tracker (in reverse order).
+    //For example, the function
+    //
+    //    function average(newrec: cellPtr, offset real): integer;   
+    // 
+    //would push itself onto the tracker like this:
+    //
+    // | CELLPTR | (formal parameter)
+    // | REAL |  | (formal parameter)
+    // | INTEGER | (the return type)
+    //
+    //After the parser finishes parsing ActualParameters, it checks to 
+    //see that the actual parameters match the formal parameters:
+
+    // | CELLPTR | (actual parameter)
+    // | REAL |  | (actual parameter)
+    // | CELLPTR | (formal parameter)
+    // | REAL |  | (formal parameter)
+    // | INTEGER | (the return type)
+    //    
+    //The actual and formal parameter types match. No error is printed.
+    //The tracker pops the actual and formal parameters off the stack,
+    //leaving only the return type on the stack:
+    //
+    // | INTEGER | (the return type)
+    //    
+
+    AbstractType::push();
+}
+
+int Function::numParams()
+{
+  return params.size();
+}
+
+Parameter *Function::getParam(int index)
+{
+    if(index < 0 || index > numParams()-1) {
+        ERR(string("invalid paramter index in function ") + identifier);
+        cout << " index=" << index << endl;
+        return NULL;
+    }
+
+    return params[index];
 }

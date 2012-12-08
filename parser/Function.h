@@ -7,25 +7,31 @@
 #ifndef FUNCTION_H
 #define FUNCTION_H
 
-#include <list>
+#include <vector>
 #include "AbstractType.h"
 #include "Parameter.h"
 
-class Function : public Symbol {
+class Function : public AbstractType {
 
 private:
-    list<Parameter*> params;  // formal parameters (ordered list)
-    AbstractType *returnType; // return type; left NULL for procedures
+    vector<Parameter*> params;  // formal parameters (ordered list)
 
 public:
     Function();
     virtual void generateDefinition(string);
     virtual bool insert();
-    void addParam(Parameter *param);
-    void setReturnType(AbstractType *rt);
+    void addParam(Parameter *);
+    void setReturnType(AbstractType *);
     virtual bool isFunction();
     virtual bool isProcedure();
     void endFunction();
+    virtual void push();
+    int numParams();
+    Parameter *getParam(int);
+    
+    //TODO: Make this private
+    AbstractType *returnType; // return type; left NULL for procedures
+
 };
 
 #endif

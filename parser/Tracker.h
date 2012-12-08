@@ -38,9 +38,11 @@ public:
     void deref();
     void binaryOp(int);
     bool isArrayInContext();
+    bool isFunctionInContext();
+    void endParameter(int);
+    void endArrayDimension(int);
     string arrayIndexOffset(int);
-    void debugPrint(string = "");
-    
+    void debugPrint(string = "");    
 };
 
 #endif

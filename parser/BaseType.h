@@ -16,12 +16,14 @@ using namespace std;
 class BaseType : public AbstractType {
     //The name of the equivalent type in C++, e.g., "int" for integer.
     string cName;
-    int token;
+    int token;   
 
 public:
     BaseType(string, string, int);
     virtual string cTypeName();
     virtual void generateCode(string);
+    virtual bool compatible(BaseType *);
+    bool isLegalArrayIndexType();
 };
 
 #endif

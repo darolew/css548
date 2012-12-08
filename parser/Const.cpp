@@ -26,9 +26,11 @@ void Const::generateDefinition(string ident)
     case yreal:
         cout << "const double";
         break;
-
-        //yboolean is not scanned or parsed. It is used to simplify type checking
-    case yboolean:
+    case yident:
+        if (term.str != "true" && term.str != "false") {
+                ERR(string("unsupported constant identifier: ") + term.str);
+            return;
+        }
         cout << "const bool";
         break;
     case ynil:
@@ -48,11 +50,15 @@ void Const::generateDefinition(string ident)
 //Push the type represented by this constant onto the type stack
 void Const::push() 
 {
-    //TODO: Consider constants point to a BaseType of string, int, real or boolean.
-    //This would simplify things.
+    //TODO: Maybe Const object should point to an instance BaseType.
+    //This would simplify some things.
 
     //Constants can only be base types. Look up the type in the SIT    
     BaseType *type = dynamic_cast<BaseType*>(symTable.lookupSIT(term.token));
+    
+    //TODO: Introduce yboolean into grammar and scanner.
+    if(term.str == "true" || term.str == "false")
+        BaseType *type = dynamic_cast<BaseType*>(symTable.lookupType("boolean"));
     
     tracker.push(identifier, type);
 }

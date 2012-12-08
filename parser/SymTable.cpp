@@ -32,6 +32,7 @@ SymTable::SymTable()
     insert(new BaseType("integer", "int", yinteger));
     insert(new BaseType("real", "double", yreal));
     insert(new BaseType("char", "string", ystring)); //TODO: Using char as an array index.
+    insert(new BaseType("nil", "NULL", ynil));
     
     //Tracking booleans by token is convenient
     insert(new BaseType("boolean", "bool", yboolean));
@@ -219,14 +220,14 @@ BaseType *SymTable::lookupSIT(int token)
     //This is a little kludgy
     string id;
     //
-    //TODO: Every if statement is (token == yinteger)...
+    //TODO: Make this less brittle. If new base types are 
+    //added into the SIT, this method must be modified.
     //
     if (token == yinteger) id = "integer";
-    if (token == yinteger) id = "real";
-    if (token == yinteger) id = "boolean";
-    if (token == yinteger) id = "char";
-    if (token == yinteger) id = "false";
-    if (token == yinteger) id = "true";
+    if (token == yreal) id = "real";
+    if (token == yboolean) id = "boolean";
+    if (token == ystring) id = "char";
+    if (token == ynil) id = "nil";
     
     Symbol *sym = lookup(SIT(), id); 
     return dynamic_cast<BaseType *>(sym);

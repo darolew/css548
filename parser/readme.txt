@@ -36,8 +36,23 @@ deeper in the stack.
 
 Bugs
 ----
+-The parser does not implment any kind of "panic mode". That is, it cannot 
+recover its state after it encounters an error. It will continue to print 
+code and additional error methods. It can even SEGFAULT because it is in
+an inconsistent case. Therefore, only the first error message it prints
+can be trusted. If parser does detect an error. It could attempt recovery by
+reseting the state of the tracking and continuing to the next block or 
+stateemnt in the parser. The parser would have to modified to use
+Yacc's panic mode.
 
-Positive tests were a higher priority than negative testing.
+-Sets are not implmeneted. 
+
+-Nested function definitions are not implemented.
+
+-Used C++ RTTI to identify types. Not really a bug, but not recommended 
+OO style. Future work includes improving style.
+
+-Positive tests were a higher priority than negative testing.
 It is likely that unknown bugs exist.
 
 Mem leaks

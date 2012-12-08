@@ -53,6 +53,7 @@ public:
     virtual bool isArray();
     virtual bool isRecord();
     virtual string className();
+    virtual string dump();
 };
 
 #endif

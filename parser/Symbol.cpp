@@ -106,7 +106,7 @@ string Symbol::className()
     //Blow past the number in the name to reach the valuable characters.
     while (*cstr <= '9' && *cstr >= '0')
         cstr++;
-        
+
     return string(cstr);
 }
 
@@ -120,4 +120,10 @@ void Symbol::push()
         << identifier 
         << "\"" 
         << " cannot be added to the type tracker\n";
+}
+
+//Debugging information
+string Symbol::dump() 
+{
+    return className() + ":" + (identifier.empty() ? "NO_NAME" : identifier);
 }
