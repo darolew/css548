@@ -21,8 +21,10 @@ var
     vb: B;
     vc: C;
     vd: D;
-    varray : ARRAY1;
+    varray1 : ARRAY1;
+    varray2 : array [1..5] of integer;
 begin
     va := 2;
-    varray[1] := 0;
+    varray2[1] := 0;
+    varray1[1] := 0;
 end.

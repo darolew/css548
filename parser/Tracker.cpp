@@ -4,6 +4,12 @@
 #include "actions.h"
 #include "y.tab.h"
 
+//
+//TODO: The functions in this file are very poorly ordered. The public
+//      functions should be placed above the private ones, and related
+//      functions should be close together.
+//
+
 void Tracker::push(string ident)
 {
     //This method is processing varibles, paramters, const, booleans,
@@ -61,15 +67,13 @@ void Tracker::binaryOp(int token)
 //----------------------------------------------------------------------------
 string Tracker::arrayIndexOffset(int dim)
 {
-debugPrint();
-
     //TODO: In ArrayType, store array bounds and indexes as ints, not strings.
    
     //An integer must be the top of the stack because integers are the only 
     //valid index types. Pop the stack and validate integer type.
     Frame f = pop();
-    BaseType *type = dynamic_cast<BaseType *>(f.type);
-    
+    BaseType *type = dynamic_cast<BaseType*>(f.type);
+
     //Vaidate that an integer is on top of the stack.
     if (!type || !type->isLegalArrayIndexType()) {
         ERR(string("expected integer for acessesing array - found ") 
@@ -83,7 +87,7 @@ debugPrint();
     }
     
     //Get the bound offset for the C translation
-    ArrayType *array = dynamic_cast<ArrayType *>(peek().type);
+    ArrayType *array = dynamic_cast<ArrayType*>(peek().type);
     return array->offsetForDim(dim);
 }
 
@@ -124,9 +128,10 @@ Frame Tracker::pop()
 
 //----------------------------------------------------------------------------
 //
-//TODO: This function does not work with typedefs to arrays. This flaw is
-//      resulting in incorrect code generation, and is probably also the cause
-//      of a number of array-related segfaults.
+//TODO: This function does not work at all anymore. I think this happened when
+//      the "math" code was added, since that resulted in integer objects
+//      being pushed on the stack, which makes the array no longer at the top
+//      of the stack in this function.
 //
 bool Tracker::arrayInContext() 
 {
@@ -135,7 +140,7 @@ bool Tracker::arrayInContext()
     
     //Examine the top of the stack.
     Frame f = peek();
-    ArrayType *array = dynamic_cast<ArrayType *>(f.type);
+    ArrayType *array = dynamic_cast<ArrayType*>(f.type);
   
     //The cast fails if the object is not an ArrayType, returning NULL.
     return array != NULL;
@@ -146,7 +151,7 @@ bool Tracker::functionInContext()
 {
     //Examine the top of the stack.
     Frame f = peek();
-    Function *func = dynamic_cast<Function *>(f.type);
+    Function *func = dynamic_cast<Function*>(f.type);
    
     //The cast fails if the object is not the correct type, returning NULL.
     return func != NULL;
@@ -188,7 +193,7 @@ void Tracker::endParameter(int index)
     if (!functionInContext())
         ERR("expected function to  be in context");
 
-    Function *func = dynamic_cast<Function *>(peek().type);
+    Function *func = dynamic_cast<Function*>(peek().type);
 
     //TODO: Validate bounds on the collection of parameters
     //so we don't try and access a parameter does not exist
@@ -223,7 +228,7 @@ void Tracker::endParameter(int index)
 void Tracker::endArrayDimension(int dim)
 {
     Frame f = peek();
-    ArrayType *array = dynamic_cast<ArrayType *>(f.type);
+    ArrayType *array = dynamic_cast<ArrayType*>(f.type);
 
     if (dim == array->numDimensions()-1) {
         Frame f = pop();
@@ -298,8 +303,8 @@ void Tracker::event_MathOp(int opToken)
     Frame right = pop();
     Frame left = pop();
     
-    BaseType *r = dynamic_cast<BaseType *>(right.type);
-    BaseType *l = dynamic_cast<BaseType *>(left.type);
+    BaseType *r = dynamic_cast<BaseType*>(right.type);
+    BaseType *l = dynamic_cast<BaseType*>(left.type);
     
     //yand is a MultOperator, but I think it should be a boolean operator.
     //Pacal defines four boolean operators: and, or, not, xor.

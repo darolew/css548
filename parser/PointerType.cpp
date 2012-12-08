@@ -125,8 +125,8 @@ bool PointerType::relationCompatible(AbstractType *otherType)
     //pointer to pointer comparison
     bool pointerToPointer = compatible(otherType);
 
-   //pointer and null comparison
-   bool pointerToNull = otherType->relationCompatible(this);
+    //pointer and null comparison
+    bool pointerToNull = otherType->relationCompatible(this);
    
-   return pointerToPointer || pointerToNull;
+    return pointerToPointer || pointerToNull;
 }

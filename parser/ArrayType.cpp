@@ -15,9 +15,8 @@ ArrayType::ArrayType(AbstractType *type, list<Range> ranges)
     : AbstractType(type)
 {
     list<Range>::iterator it = ranges.begin();
-    for (; it != ranges.end(); it++) {
+    for (; it != ranges.end(); it++)
         this->ranges.push_back(*it);
-    }
 }
 
 //Zero-based counting

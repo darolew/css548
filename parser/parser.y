@@ -735,7 +735,7 @@ Term                : Factor
                         //Type checking
                         tracker.event_MathOp($2);
                     
-                       $$.complex = CT_NONE;
+                        $$.complex = CT_NONE;
 
                            //
                            //TODO: This was commented-out without explanation.
