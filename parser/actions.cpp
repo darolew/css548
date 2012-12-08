@@ -3,8 +3,11 @@
 //
 // This file contains defintion of helper methods used in the semantic actions.
 
+#include <strings.h>
 #include "actions.h"
+#include "y.tab.h"
 
+//The type tracker is a global object for easy access
 Tracker tracker;
 
 //Create variables used by the semantic actions to collect objects.
@@ -19,6 +22,10 @@ Function *currFunction;     // current function object
 RecordType* currRecord;     // current record type
 IoFunction *currIoFunc;     //
 AbstractType *currType;     // current type being constructed
+
+//Type operations
+int mathTable[64][64][64];
+const int offset = 258;
 
 //This method iterates through the list of pointers declared in a just-parsed
 //typedef block; it is invoked when exiting the typedef block, and it assigns
@@ -127,4 +134,44 @@ void beginScope(const char *name)
     currFunction->identifier = name;
     currFunction->insert();
     symTable.beginScope(name);
+}
+
+void initMathTable() 
+{
+    //Zero out the table
+    bzero(mathTable, 64 * 64 * 64 * sizeof(int));
+
+    // Forward slash (/) is ydivide
+    int yreal_ = yreal-offset;
+    int yinteger_ = yinteger-offset;
+    int yplus_ = yplus-offset;
+    int yminus_ = yminus-offset;
+    int ymultiply_ = ymultiply-offset;
+    int ydivide_ = ydivide-offset;
+    int ydiv_ = ydiv-offset;
+    int ymod_ = ymod-offset;
+    
+    mathTable[yreal_][yreal_][yplus_] = yreal;
+    mathTable[yreal_][yinteger_][yplus_] = yreal;
+    mathTable[yinteger_][yreal_][yplus_] = yreal;
+    mathTable[yinteger_][yinteger_][yplus_] = yinteger;
+
+    mathTable[yreal_][yreal_][yminus_] = yreal; 
+    mathTable[yreal_][yinteger_][yminus_] = yreal;
+    mathTable[yinteger_][yreal_][yminus_] = yreal;
+    mathTable[yinteger_][yinteger_][yminus_];
+
+    mathTable[yreal_][yreal_][ymultiply_] = yreal;
+    mathTable[yreal_][yinteger_][ymultiply_] = yreal;
+    mathTable[yinteger_][yreal_][ymultiply_] = yreal;
+    mathTable[yinteger_][yinteger_][ymultiply_] = yinteger;
+
+    mathTable[yreal_][yreal_][ydivide_] = yreal;
+    mathTable[yreal_][yinteger_][ydivide_] = yreal;
+    mathTable[yinteger_][yreal_][ydivide_] = yreal;
+    mathTable[yinteger_][yinteger_][ydivide_] = yreal;
+
+    mathTable[yinteger_][yinteger_][ydiv_] = yinteger;
+
+    mathTable[yinteger_][yinteger_][ymod_] = yinteger;
 }

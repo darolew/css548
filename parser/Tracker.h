@@ -35,14 +35,18 @@ private:
 public:
     void push(string, AbstractType*);
     void push(string);
-    void deref();
+    void event_AccessRecordField(string);
+    void event_Deref();
     void binaryOp(int);
-    bool isArrayInContext();
-    bool isFunctionInContext();
+    bool arrayInContext();
+    bool functionInContext();
     void endParameter(int);
     void endArrayDimension(int);
     string arrayIndexOffset(int);
     void debugPrint(string = "");    
+    void event_FunctionCall();
+    void event_RelationalOp();
+    void event_MathOp(int);
 };
 
 #endif

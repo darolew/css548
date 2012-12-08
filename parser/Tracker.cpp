@@ -2,63 +2,28 @@
 #include "Tracker.h"
 #include "Parameter.h"
 #include "actions.h"
+#include "y.tab.h"
 
-//A new identifier has been encoutered. It is either:
-//  -Defined in the symbol table (Designator: yident)
-//  -A field of a record (theDesignatorStuff: ydot yident)
-//
-//TODO: This manner of handling record fields is broken. Consider the code:
-//          var
-//              field : integer;
-//              rec : rectype;
-//          begin
-//              rec.field := 1;
-//          end
-//      Here, 'field' should refer to the record field, but since it also
-//      exists in the symbol table, the below code will do the wrong thing.
 void Tracker::push(string ident)
 {
-    //Ident could represent:
-    // 1. Instance of Variable. 
-    //    An lvalue like "x". It would have been declared and entered into 
-    //    the symbol table when the parser encountered "x:integer;"  
-    // 2. Field of a record.
-    // 3. SIT global identifier like "false".
+    //This method is processing varibles, paramters, const, booleans,
+    //and function/procedure calls. 
+    //Boolean are the only odd ball. They get in here because "true"
+    //and "false" are scanned as yident
     
     //Look up the yident in the symbol table.
     Symbol *sym = symTable.lookup(ident);
-    
-    //If yident is in the symbol table, push it and exit.
     if (sym) {
         sym->push();
-        return;
     }
- 
-    //If identifier is not in the symbol table, it might be a field in a record.
-    RecordType *rec = dynamic_cast<RecordType*>(peek().type);
-    if(rec) {       
-        //Yes, a record type is on the top of the stack
-        Variable *var = rec->lookup(ident);
-        if (var) {
-            //Yes, the yident is actually a field in the record. 
-            
-            //REMOVE RECORD TYPE ON THE TOP OF THE STACK. The record is no 
-            //longer the current type. The field of the record is now the 
-            //the curernt type
-            pop();
-        
-            //Push it.
-            var->push();         
-        }
-    }
+    else 
+        ERR(string("undefined identifier ") + ident);
 }
 
 //----------------------------------------------------------------------------
-void Tracker::deref()
-{
-    //Deference a pointer type
-    
-    //TODO: If top of stack is not a pointer, throw an error.
+//Deference a pointer type
+void Tracker::event_Deref()
+{    
     Frame f = pop();
     PointerType *type = dynamic_cast<PointerType*>(f.type);
     if (!type)
@@ -108,11 +73,13 @@ debugPrint();
     
     //Vaidate that an integer is on top of the stack.
     if (!(type && type->isLegalArrayIndexType()))
-      ERR(string("expected integer for acessesing array - found ") + f.type->dump());
+      ERR(string("expected integer for acessesing array - found ") 
+        + f.type->dump());
   
     //Top the stack must now be an array.
-    if(!isArrayInContext())
-        ERR(string("expected ArrayType, but found ") + peek().type->className());    
+    if(!arrayInContext())
+        ERR(string("expected ArrayType, but found ") 
+            + peek().type->className());    
         
     //Get the bound offset for the C translation
     ArrayType *array = dynamic_cast<ArrayType *>(peek().type);
@@ -155,7 +122,7 @@ Frame Tracker::pop()
 }
 
 //----------------------------------------------------------------------------
-bool Tracker::isArrayInContext() 
+bool Tracker::arrayInContext() 
 {
     //TODO: This code is almost identify toe ifFunctionInContext().
     //Find a way to consolidate duplicated code.
@@ -169,7 +136,7 @@ bool Tracker::isArrayInContext()
 }
 
 //----------------------------------------------------------------------------
-bool Tracker::isFunctionInContext() 
+bool Tracker::functionInContext() 
 {
     //Examine the top of the stack.
     Frame f = peek();
@@ -183,7 +150,8 @@ bool Tracker::isFunctionInContext()
 void Tracker::push(string description, AbstractType *type)
 {
     if (!type)
-        ERR(string("attempted to push null onto type stack (") + "id=" + description + ") ");
+        ERR(string("attempted to push null onto type stack (") 
+            + "id=" + description + ") ");
 
     Frame f;
     f.str = description;
@@ -210,7 +178,7 @@ void Tracker::endParameter(int index)
     AbstractType *actualParamType = f.type;
     
     //The function itself should now be on the top of the stack.
-    if (!isFunctionInContext())
+    if (!functionInContext())
         ERR("expected function to  be in context");
 
     Function *func = dynamic_cast<Function *>(peek().type);
@@ -220,18 +188,22 @@ void Tracker::endParameter(int index)
     Parameter *formalParam = func->getParam(index);
     AbstractType *formalParamType = formalParam->type->getType();
     if (formalParamType->compatible(actualParamType)) {
-        //The parameter types match. Pop the actual param type off the stack
+        //The parameter types match. 
+        //Pop the actual param type off the stack
         pop();
     } else {
-        ERR(string("expected formal param of type ") + formalParamType->className() + " but actual param is of type " + actualParamType->className());
+        ERR(string("expected formal param of type ") 
+            + formalParamType->className() 
+            + " but actual param is of type " 
+            + actualParamType->className());
 
         //If this is the last parameter in the function call, 
         //pop the function off the stack
         if (index == func->numParams()-1)
             pop();
 
-        //If the function had a return type (i.e. it was not a procedure), push the 
-        //return type onto the stack.
+        //If the function had a return type (i.e. it was not a procedure), 
+        //push the return type onto the stack.
         if (func->isFunction())
             push("function return ", func->returnType->getType());
    }
@@ -250,5 +222,89 @@ void Tracker::endArrayDimension(int dim)
         Frame f = pop();
         f.type = f.type->type->getType();
         push(f);
+    }
+}
+
+//----------------------------------------------------------------------------
+void Tracker::event_FunctionCall()
+{
+    //A function should now be on the top of the stack. Validate that rule.
+    if(!functionInContext())
+        ERR(peek().str + " is not the name of a function");
+ }
+
+ //----------------------------------------------------------------------------
+ void Tracker::event_AccessRecordField(string ident)
+ {
+     //If identifier is not in the symbol table, it might be a field
+     //in a record.
+    RecordType *rec = dynamic_cast<RecordType*>(peek().type);
+    if(rec) {       
+        //Yes, a record type is on the top of the stack
+        Variable *var = rec->lookup(ident);
+        if (var) {
+            //Yes, the yident is actually a field in the record. 
+            
+            //REMOVE RECORD TYPE ON THE TOP OF THE STACK. The record is no 
+            //longer the current type. The field of the record is now the 
+            //the curernt type
+            pop();
+
+            //Push it.
+            var->push();   
+        } else
+            ERR(string("unknown field named ") + ident + " of " + rec->dump());
+    } else 
+        ERR(string("cannot access fields of non-record type ") 
+            + peek().type->dump());
+}
+
+//----------------------------------------------------------------------------
+void Tracker::event_RelationalOp()
+{
+    //Permitted comparisons
+    //   integers and reals can be compared
+    //   chars and chars
+    //   booleans and booleans
+    //   pointers and pointers
+    //   pointers and nil
+    
+    //After a reltional operations, the left and right operands are popped 
+    //and the results, a boolean, is pushed.
+    Frame right = pop();
+    Frame left = pop();
+            
+    //Validate that the comparison was valid
+    if(! left.type->relationCompatible(right.type) )
+        ERR(string("invalid relational operation ") + left.type->dump() 
+            + " cannot be comparable to " + right.type->dump());
+}
+
+//----------------------------------------------------------------------------
+void Tracker::event_MathOp(int opToken)
+{
+    //A (binary) math operation has just ocurred. Remove the operands and 
+    //check their types.
+    
+    Frame right = pop();
+    Frame left = pop();
+    
+    BaseType * r = dynamic_cast<BaseType *>(right.type);
+    BaseType * l = dynamic_cast<BaseType *>(left.type);
+    
+    //yand is a MultOperator, but I think it should be a boolean operator.
+    //Pacal defines four boolean operators: and, or, not, xor.
+    if (opToken == yand) {
+        //TODO: This will be a lot easiser when the scanner is using
+        //yboolean tokens. Until then, make all yand operations valid.
+        return;    
+    }
+    else {
+        BaseType * result = BaseType::getMathType(l, r, opToken);
+        if (!result) 
+            ERR(string("invalid math operation - ")
+                + l->dump() 
+                + " is not compatible with "
+                + r->dump());
     }
 }

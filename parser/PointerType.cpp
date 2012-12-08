@@ -6,8 +6,7 @@
 #include "PointerType.h"
 #include "SymTable.h"
 #include "main.h"
-
-extern SymTable symTable;
+#include "actions.h"
 
 //Constructor for a pointer with a name, which is the typical case for
 //a pointer typedef. Note that the type it points to is not provided;
@@ -119,4 +118,15 @@ string PointerType::cPointeeName()
         //
         return pointeeName;
     }
+}
+
+bool PointerType::relationCompatible(AbstractType *otherType) 
+{
+    //pointer to pointer comparison
+    bool pointerToPointer = compatible(otherType);
+
+   //pointer and null comparison
+   bool pointerToNull = otherType->relationCompatible(this);
+   
+   return pointerToPointer || pointerToNull;
 }

@@ -20,10 +20,12 @@ class BaseType : public AbstractType {
 
 public:
     BaseType(string, string, int);
+    static BaseType *getMathType(BaseType *, BaseType *, int op);
     virtual string cTypeName();
     virtual void generateCode(string);
     virtual bool compatible(BaseType*);
     bool isLegalArrayIndexType();
+    virtual bool relationCompatible(AbstractType *);
 };
 
 #endif

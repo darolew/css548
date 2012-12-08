@@ -14,6 +14,7 @@
 #include "IoFunction.h"
 #include "main.h"
 #include "y.tab.h"
+#include "actions.h"
 
 //
 //Public SymTable methods
@@ -22,6 +23,9 @@
 //Constructor for the symbol table.
 SymTable::SymTable()
 {
+    //Create the type checking information for arithmatical oeprators
+    initMathTable();
+
     //Print the SIT, program scope without indentation
     indentThreshold = 1;
 

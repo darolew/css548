@@ -40,6 +40,7 @@ public:
     virtual AbstractType* getType();
     virtual void push();
     virtual bool compatible(AbstractType *);
+    virtual bool relationCompatible(AbstractType *);
 };
 
 #endif

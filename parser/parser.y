@@ -60,11 +60,11 @@ int exprCount;
 %start  CompilationUnit
 
 %token  yand yarray yassign ybegin ycaret ycase ycolon ycomma yconst ydispose
-        ydiv ydivide ydo ydot ydotdot ydownto yelse yend yequal yfor yfunction
-        ygreater ygreaterequal yif yin yleftbracket yleftparen yless ylessequal
-        ymod ymultiply ynew ynil ynot ynotequal yof yor yprocedure yprogram
-        yrecord yrepeat yrightbracket yrightparen ysemicolon yset ythen yto
-        ytype yunknown yuntil yvar ywhile
+        ydiv ydivide ydo ydot ydotdot ydownto yelse yend yequal yfor
+        yfunction ygreater ygreaterequal yif yin yleftbracket yleftparen yless
+        ylessequal ymod ymultiply ynew ynil ynot ynotequal yof yor yprocedure
+        yprogram yrecord yrepeat yrightbracket yrightparen ysemicolon yset
+        ythen yto ytype yunknown yuntil yvar ywhile
 
 //This token is not used by the lexer or parser. It is used as a symbolic 
 //constant by the type checking routines.        
@@ -81,7 +81,7 @@ int exprCount;
 //from which they were included.
 %type <term> ConstFactor ConstExpression
 %type <chr> UnaryOperator
-%type <tkn> WhichWay MultOperator
+%type <tkn> WhichWay MultOperator AddOperator
 %type <flag> FormalParamFlag
 %type <type> Term Factor FunctionCall 
 
@@ -265,6 +265,7 @@ ConstExpression     : UnaryOperator ConstFactor
                     {
                         //These are used for case statements, sets, and the 
                         //definition of const values.
+                   
                         $$ = $2;
                         $$->unaryOp = $1;
                     }
@@ -405,7 +406,7 @@ ProcedureCall       : yident
                     {
                         Symbol *sym = symTable.lookup($1);
                         if (!sym || !sym->isFunction())
-                            cout << "***ERROR: " << $1 << " is not a function" << endl;
+                            cout << "***ERROR: " << $1 << " is not a function (A)" << endl;
                         else if (sym->isIoFunction()) {
                             IoFunction *iofunc = (IoFunction*)sym;
                             iofunc->generateInit();
@@ -421,7 +422,7 @@ ProcedureCall       : yident
                     {
                         Symbol *sym = symTable.lookup($1);
                         if (!sym || !sym->isFunction())
-                            cout << "***ERROR: " << $1 << " is not a function" << endl;
+                            cout << "***ERROR: " << $1 << " is not a function (B)" << endl;
                         else if (sym->isIoFunction()) {
                             currIoFunc = (IoFunction*)sym;
                             currIoFunc->generateInit();
@@ -554,34 +555,16 @@ MemoryStatement     : ynew yleftparen yident yrightparen
 
 Designator          : yident 
                     {
-                        //--------------------------------------
-                          tracker.push($1);
-                          //tracker.debugPrint();
-                        //--------------------------------------
-                        
                         cout << $1;
-                        
+
+                        //Update the type stack
+                        tracker.push($1);
+
+                        //Notify the object that is was just used as a 
+                        //designator.
                         Symbol *sym = symTable.lookup($1);
-                        if (sym) {
-                            if (sym->isFunction()) {
-                                if (!sym->isProcedure()) {
-                                    if (sym->identifier == string($1)) {
-                                        cout << "_";
-                                    } else {
-                                        cout << "***ERROR: Assigning return "
-                                        << "value to a different function. Should be " 
-                                        << sym->identifier 
-                                        << endl;
-                                    }
-                                } else {
-                                    //This is a procedure and not a function
-                                    cout << "***ERROR: Procedure cannnot return a value\n";
-                                }
-                            
-                            }
-                        } else {
-                            cout << "***ERROR: Undefined identifier " << $1 << endl;
-                        }
+                        if (sym)
+                            sym->event_Designator($1);
                     }
                       DesignatorStuff
                     ;
@@ -589,23 +572,16 @@ DesignatorStuff     : /*** empty ***/
                     | DesignatorStuff theDesignatorStuff
                     ;
 theDesignatorStuff  : ydot yident
-                    {                    
-                        //--------------------------------------
-                        //PUSH A FIELD INTO THE TRACKER
-//
-//TODO: This is broken for reasons stated in a comment aboe Tracker::push().
-//      Needs to be refactored into a separate pushRecord().
-//
-                          tracker.push($2);
-                          //tracker.debugPrint();
-                        //--------------------------------------
+                    {                 
+                        //ACCESS FIELD IN A RECORD
+                        tracker.event_AccessRecordField($2);
                         
                         cout << "." << $2;
                         free($2);
                     } 
                     | yleftbracket 
                     {
-                        //Start the first dimension
+                        //ARRAY ACCESS
                         cout << "[";
                         exprCount = 0; //Reset the array dimension index
                     }
@@ -616,11 +592,8 @@ theDesignatorStuff  : ydot yident
                     }
                     | ycaret
                     {
-                        //--------------------------------------
-                        //DEREFERENCE A PONITER
-                          tracker.deref();
-                          //tracker.debugPrint();
-                        //--------------------------------------
+                        //Notify the tracker of the pointer dereference
+                          tracker.event_Deref();
                         
                         //In Pascal, the pointer deference is on the right
                         //side. In C, using "*" to deference would have to
@@ -642,39 +615,24 @@ ActualParameters    : yleftparen
                             cout << ")";
                     }
                     ;
-ExpList             : Expression
-                    {
-                        //TODO: THIS IS DUPLICATED CODE
-                        //-----------------------------------------------
-                        //GET BOUND OFFSET
-                        //NOTE: Important and necessary side-effects happen
-                        //when arrayIndexOffset() is called.
-                        if (tracker.isArrayInContext()) {
-                            //Print offset 
-                            cout << tracker.arrayIndexOffset(exprCount);
-                            
-                            //Increment the expression count
-                            exprCount++;
-                            
-                            //Close array access
-                            cout << "]";
-                        }   
-
-                        if (tracker.isFunctionInContext()) {
-                            //Inform the tracker that an expression has been parsed
-                            tracker.endParameter(exprCount);
-                            
-                            //Increment the expression count
-                            exprCount++;
-                        }
-                            
-                        //-----------------------------------------------
-                    }
+                    
+ExpList             : ExpAction
                     | ExpList ycomma
-                    {                    
-                        //TODO: THIS IS DUPLICATED CODE
-                        //-----------------------------------------------
-                        if (tracker.isArrayInContext()) {
+                    {    
+                        if (currIoFunc)
+                            currIoFunc->generateSep();
+                        else
+                            cout << ", "; //comma separated list
+                    }
+                    ExpAction
+                    ;
+                    
+ExpAction:          | Expression 
+                    {   
+                        //This non-terminal exists to catch anytime an 
+                        //expression is parser. It prevents duplicate 
+                        //code in the two production of ExpList 
+                         if (tracker.arrayInContext()) {
                             //Print offset 
                             cout << tracker.arrayIndexOffset(exprCount);
                             tracker.endArrayDimension(exprCount);
@@ -684,20 +642,26 @@ ExpList             : Expression
                             
                             //Close array access
                             cout << "]";
-                        }                            
-                        //-----------------------------------------------
-                        
-                        if (currIoFunc)
-                            currIoFunc->generateSep();
-                        else
-                            cout << ", "; //comma separated list
+                        }   
+
+                        if (tracker.functionInContext()) {
+                            //Inform the tracker that an expression has been parsed
+                            tracker.endParameter(exprCount);
+                            
+                            //Increment the expression count
+                            exprCount++;
+                        }
                     }
-                      Expression
-                    ;
+                    ;                    
 
 /***************************  Expression Stuff  ******************************/
 Expression          : SimpleExpression
                     | SimpleExpression Relation SimpleExpression
+                    {
+                        //Validate that both expression are booleans and tell
+                        //the tracker to update its state
+                        tracker.event_RelationalOp();
+                    }
                     ;
 SimpleExpression    : TermExpr
                     | UnaryOperator 
@@ -707,7 +671,10 @@ SimpleExpression    : TermExpr
                     TermExpr
                     ;
 TermExpr            : Term
-                    | TermExpr AddOperator Term
+                    | TermExpr AddOperator Term 
+                    {
+                        tracker.event_MathOp($2)
+                    }
                     ;
 Term                : Factor
                     | Term MultOperator
@@ -727,13 +694,16 @@ Term                : Factor
                                 cout << " % ";
                                 break;                        
                             default:
-                                cout << "***ERROR: Internal error, unhandled MultOperator\n";
+                                cout << "***ERROR: internal error, unhandled MultOperator\n";
                                 break;
                         }
                     }
                       Factor
                     {
-                           $$.complex = CT_NONE;
+                        //Type checking
+                        tracker.event_MathOp($2);
+                    
+                       $$.complex = CT_NONE;
 
                            //
                            //TODO: This was commented-out without explanation.
@@ -808,6 +778,7 @@ Factor              : yinteger
                         $$.complex = CT_POINTER;
                         $$.base = BT_NONE;
                         
+                        //Print "NULL"
                         type->generateCode("");
                     }
                     | ystring
@@ -840,26 +811,17 @@ FunctionCall        : yident
                     {
                         //Add the function to the type tracker
                         tracker.push($1);
-                        
-                        Symbol *sym = symTable.lookup($1);
-                        if (sym && (sym->complexType() == CT_FUNCTION)) {
-                            Function *func = (Function*)sym;
-                            
-                            //TODO: returnType is private
-                            //$$.complex = func->returnType->complexType();
-                            
-                            //TODO: returnType is private
-                            //$$.base = func->returnType->baseType();
-                            
-                        } else {
-                            cout << "***ERROR: " << $1 << " is not a function\n";
-                        }
+                         
+                        //Validate that yident really was a function.
+                        tracker.event_FunctionCall();
+
                         cout << $1;
                         free($1);
                         
                         //Reset the expression count because it is used to 
                         //determine which parameter is being parsed.
                         exprCount = 0;
+                        
                     }
                       ActualParameters
                     ;

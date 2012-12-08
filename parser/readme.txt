@@ -2,6 +2,37 @@ CSS 548; Autumn 2012
 Aaron Hoffer and Daniel Lewis
 Phase 4
 
+Section 1:
+First list all the "regular" Pascal programs that translate correctly. For example:
+    add.p - translates correctly
+Then list any of the "regular" Pascal programs that do NOT translate properly. If a part does not translate, describe precisely what is wrong. If you have not implemented something, e.g., the case statement, that is precise enough. For example:
+    case.p - case statement is not implemented
+If something mostly works, but does not work in some situations, describe that. If everything translates, say that.
+
+Section 2:
+First list all the "medium" Pascal programs that translate correctly. For example:
+    array.p - translates correctly
+Then list any of the "medium" Pascal programs that do NOT translate properly. If a part does not translate, describe precisely, but briefly, what is wrong.
+
+Section 3:
+As before, list all the "hard" Pascal programs that translate correctly. Then list the "hard" Pascal programs that do NOT translate properly. If a part does not translate, describe precisely what is wrong. Again, if you have not implemented something, e.g., nested procedures, that is precise enough. For example:
+    phase2.p - nested procedures are not implemented
+If none of these are implemented, say none.
+
+Section 4:
+List any of the Pascal programs with "errors" that you do not display an appropriate error message. I.e., say which errors you do not detect.
+
+Section 5:
+List things in Pascal that you have handled and are proud of that I do not test in my sample Pascal Programs. Feel free to be brief and point me to sample Pascal programs that you have submitted. If there is nothing, say none.
+
+Section 6:
+Describe anything else you think I should know that will help me to assess what you have done. Describe anything that was way more challenging than you originally thought (and that you suspect I don't know the depth of the challenges).
+
+Section 7:
+Tell me whether your pair/group would like to demonstrate your compiler to the class or would rather show me individually. This is not meant to be a big deal, not a formal presentation; you'll just "make" it and run it with sample code perhaps describing how you handled something or challenges you ran into. 
+
+
+
 Design
 ------
 
@@ -52,6 +83,11 @@ Yacc's panic mode.
 -Sets are not implemented. 
 
 -Nested function definitions are not implemented.
+
+-Pascal's divide operation returns a real when dividing two integer. C's
+divide operation returns an integer under the same circcumstances. Our 
+compiler should have one of the integer operands to float or double so the
+C program would have the same behavior as the Pascal program. It does not.
 
 -Used C++ RTTI to identify types. Not really a bug, but not recommended 
 OO style. Future work includes improving style.
