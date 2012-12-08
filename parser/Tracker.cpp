@@ -205,7 +205,7 @@ void Tracker::endParameter(int index)
         //If the function had a return type (i.e. it was not a procedure), 
         //push the return type onto the stack.
         if (func->isFunction())
-            push("function return ", func->returnType->getType());\
+            push("function return ", func->returnType->getType());
    }
 }
 
