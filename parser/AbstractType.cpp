@@ -119,8 +119,14 @@ void AbstractType::push()
 }
 
 //Check to see if two types represents the same thing. Two types of the same
+<<<<<<< HEAD
 //class meet the criterion for compatibility, except for BaseType. This class
 //is overriden by BaseType because there are several kinds of BaseTypes.
+=======
+//class meet the critierion for compatibility, expect for BaseType. 
+//This class is overriden by BaseType because there are 
+//several kinds of BaseTypes.
+>>>>>>> b7947c63ad305a612c85630e78af2be7b2b1a97f
 //TODO: Should this be renamed "assignmentCompatible"
 bool AbstractType::compatible(AbstractType *otherType)
 {
