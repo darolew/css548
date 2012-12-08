@@ -505,6 +505,11 @@ CaseLabelList       : ConstExpression
                         cout << "case " << $1->str << ":" << nlindent();
                     }
                     | CaseLabelList ycomma ConstExpression
+                    {
+                        if ($3->token != yinteger && $3->token != yident)
+                            cout << "***ERROR: Invalid constant value in case statement\n";
+                        cout << "case " << $3->str << ":" << nlindent();
+                    }
                     ;
 WhileStatement      : ywhile
                     {
