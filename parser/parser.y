@@ -468,14 +468,42 @@ ElsePart            : /*** empty ***/
                         cout << unindent() << "} " << nlindent();
                     }
                     ;
-CaseStatement       : ycase Expression yof CaseList yend
+CaseStatement       : ycase
+                    {
+                        cout << "switch (";
+                    }
+                      Expression yof
+                    {
+                        indent++;
+                        cout << ") { " << nlindent();
+                    }
+                      CaseList yend
+                    {
+                        indent--;
+                        cout << "}" << nlindent();
+                    }
                     ;
 CaseList            : Case
                     | CaseList ysemicolon Case
                     ;
-Case                : CaseLabelList ycolon Statement
+Case                : CaseLabelList ycolon
+                    {
+                        indent++;
+                        cout << "{" << nlindent();
+                    }
+                      Statement
+                    {
+                        indent--;
+                        cout << "break;" << nlindent();
+                        cout << "}" << nlindent();
+                    }
                     ;
 CaseLabelList       : ConstExpression
+                    {
+                        if ($1->token != yinteger && $1->token != yident)
+                            cout << "***ERROR: Invalid constant value in case statement\n";
+                        cout << "case " << $1->str << ":" << nlindent();
+                    }
                     | CaseLabelList ycomma ConstExpression
                     ;
 WhileStatement      : ywhile
