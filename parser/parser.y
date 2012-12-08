@@ -60,11 +60,11 @@ int exprCount;
 %start  CompilationUnit
 
 %token  yand yarray yassign ybegin ycaret ycase ycolon ycomma yconst ydispose
-        ydiv ydivide ydo ydot ydotdot ydownto yelse yend yequal yfor
-        yfunction ygreater ygreaterequal yif yin yleftbracket yleftparen yless
-        ylessequal ymod ymultiply ynew ynil ynot ynotequal yof yor yprocedure
-        yprogram yrecord yrepeat yrightbracket yrightparen ysemicolon yset
-        ythen yto ytype yunknown yuntil yvar ywhile
+        ydiv ydivide ydo ydot ydotdot ydownto yelse yend yequal yfor yfunction
+        ygreater ygreaterequal yif yin yleftbracket yleftparen yless ylessequal
+        ymod ymultiply ynew ynil ynot ynotequal yof yor yprocedure yprogram
+        yrecord yrepeat yrightbracket yrightparen ysemicolon yset ythen yto
+        ytype yunknown yuntil yvar ywhile
 
 //This token is not used by the lexer or parser. It is used as a symbolic 
 //constant by the type checking routines.        
@@ -265,7 +265,6 @@ ConstExpression     : UnaryOperator ConstFactor
                     {
                         //These are used for case statements, sets, and the 
                         //definition of const values.
-                   
                         $$ = $2;
                         $$->unaryOp = $1;
                     }
@@ -734,7 +733,6 @@ Term                : Factor
                     }
                       Factor
                     {
-                    
                            $$.complex = CT_NONE;
 
                            //
@@ -840,7 +838,6 @@ Factor              : yinteger
                     ;
 FunctionCall        : yident
                     {
-                    
                         //Add the function to the type tracker
                         tracker.push($1);
                         
@@ -863,7 +860,6 @@ FunctionCall        : yident
                         //Reset the expression count because it is used to 
                         //determine which parameter is being parsed.
                         exprCount = 0;
-                        
                     }
                       ActualParameters
                     ;

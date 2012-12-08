@@ -11,6 +11,11 @@
 #include "AbstractType.h"
 #include "Parameter.h"
 
+//
+//TODO: Having this function inherit from AbstractType is class abuse. A
+//      function it *not* a type, just like a variable is not a type. It
+//      *has* a type (a return type, if it is not a procedure).
+//
 class Function : public AbstractType {
 
 private:
@@ -20,8 +25,8 @@ public:
     Function();
     virtual void generateDefinition(string);
     virtual bool insert();
-    void addParam(Parameter *);
-    void setReturnType(AbstractType *);
+    void addParam(Parameter*);
+    void setReturnType(AbstractType*);
     virtual bool isFunction();
     virtual bool isProcedure();
     void endFunction();
@@ -31,7 +36,6 @@ public:
     
     //TODO: Make this private
     AbstractType *returnType; // return type; left NULL for procedures
-
 };
 
 #endif

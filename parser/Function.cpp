@@ -108,7 +108,7 @@ void Function::push()
 {
     //Idea was not to push the function onto the tracker because it is not 
     //a type. Instead, the idea was to push the return type (if it is a 
-    //function and not a procuedure) and then push the parameters on to 
+    //function and not a procedure) and then push the parameters on to 
     //the tracker (in reverse order).
     //For example, the function
     //
@@ -122,7 +122,7 @@ void Function::push()
     //
     //After the parser finishes parsing ActualParameters, it checks to 
     //see that the actual parameters match the formal parameters:
-
+    //
     // | CELLPTR | (actual parameter)
     // | REAL |  | (actual parameter)
     // | CELLPTR | (formal parameter)
@@ -146,7 +146,7 @@ int Function::numParams()
 
 Parameter *Function::getParam(int index)
 {
-    if(index < 0 || index > numParams()-1) {
+    if (index < 0 || index > numParams()-1) {
         ERR(string("invalid paramter index in function ") + identifier);
         cout << " index=" << index << endl;
         return NULL;

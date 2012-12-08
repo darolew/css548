@@ -23,7 +23,7 @@
 SymTable::SymTable()
 {
     //Print the SIT, program scope without indentation
-    indentThreshold=1;
+    indentThreshold = 1;
 
     //Start standard identifier.
     beginScope("Standard Identifier Table");
@@ -32,18 +32,16 @@ SymTable::SymTable()
     insert(new BaseType("integer", "int", yinteger));
     insert(new BaseType("real", "double", yreal));
     insert(new BaseType("char", "string", ystring)); //TODO: Using char as an array index.
-    insert(new BaseType("nil", "NULL", ynil));
-    
+
     //Tracking booleans by token is convenient
     insert(new BaseType("boolean", "bool", yboolean));
     //insert(new BaseType("boolean", "bool", yident);
     
-    //If true and false are not in the symbol table, then the parser prints
-    //and error when it parses the rule "Designator : yident:
-    //If the identifiers "fase" and "true" are not found in the symbol table
-    //the parser prints the message "***ERROR: Undefined identifier" 
+    //None of these are types. They are in the symbol table purely for
+    //convenience -- it is a kluge to store them in the BaseType class.
     insert(new BaseType("true", "true", yident));
     insert(new BaseType("false", "false", yident));
+    insert(new BaseType("nil", "NULL", ynil));
     
     //Keyword functions
     insert(new IoFunction("write"));
@@ -223,11 +221,16 @@ BaseType *SymTable::lookupSIT(int token)
     //TODO: Make this less brittle. If new base types are 
     //added into the SIT, this method must be modified.
     //
-    if (token == yinteger) id = "integer";
-    if (token == yreal) id = "real";
-    if (token == yboolean) id = "boolean";
-    if (token == ystring) id = "char";
-    if (token == ynil) id = "nil";
+    if (token == yinteger)
+        id = "integer";
+    else if (token == yreal)
+        id = "real";
+    else if (token == yboolean)
+        id = "boolean";
+    else if (token == ystring)
+        id = "char";
+    else if (token == ynil)
+        id = "nil";
     
     Symbol *sym = lookup(SIT(), id); 
     return dynamic_cast<BaseType *>(sym);

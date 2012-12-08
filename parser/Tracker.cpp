@@ -165,7 +165,7 @@ bool Tracker::isArrayInContext()
     ArrayType *array = dynamic_cast<ArrayType *>(f.type);
   
     //The cast fails if the object is not an ArrayType, returning NULL.
-    return array;     
+    return array != NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -176,7 +176,7 @@ bool Tracker::isFunctionInContext()
     Function *func = dynamic_cast<Function *>(f.type);
    
     //The cast fails if the object is not the correct type, returning NULL.
-    return func;     
+    return func != NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -210,7 +210,7 @@ void Tracker::endParameter(int index)
     AbstractType *actualParamType = f.type;
     
     //The function itself should now be on the top of the stack.
-    if(!isFunctionInContext())
+    if (!isFunctionInContext())
         ERR("expected function to  be in context");
 
     Function *func = dynamic_cast<Function *>(peek().type);
@@ -222,19 +222,18 @@ void Tracker::endParameter(int index)
     if (formalParamType->compatible(actualParamType)) {
         //The parameter types match. Pop the actual param type off the stack
         pop();
-    }
-    else {
+    } else {
         ERR(string("expected formal param of type ") + formalParamType->className() + " but actual param is of type " + actualParamType->className());
 
-    //If this is the last parameter in the function call, 
-    //pop the function off the stack
-    if (index == func->numParams()-1)
-        pop();
+        //If this is the last parameter in the function call, 
+        //pop the function off the stack
+        if (index == func->numParams()-1)
+            pop();
 
-    //If the function had a return type (i.e. it was not a procedure), push the 
-    //return type onto the stack.
-    if (func->isFunction())
-        push("function return ", func->returnType->getType());
+        //If the function had a return type (i.e. it was not a procedure), push the 
+        //return type onto the stack.
+        if (func->isFunction())
+            push("function return ", func->returnType->getType());
    }
 }
 

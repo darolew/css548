@@ -4,31 +4,34 @@ Phase 4
 
 Design
 ------
+
 One pass print-as-you-go translator.
-Type checking is implmeneted using a stack of types which are compared
+
+Type checking is implemented using a stack of types which are compared
 and popped as required.
 
-Pointers and arrays were especially difficult. Pascal pointers are deferenced
-after the identifier (ident^). C++ pointers are derefrenced before 
+Pointers and arrays were especially difficult. Pascal pointers are dereferenced
+after the identifier (ident^). C++ pointers are dereferenced before 
 the identifier (*ident). Printing-as-you-go means that by the time you 
 discover the dereference in Pascal, the identifier has already been printed.
-The problem was solved by dereferencing by using C's array acess notation 
-to defreference pointers. That is, in C these two statement are equivalent:
+The problem was solved by dereferencing by using C's array access notation 
+to dereference pointers. That is, in C these two statement are equivalent:
     *ident
     ident[0]
 
-The translator appends the string "[0] to pointer identifiers 
+The translator appends the string "[0]" to pointer identifiers 
 to dereference them.    
     
-Array were more challenging. Pascal array are indexed with an
+Arrays were more challenging. Pascal array are indexed with an
 expression list inside of a single set of the terminals "[" and "]". 
-C ararys are dereferenced with a single expression inside multiple sets of
+C arrays are dereferenced with a single expression inside multiple sets of
 "[" and "]" terminals. 
 
 The solution was to use the type-checking stack. The parser can query the 
-type-checking stack (called the "tracker") to determine is an array type is at
-the top of the stack. If it is, the parser prints the appropriate C translation
-each time an expression is parsed. A similar mechanism is used for functions. 
+type-checking stack (called the "tracker") to determine whether an array type
+is at the top of the stack. If it is, the parser prints the appropriate C
+translation each time an expression is parsed. A similar mechanism is used for
+functions. 
 
 A more advanced solution would be to use a stack to track all symbols and use
 the syntax actions as events which trigger print C++ code for items which are 
@@ -36,16 +39,17 @@ deeper in the stack.
 
 Bugs
 ----
--The parser does not implment any kind of "panic mode". That is, it cannot 
+
+-The parser does not implement any kind of "panic mode". That is, it cannot 
 recover its state after it encounters an error. It will continue to print 
 code and additional error methods. It can even SEGFAULT because it is in
-an inconsistent case. Therefore, only the first error message it prints
-can be trusted. If parser does detect an error. It could attempt recovery by
-reseting the state of the tracking and continuing to the next block or 
-stateemnt in the parser. The parser would have to modified to use
+an inconsistent state. Therefore, only the first error message it prints
+can be trusted. If parser does detect an error, it could attempt recovery by
+resetting the state of the tracking and continuing to the next block or 
+statement in the parser. The parser would have to modified to use
 Yacc's panic mode.
 
--Sets are not implmeneted. 
+-Sets are not implemented. 
 
 -Nested function definitions are not implemented.
 
@@ -55,11 +59,12 @@ OO style. Future work includes improving style.
 -Positive tests were a higher priority than negative testing.
 It is likely that unknown bugs exist.
 
-Mem leaks
----------
-Implementing the functionalty took priority over finding and fixing mem leaks.
+Memory Leaks
+------------
 
+Implementing the functionalty took priority over finding and fixing mem leaks.
 
 Who Did What
 ------------
+
 Very collaborative.

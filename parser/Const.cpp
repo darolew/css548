@@ -28,7 +28,7 @@ void Const::generateDefinition(string ident)
         break;
     case yident:
         if (term.str != "true" && term.str != "false") {
-                ERR(string("unsupported constant identifier: ") + term.str);
+            ERR(string("unsupported constant identifier: ") + term.str);
             return;
         }
         cout << "const bool";
@@ -50,6 +50,11 @@ void Const::generateDefinition(string ident)
 //Push the type represented by this constant onto the type stack
 void Const::push() 
 {
+    //
+    //TODO: This function defines the 'type' variable once, and the second
+    //      definition immediately goes out of scope. This is not right...
+    //
+
     //TODO: Maybe Const object should point to an instance BaseType.
     //This would simplify some things.
 

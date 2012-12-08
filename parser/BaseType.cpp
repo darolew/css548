@@ -28,11 +28,11 @@ void BaseType::generateCode(string ident)
 //kind of thing -- integer, real, boolean, char.
 bool BaseType::compatible(BaseType *otherType)
 {
-      return AbstractType::compatible(otherType) && token == otherType->token;
+    return AbstractType::compatible(otherType) && token == otherType->token;
 }
 
 bool BaseType::isLegalArrayIndexType()
 {
-        //Only integers can be used as array indexes
-        return token == yinteger;
+    //Only integers can be used as array indexes
+    return token == yinteger;
 }
