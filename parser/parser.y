@@ -618,7 +618,7 @@ theDesignatorStuff  : ydot yident
                         cout << "[";
                         exprCount = 0; //Reset the array dimension index
                     }
-                    ExpList yrightbracket
+                      ExpList yrightbracket
                     {
                         //This is now printed in expression/exp list
                         //cout << "]";
@@ -648,7 +648,6 @@ ActualParameters    : yleftparen
                             cout << ")";
                     }
                     ;
-                    
 ExpList             : ExpAction
                     | ExpList ycomma
                     {    
@@ -657,11 +656,11 @@ ExpList             : ExpAction
                         else
                             cout << ", "; //comma separated list
                     }
-                    ExpAction
+                      ExpAction
                     ;
-                    
-ExpAction:          | Expression 
-                    {   
+ExpAction           : /*** empty ***/
+                    | Expression 
+                    {
                         //This non-terminal exists to catch anytime an 
                         //expression is parser. It prevents duplicate 
                         //code in the two production of ExpList 
@@ -675,12 +674,12 @@ ExpAction:          | Expression
                             
                             //Close array access
                             cout << "]";
-                        }   
-
+                        }
+                        
                         if (tracker.functionInContext()) {
                             //Inform the tracker that an expression has been parsed
                             tracker.endParameter(exprCount);
-                            
+
                             //Increment the expression count
                             exprCount++;
                         }
@@ -701,7 +700,7 @@ SimpleExpression    : TermExpr
                     {
                         cout << $1;
                     }
-                    TermExpr
+                      TermExpr
                     ;
 TermExpr            : Term
                     | TermExpr AddOperator Term 

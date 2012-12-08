@@ -13,9 +13,8 @@ void Tracker::push(string ident)
     
     //Look up the yident in the symbol table.
     Symbol *sym = symTable.lookup(ident);
-    if (sym) {
+    if (sym)
         sym->push();
-    }
     else 
         ERR(string("undefined identifier ") + ident);
 }
@@ -72,15 +71,17 @@ debugPrint();
     BaseType *type = dynamic_cast<BaseType *>(f.type);
     
     //Vaidate that an integer is on top of the stack.
-    if (!(type && type->isLegalArrayIndexType()))
-      ERR(string("expected integer for acessesing array - found ") 
-        + f.type->dump());
-  
+    if (!type || !type->isLegalArrayIndexType()) {
+        ERR(string("expected integer for acessesing array - found ") 
+            + f.type->dump());
+    }
+    
     //Top the stack must now be an array.
-    if(!arrayInContext())
+    if (!arrayInContext()) {
         ERR(string("expected ArrayType, but found ") 
             + peek().type->className());    
-        
+    }
+    
     //Get the bound offset for the C translation
     ArrayType *array = dynamic_cast<ArrayType *>(peek().type);
     return array->offsetForDim(dim);
@@ -102,7 +103,7 @@ void Tracker::debugPrint(string msg) {
 
     cout << "\n--" << msg << "-------- TRACKER (top) ----------\n";
     list<Frame>::iterator it = typeStack.begin();
-    for(; it != typeStack.end(); ++it) {
+    for (; it != typeStack.end(); ++it) {
         if (!it->type)
             ERR("fatal err - encountered null on type stack");
             
@@ -122,9 +123,14 @@ Frame Tracker::pop()
 }
 
 //----------------------------------------------------------------------------
+//
+//TODO: This function does not work with typedefs to arrays. This flaw is
+//      resulting in incorrect code generation, and is probably also the cause
+//      of a number of array-related segfaults.
+//
 bool Tracker::arrayInContext() 
 {
-    //TODO: This code is almost identify toe ifFunctionInContext().
+    //TODO: This code is almost identify to functionInContext().
     //Find a way to consolidate duplicated code.
     
     //Examine the top of the stack.
@@ -149,10 +155,11 @@ bool Tracker::functionInContext()
 //----------------------------------------------------------------------------
 void Tracker::push(string description, AbstractType *type)
 {
-    if (!type)
+    if (!type) {
         ERR(string("attempted to push null onto type stack (") 
             + "id=" + description + ") ");
-
+    }
+    
     Frame f;
     f.str = description;
     f.type = type;
@@ -229,7 +236,7 @@ void Tracker::endArrayDimension(int dim)
 void Tracker::event_FunctionCall()
 {
     //A function should now be on the top of the stack. Validate that rule.
-    if(!functionInContext())
+    if (!functionInContext())
         ERR(peek().str + " is not the name of a function");
  }
 
@@ -254,9 +261,10 @@ void Tracker::event_FunctionCall()
             var->push();   
         } else
             ERR(string("unknown field named ") + ident + " of " + rec->dump());
-    } else 
+    } else {
         ERR(string("cannot access fields of non-record type ") 
             + peek().type->dump());
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -275,9 +283,10 @@ void Tracker::event_RelationalOp()
     Frame left = pop();
             
     //Validate that the comparison was valid
-    if(! left.type->relationCompatible(right.type) )
+    if (!left.type->relationCompatible(right.type)) {
         ERR(string("invalid relational operation ") + left.type->dump() 
             + " cannot be comparable to " + right.type->dump());
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -289,8 +298,8 @@ void Tracker::event_MathOp(int opToken)
     Frame right = pop();
     Frame left = pop();
     
-    BaseType * r = dynamic_cast<BaseType *>(right.type);
-    BaseType * l = dynamic_cast<BaseType *>(left.type);
+    BaseType *r = dynamic_cast<BaseType *>(right.type);
+    BaseType *l = dynamic_cast<BaseType *>(left.type);
     
     //yand is a MultOperator, but I think it should be a boolean operator.
     //Pacal defines four boolean operators: and, or, not, xor.
@@ -298,13 +307,13 @@ void Tracker::event_MathOp(int opToken)
         //TODO: This will be a lot easiser when the scanner is using
         //yboolean tokens. Until then, make all yand operations valid.
         return;    
-    }
-    else {
-        BaseType * result = BaseType::getMathType(l, r, opToken);
-        if (!result) 
+    } else {
+        BaseType *result = BaseType::getMathType(l, r, opToken);
+        if (!result) {
             ERR(string("invalid math operation - ")
                 + l->dump() 
                 + " is not compatible with "
                 + r->dump());
+        }
     }
 }

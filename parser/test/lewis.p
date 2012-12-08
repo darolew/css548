@@ -20,7 +20,9 @@ var
     va: A;
     vb: B;
     vc: C;
-    vd: D;    
+    vd: D;
+    varray : ARRAY1;
 begin
     va := 2;
+    varray[1] := 0;
 end.
