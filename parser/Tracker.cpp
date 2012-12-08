@@ -178,11 +178,7 @@ void Tracker::endParameter(int index)
     AbstractType *actualParamType = f.type;
     
     //The function itself should now be on the top of the stack.
-<<<<<<< HEAD
     if (!functionInContext())
-=======
-    if(!functionInContext())
->>>>>>> b7947c63ad305a612c85630e78af2be7b2b1a97f
         ERR("expected function to  be in context");
 
     Function *func = dynamic_cast<Function *>(peek().type);
@@ -195,12 +191,7 @@ void Tracker::endParameter(int index)
         //The parameter types match. 
         //Pop the actual param type off the stack
         pop();
-<<<<<<< HEAD
     } else {
-=======
-    }
-    else {
->>>>>>> b7947c63ad305a612c85630e78af2be7b2b1a97f
         ERR(string("expected formal param of type ") 
             + formalParamType->className() 
             + " but actual param is of type " 
@@ -210,18 +201,11 @@ void Tracker::endParameter(int index)
         //pop the function off the stack
         if (index == func->numParams()-1)
             pop();
-
-<<<<<<< HEAD
+        
         //If the function had a return type (i.e. it was not a procedure), 
         //push the return type onto the stack.
         if (func->isFunction())
-            push("function return ", func->returnType->getType());
-=======
-    //If the function had a return type (i.e. it was not a procedure), 
-    //push the return type onto the stack.
-    if (func->isFunction())
-        push("function return ", func->returnType->getType());
->>>>>>> b7947c63ad305a612c85630e78af2be7b2b1a97f
+            push("function return ", func->returnType->getType());\
    }
 }
 
