@@ -84,6 +84,23 @@ Yacc's panic mode.
 
 -Nested function definitions are not implemented.
 
+-Nested array acesses such as:  a[i, b[ii, jj, kk], j] is not supported.
+         a[i, b[ii, jj, kk], j]
+
+Other type of nested expressions are not supported:
+ 1. nested function calls
+ 2. any array access inside a function call
+ 3. any function call inside an array access.
+
+The original implementation of tracker includes a stack that stored
+the number of dimension of each array it encountered. The parser signalled
+the tracker every time a dimension was the array was accessed. These numbers
+would be tracked together in one stack frame. When the
+number of acesses == the number of dimension on the the stack, 
+the couting stack is popped, the array type is popped off the type stack, 
+and type of the array was pushed We would have to do the same thing for the 
+number of parameters in a function.
+
 -Pascal's divide operation returns a real when dividing two integer. C's
 divide operation returns an integer under the same circcumstances. Our 
 compiler should have one of the integer operands to float or double so the

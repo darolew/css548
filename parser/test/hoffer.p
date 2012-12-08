@@ -1,7 +1,7 @@
 program linkedlist(input,output);
 
 type
-  integerArray = array [1..6] of integer;
+  integerArray = array [1..6, 4..7] of integer;
 
   cellPtr = ^cell;
   cell = record
@@ -16,6 +16,6 @@ var
   
 begin
   new(newrec);
-  x := newrec^.info[i];
+  x := newrec^.info[i, 2+1];
   
 end.

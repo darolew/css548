@@ -27,24 +27,8 @@
 void yyerror(char const *);
 int yylex(); /* needed by g++ */
 
-//
-//TODO: This does not work for nested array accesses. For example:
-//          a[i, b[ii, jj, kk], j]
-//
-// This also does not work for
-//  1. nested function calls
-//  2. any array access inside a function call
-//  3. any function call inside an array access.
-//
-// The original implementation of tracker includes a stack that stored
-// the number of dimension of each array it encountered. The parser signalled
-// the tracker every time a dimension was the array was accessed. These numbers
-// would be tracked together in one stack frame. When the
-// number of acesses == the number of dimension on the the stack, 
-// the couting stack is popped, the array type is popped off the type stack, 
-// and type of the array was pushed
-//
-// We would have to do the same thing for the number of parameters in a function.
+//TODO: This does not work for nested array accesses. 
+//See readme file for design and the outline of solution.
 int exprCount;
 
 %}
@@ -397,16 +381,15 @@ Statement           : Assignment
                     ;
 Assignment          : Designator yassign 
                     {
-                        
                         cout << " = "; 
                     }
-                    Expression
+                      Expression {tracker.event_Assignment();}
                     ;
 ProcedureCall       : yident
                     {
                         Symbol *sym = symTable.lookup($1);
                         if (!sym || !sym->isFunction())
-                            cout << "***ERROR: " << $1 << " is not a function (A)" << endl;
+                            cout << "***ERROR: " << $1 << " is not a function" << endl;
                         else if (sym->isIoFunction()) {
                             IoFunction *iofunc = (IoFunction*)sym;
                             iofunc->generateInit();
@@ -422,7 +405,7 @@ ProcedureCall       : yident
                     {
                         Symbol *sym = symTable.lookup($1);
                         if (!sym || !sym->isFunction())
-                            cout << "***ERROR: " << $1 << " is not a function (B)" << endl;
+                            cout << "***ERROR: " << $1 << " is not a function" << endl;
                         else if (sym->isIoFunction()) {
                             currIoFunc = (IoFunction*)sym;
                             currIoFunc->generateInit();
@@ -642,7 +625,7 @@ ActualParameters    : yleftparen
                         if (!currIoFunc)
                             cout << "(";
                     }
-                      ExpList yrightparen
+                     ExpList yrightparen
                     {
                         if (!currIoFunc)
                             cout << ")";
@@ -651,21 +634,27 @@ ActualParameters    : yleftparen
 ExpList             : ExpAction
                     | ExpList ycomma
                     {    
-                        if (currIoFunc)
-                            currIoFunc->generateSep();
-                        else
-                            cout << ", "; //comma separated list
+                        //Do not print comma
+                        if (tracker.arrayOnTopOfStack())
+                            cout << "[";
+                        else {
+                            if (currIoFunc)
+                                currIoFunc->generateSep();
+                            else
+                                cout << ", "; //comma separated list
+                        }
                     }
-                      ExpAction
+                     ExpAction
                     ;
 ExpAction           : /*** empty ***/
                     | Expression 
                     {
-                        //This non-terminal exists to catch anytime an 
-                        //expression is parser. It prevents duplicate 
-                        //code in the two production of ExpList 
-                         if (tracker.arrayInContext()) {
-                            //Print offset 
+                        //Non-terminal ExpAction is trigged when an expression
+                        //is parsed. It triggers semantic actions and 
+                        //elminates duplicate code that would otherwise be
+                        //in both ExpList productions
+                         if (tracker.arraySecondFromTop()) {
+                            //Print bounds offset 
                             cout << tracker.arrayIndexOffset(exprCount);
                             tracker.endArrayDimension(exprCount);
 
@@ -676,7 +665,7 @@ ExpAction           : /*** empty ***/
                             cout << "]";
                         }
                         
-                        if (tracker.functionInContext()) {
+                        if (tracker.functionCallInProgress()) {
                             //Inform the tracker that an expression has been parsed
                             tracker.endParameter(exprCount);
 
@@ -703,10 +692,27 @@ SimpleExpression    : TermExpr
                       TermExpr
                     ;
 TermExpr            : Term
-                    | TermExpr AddOperator Term 
+                    | TermExpr AddOperator 
                     {
-                        tracker.event_MathOp($2)
+                        switch ($2) {
+                            case yplus:
+                                cout << " + ";
+                                break;
+                            case yminus:
+                                cout << " - ";
+                                break;                            
+                            case yor:
+                                cout << " || ";
+                                break;                        
+                            default:
+                                cout 
+                                    << "***ERROR: internal error, unhandled AddOperator "
+                                    << $2
+                                    << endl;
+                                break;
+                        }
                     }
+                     Term { tracker.event_MathOp($2); }
                     ;
 Term                : Factor
                     | Term MultOperator
@@ -951,23 +957,14 @@ UnaryOperator       : yplus     { $$ = '+'; }
                     | yminus    { $$ = '-'; }
                     ;
 MultOperator        : ymultiply    { $$ = ymultiply; }
-                    | ydivide     { $$ = ydivide; }
+                    | ydivide      { $$ = ydivide; }
                     | ydiv         { $$ = ydiv; }
                     | ymod         { $$ = ymod; }
-                    | yand        { $$ = yand; }
+                    | yand         { $$ = yand; }
                     ;
-AddOperator         : yplus 
-                    {
-                        cout << " + ";
-                    }    
-                    | yminus
-                    {
-                        cout << " - ";
-                    }
-                    | yor
-                    {
-                        cout << " || ";
-                    }
+AddOperator         : yplus     { $$ = yplus; }
+                    | yminus    { $$ = yminus; } 
+                    | yor       { $$ = yor; }
                     ;
 Relation            : yequal        { cout << " == "; }
                     | ynotequal     { cout << " != "; }

@@ -28,25 +28,34 @@ class Tracker {
 
 private:
    list<Frame> typeStack;
-   Frame pop();   
    Frame peek();
+   Frame peek2();
+   Frame pop();   
    void push(Frame);
 
 public:
+    //Grow type stack
     void push(string, AbstractType*);
     void push(string);
-    void event_AccessRecordField(string);
-    void event_Deref();
-    void binaryOp(int);
-    bool arrayInContext();
-    bool functionInContext();
-    void endParameter(int);
-    void endArrayDimension(int);
+
+    //Getters
+    bool arrayOnTopOfStack();
+    bool arraySecondFromTop();
     string arrayIndexOffset(int);
-    void debugPrint(string = "");    
+    bool functionCallInProgress();
+
+    //Respond to parser events
+    void event_AccessRecordField(string);
+    void event_Assignment();
+    void event_Deref();
+    bool endArrayDimension(int);
     void event_FunctionCall();
-    void event_RelationalOp();
+    void endParameter(int);
     void event_MathOp(int);
+    void event_RelationalOp();
+    
+    //Other
+    void debugPrint(string = "");    
 };
 
 #endif

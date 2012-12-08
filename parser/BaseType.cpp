@@ -71,6 +71,7 @@ BaseType *BaseType::getMathType(BaseType *left, BaseType *right, int op)
 {
     int l = left->token - offset;
     int r = right->token - offset;
+     
     int result = mathTable[l][r][op-offset];
     
     //Invalid operation
