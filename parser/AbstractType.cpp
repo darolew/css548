@@ -122,8 +122,16 @@ void AbstractType::push()
 //class meet the critierion for compatibility, expect for BaseType. 
 //This class is overriden by BaseType because there are 
 //several kinds of BaseTypes.
+//TODO: Should this be renamed "assignmentCompatible"
 bool AbstractType::compatible(AbstractType *otherType)
 {
     //Lovely hack
     return className() == otherType->className();
+}
+
+// <, >, <=, etcetera
+bool AbstractType::relationCompatible(AbstractType *otherType) 
+{
+    //In general, arbitrary types are not comparable
+    return false;
 }

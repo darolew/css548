@@ -46,6 +46,10 @@ extern RecordType* currRecord;      //
 extern IoFunction *currIoFunc;     // current record type
 extern AbstractType *currType;     // current type being constructed
 
+//Type operations
+extern int mathTable[64][64][64];
+extern const int offset;
+
 //Method prototypes. For details about each method, see comments in actions.cpp
 void assignTypesToPointers();
 PointerType *addPointerToList(string, string);
@@ -57,5 +61,6 @@ void addField();
 void addFormalParam(string, bool);
 bool isDuplicateField(string);
 void beginScope(const char *);
+void initMathTable();
 
 #endif

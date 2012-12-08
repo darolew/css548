@@ -154,3 +154,19 @@ Parameter *Function::getParam(int index)
 
     return params[index];
 }
+
+void Function::event_Designator(string designator)
+{
+    if (isProcedure()) {
+        ERR("procedures cannot be assigned a return value");
+        return;
+    }
+    //At this point, we know it is a function and not a procedure
+    if (identifier == designator) {
+        //Print an underscore after the variable name to avoid name clash with function
+        cout << "_";
+    } else {
+        ERR(string("Cannot assign return value to a different function. Should be ") + identifier);
+    }
+
+}

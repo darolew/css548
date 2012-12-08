@@ -127,3 +127,11 @@ string Symbol::dump()
 {
     return className() + ":" + (identifier.empty() ? "NO_NAME" : identifier);
 }
+
+
+//Only functions and procedures need to do something special
+//when a designator is parsed.
+void Symbol::event_Designator(string designator) 
+{
+    //Do nothing
+}

@@ -54,6 +54,7 @@ public:
     virtual bool isRecord();
     virtual string className();
     virtual string dump();
+    virtual void event_Designator(string);
 };
 
 #endif

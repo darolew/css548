@@ -28,6 +28,7 @@ public:
     virtual void push();
     int numParams();
     Parameter *getParam(int);
+    virtual void event_Designator(string);
     
     //TODO: Make this private
     AbstractType *returnType; // return type; left NULL for procedures

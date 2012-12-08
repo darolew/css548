@@ -28,8 +28,6 @@ private:
 
     //For debugging purposes, each scope in the above list has a name.
     list<string> scopeNames;
-
-
     
 public:
     //See the .cpp file for descriptions of these methods.
