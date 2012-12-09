@@ -1,6 +1,7 @@
 #include <typeinfo>
 #include "Tracker.h"
 #include "Parameter.h"
+#include "InvalidType.h"
 #include "actions.h"
 #include "y.tab.h"
 
@@ -221,8 +222,12 @@ void Tracker::endParameter(int index)
 {
     //The top of the stack should be the actual parameter of a function call.
     //Verify that the actual parameter type matches the formal parameter type.
-    Frame f = pop();
-    AbstractType *actualParamType = f.type;
+    Frame actualParam = pop();
+
+	if (currIoFunc)
+		return;    
+
+    AbstractType *actualParamType = actualParam.type;
 
     //Function should be on the top of the stack.
     Function *func = dynamic_cast<Function*>(peek().type);
@@ -231,26 +236,23 @@ void Tracker::endParameter(int index)
     //so we don't try and access a parameter does not exist
     Parameter *formalParam = func->getParam(index);
     AbstractType *formalParamType = formalParam->type->getType();
-    if (formalParamType->compatible(actualParamType)) {
-        //The parameter types match. 
-        //Pop the actual param type off the stack
-        pop();
-    } else {
+    if (!formalParamType->relationCompatible(actualParamType, yequal)) {   
         ERR(string("expected formal param of type ") 
             + formalParamType->className() 
             + " but actual param is of type " 
             + actualParamType->className());
+	}
 
-        //If this is the last parameter in the function call, 
-        //pop the function off the stack
-        if (index == func->numParams()-1)
-            pop();
+    //If this is the last parameter in the function call, 
+    //pop the function off the stack
+    if (index == func->numParams()-1) {
+        pop();
         
-        //If the function had a return type (i.e. it was not a procedure), 
-        //push the return type onto the stack.
-        if (func->isFunction())
-            push("function return ", func->returnType->getType());
-   }
+	    //If the function had a return type (i.e. it was not a procedure), 
+    	//push the return type onto the stack.
+	    if (func->isFunction() && !func->isProcedure())
+	        push("function return ", func->returnType->getType());
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -343,8 +345,11 @@ void Tracker::debugPrint(string msg) {
 Frame Tracker::peek()
 {
     if (typeStack.empty()) {
-        ERR("invalid stack access");
-        exit(-1);
+        Frame invalid;
+        invalid.str = "INVALID";
+        invalid.type = new InvalidType();
+        push(invalid);
+        return invalid;
     }
     
     return typeStack.front();

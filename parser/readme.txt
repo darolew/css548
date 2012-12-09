@@ -48,40 +48,45 @@ works fine.
 Incorrectly translating "hard" programs:
 
     nestedprocs.p   - nested procedures not implemented
-    sttest.p        - nested procedures not implemented (segfaults)
+    sttest.p        - nested procedures not implemented
     sttest2.p       - nested procedures not implemented
-    sttest3.p       - nested procedures not implemented (segfaults)
+    sttest3.p       - nested procedures not implemented
 
 
 Section 4:
 
-    List any of the Pascal programs with "errors" that you do not display an
-    appropriate error message. I.e., say which errors you do not detect.
+Error programs that are not entirely correct:
+    
+    sterror.p       - correct except for nested procedures
+    funcerror.p     - finds errors, then terminates with syntax error
 
-    simpleerror.p   - produces expected errors
-    sterror.p       - nested procedures not implemented (segfaults)
+sterror.p produces all the correct symbol table errors, but it has other errors
+also since we do not support nested procedures.
+
+All of these error programs produce the expected errors:
+
+    arrayerror.p    - produces expected errors
     sterror2.p      - produces expected errors
     harderror.p     - produces expected errors
-    funcerror.p     - Correctly catches first "illegal function on left" 
-                        error then produces syntax error
-    arrayerror.p    - produces expected errors
-    errors.p        - catches the first few errors, then terminates
-    paramtypeerror.p- catches return error, first param error (segfaults)
+    simpleerror.p   - produces expected errors
+    paramtypeerror.p - produces expected errors
+    errors.p        - produces expected errors
+    
 
-
-    Section 5:
+Section 5:
 
     -Sets
     -Array subscripts
     -Pointers
     -Return values from functions
 
+
 Section 6:
 
--One pass print-as-you-go translator.
+-This is a one pass, print-as-you-go translator.
 
--Type checking is implemented using a stack of types which are compared
-and popped as required.
+-Type checking is implemented using a stack of types which are pushed, 
+compared, and popped as required.
 
 -Pointers and arrays were especially difficult. Pascal pointers are dereferenced
 after the identifier (ident^). C++ pointers are dereferenced before 

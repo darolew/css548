@@ -9,6 +9,7 @@
 #include "SymTable.h"
 #include "main.h"
 #include "actions.h"
+#include "y.tab.h"
 using namespace std;
 
 //The constructor used for a function before its name, return type, or
@@ -103,10 +104,6 @@ bool Function::isProcedure()
 
 void Function::endFunction() 
 {
-    //Bad pointers. This object gets destroyed in the case of nested
-    //procuedures. Because we track the current function in a single
-    //pointer (global currFunction) and not on a stack.
-
     if (returnType)
         cout << "return " << identifier << "_;" << nlindent();
 
@@ -151,8 +148,14 @@ void Function::event_Designator(string designator)
 
 bool Function::relationCompatible(AbstractType *otherType, int opToken)
 {
+	//Cannot compare or assign procedures.
     if (!returnType)
         return false;
+    
+    //Cannot assign functions, unless we are setting the return type of the
+    //current function.
+    if (opToken == yassign && this != currFunction)
+    	return false;
     
     return returnType->relationCompatible(otherType, opToken);
 }

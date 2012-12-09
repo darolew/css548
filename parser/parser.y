@@ -429,8 +429,14 @@ ProcedureCall       : yident
                     }
                       ActualParameters
                     {
-                        if (currIoFunc)
+                        if (currIoFunc) {
                             currIoFunc->generateEnd();
+                            
+                            //Since I/O functions have an indefinite number of
+                            //parameters, they must be manually removed from
+                            //the type stack.
+                            tracker.pop();
+                        }
                             
                         currIoFunc = NULL;
                     }
@@ -704,7 +710,7 @@ ExpAction           : /*** empty ***/
 
                         }
 
-                        if (tracker.functionCallInProgress() && !currIoFunc) {
+                        if (tracker.functionCallInProgress()) {
                             //Inform the tracker that an expression has been parsed
                             tracker.endParameter(exprCount.front());
 
@@ -970,8 +976,13 @@ ProcedureDecl       : CreateFunc ProcedureHeading ysemicolon
                     }
                       Block
                     {
-                        currFunction->endFunction();
+                    	if (currFunction)
+	                        currFunction->endFunction();
+	                    else
+	                    	cout << "***ERROR: Nested procedures not supported\n";
+
                         symTable.endScope();
+                        currFunction = NULL;
                     }
                     ;
 FunctionDecl        : CreateFunc FunctionHeading ycolon yident ysemicolon
@@ -982,8 +993,13 @@ FunctionDecl        : CreateFunc FunctionHeading ycolon yident ysemicolon
                     }
                       Block
                     {
-                        currFunction->endFunction();
+                    	if (currFunction)
+	                        currFunction->endFunction();
+	                    else
+	                    	cout << "***ERROR: Nested functions not supported\n";
+	                    	
                         symTable.endScope();
+                        currFunction = NULL;
                     }
                     ;
 CreateFunc          : /*** empty ***/

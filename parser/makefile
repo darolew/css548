@@ -3,12 +3,13 @@
 # Generate parser using Yacc and compile it with g++.
 
 OBJ = y.tab.o lex.yy.o main.o AbstractType.o actions.o ArrayType.o \
-    BaseType.o Const.o Function.o Parameter.o PointerType.o RecordType.o \
-    SetType.o Symbol.o Tracker.o SymTable.o Variable.o
+    BaseType.o Const.o Function.o InvalidType.o Parameter.o PointerType.o \
+    RecordType.o SetType.o Symbol.o Tracker.o SymTable.o Variable.o
 EXTRA = IntSet.o
 H = y.tab.h actions.h  AbstractType.h ArrayType.h BaseType.h Const.h \
-    Function.h IoFunction.h MemFunction.h Parameter.h PointerType.h Range.h \
-    RecordType.h SetType.h Symbol.h SymTable.h Tracker.h Variable.h
+    Function.h IoFunction.h InvalidType.h MemFunction.h Parameter.h \
+    PointerType.h Range.h RecordType.h SetType.h Symbol.h SymTable.h \
+    Tracker.h Variable.h
 CC = g++
 
 all: all_quiet
@@ -42,6 +43,9 @@ Function.o: $H Function.cpp
 #      should make sure it builds.
 IntSet.o: IntSet.h IntSet.cpp
 	@$(CC) -g -c IntSet.cpp
+
+InvalidType.o: $H InvalidType.cpp
+	@$(CC) -g -c InvalidType.cpp
 
 lex.yy.o: $H lex.yy.c
 	@$(CC) -g -c lex.yy.c

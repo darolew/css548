@@ -45,7 +45,7 @@ bool BaseType::isStringType()
 }
 
 bool BaseType::relationCompatible(AbstractType *otherType, int opToken) 
-{     
+{
     //Pointers and null can be compared
     if (token == ynil)
         return otherType->isPointer();
@@ -75,7 +75,7 @@ bool BaseType::relationCompatible(AbstractType *otherType, int opToken)
     //   integers and reals can be compared
     bool number1 = token == yinteger || token == yreal;
     bool number2 = type->token == yinteger || type->token == yreal;
-    return number1 == number2;
+    return number1 && number2;
 }
 
 BaseType *BaseType::getMathType(BaseType *left, BaseType *right, int op)
