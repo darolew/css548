@@ -223,9 +223,9 @@ void Tracker::endParameter(int index)
     //The top of the stack should be the actual parameter of a function call.
     //Verify that the actual parameter type matches the formal parameter type.
     Frame actualParam = pop();
-
-	if (currIoFunc)
-		return;    
+    
+    if (currIoFunc)
+        return;
 
     AbstractType *actualParamType = actualParam.type;
 

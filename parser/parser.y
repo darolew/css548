@@ -699,7 +699,7 @@ ExpAction           : /*** empty ***/
                             //Print bounds offset 
                             int dimension = exprCount.front();
                             bool last;
-                            tracker.arrayIndexOffset(dimension);                          
+                            tracker.arrayIndexOffset(dimension);
                             exprCount.front() += tracker.endArrayDimension(dimension, &last);
                             
                             //Close array access
@@ -707,15 +707,17 @@ ExpAction           : /*** empty ***/
 
                             if(last)
                                 exprCount.pop_front();
-
                         }
 
-                        if (tracker.functionCallInProgress()) {
+                        if (!tracker.arrayOnTopOfStack() && tracker.functionCallInProgress()) {
                             //Inform the tracker that an expression has been parsed
                             tracker.endParameter(exprCount.front());
 
-                            //Increment the expression count
-                            exprCount.front() += 1;
+                            //Increment the expression count. Do not do this
+                            //for I/O functions, whose parameters are not
+                            //pushed onto the type stack.
+                            if (!currIoFunc)
+                                exprCount.front() += 1;
                         }
                     }
                     ;                    
