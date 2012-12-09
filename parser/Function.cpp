@@ -146,7 +146,7 @@ void Function::event_Designator(string designator)
     }
 }
 
-bool Function::relationCompatible(AbstractType *otherType, int opToken)
+bool Function::compatible(AbstractType *otherType, int opToken)
 {
 	//Cannot compare or assign procedures.
     if (!returnType)
@@ -157,5 +157,5 @@ bool Function::relationCompatible(AbstractType *otherType, int opToken)
     if (opToken == yassign && this != currFunction)
     	return false;
     
-    return returnType->relationCompatible(otherType, opToken);
+    return returnType->compatible(otherType, opToken);
 }

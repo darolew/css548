@@ -146,7 +146,7 @@ void Tracker::event_Assignment()
     Frame left = pop();
    
     //TODO: Reusing relationCompatible() checks for assignment.
-    if (!left.type->relationCompatible(right.type, yassign)) {
+    if (!left.type->compatible(right.type, yassign)) {
         ERR(string("incompatible assignment of ") + right.type->dump() 
             + " to " + left.type->dump());
     }
@@ -236,7 +236,7 @@ void Tracker::endParameter(int index)
     //so we don't try and access a parameter does not exist
     Parameter *formalParam = func->getParam(index);
     AbstractType *formalParamType = formalParam->type->getType();
-    if (!formalParamType->relationCompatible(actualParamType, yequal)) {   
+    if (!formalParamType->compatible(actualParamType, yequal)) {   
         ERR(string("expected formal param of type ") 
             + formalParamType->className() 
             + " but actual param is of type " 
@@ -316,7 +316,7 @@ void Tracker::event_RelationalOp(int opToken)
     Frame left = peek();
             
     //Validate that the comparison was valid
-    if (!left.type->relationCompatible(right.type, opToken)) {
+    if (!left.type->compatible(right.type, opToken)) {
         ERR(string("invalid relational operation ") + left.type->dump() 
             + " cannot be comparable to " + right.type->dump());
     }

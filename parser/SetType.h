@@ -20,7 +20,7 @@ public:
     void generateCode(string);
     bool legalValue(int);
     bool legalMathOp(int);
-    virtual bool relationCompatible(AbstractType*, int);
+    virtual bool compatible(AbstractType*, int);
     virtual bool isSet();
 };
 

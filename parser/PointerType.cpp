@@ -120,7 +120,7 @@ string PointerType::cPointeeName()
     }
 }
 
-bool PointerType::relationCompatible(AbstractType *otherType, int opToken) 
+bool PointerType::compatible(AbstractType *otherType, int opToken) 
 {
     //pointer to pointer comparison
     bool pointerToPointer = otherType->isPointer();
@@ -128,6 +128,6 @@ bool PointerType::relationCompatible(AbstractType *otherType, int opToken)
         return true;
 
     //pointer and null comparison
-    bool pointerToNull = otherType->relationCompatible(this, opToken);
+    bool pointerToNull = otherType->compatible(this, opToken);
     return pointerToNull;
 }

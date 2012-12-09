@@ -25,13 +25,6 @@ void BaseType::generateCode(string ident)
     cout << cName << " " << ident;
 }
 
-//Return true is the other type is a base type and it represents the same
-//kind of thing -- integer, real, boolean, char.
-bool BaseType::compatible(BaseType *otherType)
-{
-    return AbstractType::compatible(otherType) && token == otherType->token;
-}
-
 bool BaseType::isLegalArrayIndexType()
 {
     //Only integers and characters can be used as array indexes
@@ -44,7 +37,7 @@ bool BaseType::isStringType()
     return token == ystring;
 }
 
-bool BaseType::relationCompatible(AbstractType *otherType, int opToken) 
+bool BaseType::compatible(AbstractType *otherType, int opToken) 
 {
     //Pointers and null can be compared
     if (token == ynil)

@@ -10,7 +10,7 @@ InvalidType::InvalidType()
 }
 
 //Invalid types are incomparable with all types, including themselves.
-bool InvalidType::relationCompatible(AbstractType *type, int opToken)
+bool InvalidType::compatible(AbstractType *type, int opToken)
 {
 	return false;
 }

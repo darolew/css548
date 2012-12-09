@@ -13,7 +13,7 @@ class InvalidType : public AbstractType {
 
 public:
     InvalidType();
-    virtual bool relationCompatible(AbstractType*, int);
+    virtual bool compatible(AbstractType*, int);
 };
 
 #endif

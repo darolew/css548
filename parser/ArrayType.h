@@ -31,7 +31,7 @@ public:
     virtual bool isArrayType();
     void offsetForDim(int);
     int numDimensions();
-    virtual bool relationCompatible(AbstractType *, int);
+    virtual bool compatible(AbstractType*, int);
 };
 
 #endif

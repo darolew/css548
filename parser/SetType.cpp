@@ -34,7 +34,7 @@ bool SetType::legalMathOp(int opToken)
 
 //Sets can be compared with or assigned to other sets. The "in" operator is
 //legal with integers.
-bool SetType::relationCompatible(AbstractType *otherType, int opToken)
+bool SetType::compatible(AbstractType *otherType, int opToken)
 {
     if (opToken == ylessequal || opToken == yassign)
         return otherType->isSet();

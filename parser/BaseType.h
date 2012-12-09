@@ -23,10 +23,9 @@ public:
     static BaseType *getMathType(BaseType *, BaseType *, int op);
     virtual string cTypeName();
     virtual void generateCode(string);
-    virtual bool compatible(BaseType*);
     bool isLegalArrayIndexType();
     bool isStringType();
-    virtual bool relationCompatible(AbstractType*, int);
+    virtual bool compatible(AbstractType*, int);
     
 private:
 	bool isBooleanType();

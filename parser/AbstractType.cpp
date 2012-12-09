@@ -118,19 +118,8 @@ void AbstractType::push()
     tracker.push(identifier, this);
 }
 
-//Check to see if two types represents the same thing. Two types of the same
-//class meet the criterion for compatibility, except for BaseType. This class
-//is overriden by BaseType because there are several kinds of BaseTypes.
-//class meet the critierion for compatibility, expect for BaseType. 
-//TODO: Should this be renamed "assignmentCompatible"
-bool AbstractType::compatible(AbstractType *otherType)
-{
-    //Lovely hack
-    return className() == otherType->className();
-}
-
 // <, >, <=, etcetera
-bool AbstractType::relationCompatible(AbstractType *otherType, int opToken) 
+bool AbstractType::compatible(AbstractType *otherType, int opToken) 
 {
     //In general, arbitrary types are not comparable
     return false;
