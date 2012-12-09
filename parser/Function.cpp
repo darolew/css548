@@ -103,6 +103,10 @@ bool Function::isProcedure()
 
 void Function::endFunction() 
 {
+    //Bad pointers. This object gets destroyed in the case of nested
+    //procuedures. Because we track the current function in a single
+    //pointer (global currFunction) and not on a stack.
+
     if (returnType)
         cout << "return " << identifier << "_;" << nlindent();
 
@@ -111,36 +115,6 @@ void Function::endFunction()
 
 void Function::push() 
 {
-    //Idea was not to push the function onto the tracker because it is not 
-    //a type. Instead, the idea was to push the return type (if it is a 
-    //function and not a procedure) and then push the parameters on to 
-    //the tracker (in reverse order).
-    //For example, the function
-    //
-    //    function average(newrec: cellPtr, offset real): integer;   
-    // 
-    //would push itself onto the tracker like this:
-    //
-    // | CELLPTR | (formal parameter)
-    // | REAL |  | (formal parameter)
-    // | INTEGER | (the return type)
-    //
-    //After the parser finishes parsing ActualParameters, it checks to 
-    //see that the actual parameters match the formal parameters:
-    //
-    // | CELLPTR | (actual parameter)
-    // | REAL |  | (actual parameter)
-    // | CELLPTR | (formal parameter)
-    // | REAL |  | (formal parameter)
-    // | INTEGER | (the return type)
-    //    
-    //The actual and formal parameter types match. No error is printed.
-    //The tracker pops the actual and formal parameters off the stack,
-    //leaving only the return type on the stack:
-    //
-    // | INTEGER | (the return type)
-    //    
-
     AbstractType::push();
 }
 

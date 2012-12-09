@@ -15,8 +15,19 @@ Parameter::Parameter(string id, AbstractType *type, bool varflag)
 
 void Parameter::generateDefinition(string ident)
 {
-    type->generateCode("");
-    if(isReference)
-        cout << "&";
-    cout << identifier;
+
+    //If a variable is declared with
+    //an unknown identifier, as in sterror.p
+    //    aaa: undefinedType; 
+    //currType will be NULL and cannot be resolved
+    if (!type)
+        cout << "<UNDEFINED TYPE>" << identifier;
+    else {
+        type->generateCode("");
+        if(isReference)
+            cout << "&";
+        cout << identifier;
+    }
+    
+
 }

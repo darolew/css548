@@ -25,7 +25,15 @@ Variable::~Variable()
 
 void Variable::generateCode(string ident)
 {   
-    type->generateCode(ident);
+    //If a variable is declared with
+    //an unknown identifier, as in sterror.p
+    //    aaa: undefinedType; 
+    //
+    //type will be NULL
+    if (!type) 
+        cout << ident;
+    else
+        type->generateCode(ident);
 }
 
 //TODO: Most places the parameter "ident" is not used. It makes the code a

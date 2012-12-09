@@ -219,7 +219,12 @@ VariableDecl        : IdentList ycolon Type
                     {
                         //Variables must point to a known type. They can be 
                         //resolved immediately.
-                        currType->resolve();
+                        //If a variable is declared with                                                                          
+                        //an unknown identifier, as in sterror.p                                                                                        
+                        //    aaa: undefinedType;                                                                                                       
+                        //currType will be NULL and cannot be resolved                                                                                  
+                        if (currType)                                                                                                                   
+                            currType->resolve();    
                     
                         //Walk the list of variable names being declared. For
                         //example, the declaration "a,b,c : interger;" includes

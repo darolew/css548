@@ -84,12 +84,29 @@ void insertArrayType()
     rangeList.erase(rangeList.begin(), rangeList.end());
 }
 
+void validateTerminal(const Terminal *term)
+{
+    //Array bounds must be single characters
+    if (term->token == ystring && term->str.size() > 1)
+        cout << endl << "***ERROR invalid character array bounds '" 
+            << term->str << "'" << endl;
+}    
+
+void validateRange(Range r) 
+{
+    if(r.low >= r.high)
+        cout << endl << "***ERROR: array bounds must ascending." << endl;
+}
+
 //Create a range object, set its members, and push it on a list.
 void addRange(const Terminal *low, const Terminal *high)
 {
+    validateTerminal(low);
+    validateTerminal(high);
     Range range;
     range.low = terminalToInteger(low);
     range.high = terminalToInteger(high); 
+    validateRange(range);
     rangeList.push_back(range);
 }
 
