@@ -68,3 +68,14 @@ int ArrayType::numDimensions()
 {
     return ranges.size();
 }
+
+bool ArrayType::relationCompatible(AbstractType *otherType, int opToken) 
+{
+    //TODO: Check dimensions and ranges.
+    //NOTE: Arrays are (probably) not assignment compatible in Pascal.
+    //This method will return true, so it should not be used to assignment
+    //compatiblity.
+    
+    return className() == className();
+    //&&  getType()->relationCompatible(otherType->getType(), opToken);
+}
