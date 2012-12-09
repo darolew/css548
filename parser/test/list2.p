@@ -22,7 +22,7 @@ type
 
 var
   list, newrec: cellPtr;
-  count, classNum: integer;
+  count2, classNum: integer;
 
 (* ************************************************************************* *)
 (* procedure insert                                                          *)
@@ -159,7 +159,7 @@ end;
 begin
   read(classNum);
   list := nil;
-  for count := 1 to size do 
+  for count2 := 1 to size do 
   begin
     makeNewrec(newrec);
     insert(list, newrec);

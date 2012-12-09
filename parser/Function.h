@@ -23,6 +23,7 @@ private:
 
 public:
     Function();
+    Function(string id);
     virtual void generateDefinition(string);
     virtual bool insert();
     void addParam(Parameter*);
@@ -34,6 +35,7 @@ public:
     int numParams();
     Parameter *getParam(int);
     virtual void event_Designator(string);
+    virtual bool relationCompatible(AbstractType*);
     
     //TODO: Make this private
     AbstractType *returnType; // return type; left NULL for procedures

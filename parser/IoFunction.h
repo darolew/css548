@@ -7,22 +7,17 @@
 #ifndef IOFUNCTION_H
 #define IOFUNCTION_H
 
-#include "Symbol.h"
+#include "Function.h"
 using namespace std;
 
 //TODO: Add methods for code generation
-class IoFunction : public Symbol {
+class IoFunction : public Function {
 
 public:
-    IoFunction(string id) : Symbol(id)
+    IoFunction(string id) : Function(id)
     {
     }
-    
-    virtual bool isFunction()
-    {
-        return true;
-    }
-    
+       
     virtual bool isIoFunction()
     {
         return true;

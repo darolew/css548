@@ -53,7 +53,7 @@ void PointerType::generateCode(string varName)
     //a variable. This is used in declaring variables that point to other
     //types. For example:
     //
-    // int *temp2                                                                                                                                                             
+    // int *temp2
     // bool *testarray[3][6]
     //
     if (type) 
@@ -113,7 +113,7 @@ string PointerType::cPointeeName()
         //object. This is only encountered when there is a pointer to a typedef
         //alias. For example:
         //
-        //  typedef double footype;                                                                                                                                                                                  
+        //  typedef double footype;
         //  footype *temp3;     
         //
         return pointeeName;
@@ -123,10 +123,11 @@ string PointerType::cPointeeName()
 bool PointerType::relationCompatible(AbstractType *otherType) 
 {
     //pointer to pointer comparison
-    bool pointerToPointer = compatible(otherType);
+    bool pointerToPointer = otherType->isPointer();
+    if (pointerToPointer)
+        return true;
 
     //pointer and null comparison
     bool pointerToNull = otherType->relationCompatible(this);
-   
-    return pointerToPointer || pointerToNull;
+    return pointerToNull;
 }

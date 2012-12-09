@@ -1,4 +1,7 @@
 todo:
+    - extra indent for terminating brace
+
+DATED:
     - test pointers to array
     - fix array index for:
         -records with an array field

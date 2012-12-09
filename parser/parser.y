@@ -29,7 +29,7 @@ int yylex(); /* needed by g++ */
 
 //TODO: This does not work for nested array accesses. 
 //See readme file for design and the outline of solution.
-int exprCount;
+//int exprCount;
 
 %}
 
@@ -67,7 +67,7 @@ int exprCount;
 %type <chr> UnaryOperator
 %type <tkn> WhichWay MultOperator AddOperator
 %type <flag> FormalParamFlag
-%type <type> Term Factor FunctionCall 
+//%type <type> Term Factor FunctionCall 
 
 //The union is used for two reasons. The first is to capture information about
 //lexemes from the scanner. The second is to define the data captured in parser
@@ -78,10 +78,10 @@ int exprCount;
     int chr;
     int tkn;
     bool flag;
-    struct {
-        int complex;
-        int base;
-    } type;
+//    struct {
+//        int complex;
+//        int base;
+//    } type;
 };
 
 %%
@@ -403,6 +403,13 @@ ProcedureCall       : yident
                     }
                     | yident 
                     {
+                        //Add the function to the type tracker
+                        tracker.push($1);
+
+                        //Validate that yident really was a function.
+                        //tracker.event_FunctionCall();
+
+                        //TODO: These are partially redundant.
                         Symbol *sym = symTable.lookup($1);
                         if (!sym || !sym->isFunction())
                             cout << "***ERROR: " << $1 << " is not a function" << endl;
@@ -414,6 +421,10 @@ ProcedureCall       : yident
                             cout << $1;
 
                         free($1);
+                        
+                        //Reset the expression count because it is used to 
+                        //determine which parameter is being parsed.
+                        exprCount.push_front(0);
                     }
                       ActualParameters
                     {
@@ -508,6 +519,7 @@ WhileStatement      : ywhile
                         indent--;
                         cout << unindent() << "}" << nlindent();
                     }
+
                     ;
 RepeatStatement     : yrepeat
                     {
@@ -526,18 +538,32 @@ RepeatStatement     : yrepeat
                     ;
 ForStatement        : yfor yident yassign
                     {
+                        tracker.push($2);                       
                         cout << "for (" << $2 << " = ";
                     }
                       Expression WhichWay
                     {
+                        tracker.event_Assignment();
+                        //tracker.pop();
                         string comparator = ($6 == yto) ? " <=" : " >=";
                         cout << "; " << $2 << comparator << " ";
                     }
                       Expression ydo
                     {
                         indent++;
+                        cout << "; " << $2;
+
+                        //Special handling for character indices: increment
+                        //the string character.
+                        AbstractType *type = tracker.peekType();
+                        BaseType *bt = dynamic_cast<BaseType*>(type);
+                        if (bt && bt->isStringType())    
+                            cout << "[0]";
+    
                         string postfix = ($6 == yto) ? "++" : "--";
-                        cout << "; " << $2 << postfix << ") {" << nlindent();
+                        cout << postfix << ") {" << nlindent();
+                        
+                        tracker.pop();
                     }
                       Statement
                     {
@@ -572,9 +598,18 @@ MemoryStatement     : ynew yleftparen yident yrightparen
 Designator          : yident 
                     {
                         cout << $1;
-
+                        
                         //Update the type stack
                         tracker.push($1);
+
+                        //If this identifier is being used as an array index
+                        //and it is a string, access the first character.
+                        if (tracker.arraySecondFromTop()) {
+                            AbstractType *type = tracker.peekType();
+                            BaseType *bt = dynamic_cast<BaseType*>(type);
+                            if (bt && bt->isStringType())
+                                cout << "[0]";
+                        }
 
                         //Notify the object that is was just used as a 
                         //designator.
@@ -599,7 +634,9 @@ theDesignatorStuff  : ydot yident
                     {
                         //ARRAY ACCESS
                         cout << "[";
-                        exprCount = 0; //Reset the array dimension index
+                        
+                        //Reset the array dimension index
+                        exprCount.push_front(0);
                     }
                       ExpList yrightbracket
                     {
@@ -625,26 +662,25 @@ ActualParameters    : yleftparen
                         if (!currIoFunc)
                             cout << "(";
                     }
-                     ExpList yrightparen
+                      ExpList yrightparen
                     {
                         if (!currIoFunc)
                             cout << ")";
+                        exprCount.pop_front();
                     }
                     ;
 ExpList             : ExpAction
                     | ExpList ycomma
-                    {    
+                    {
                         //Do not print comma
                         if (tracker.arrayOnTopOfStack())
                             cout << "[";
-                        else {
-                            if (currIoFunc)
-                                currIoFunc->generateSep();
-                            else
-                                cout << ", "; //comma separated list
-                        }
+                        else if (currIoFunc)
+                            currIoFunc->generateSep();
+                        else
+                            cout << ", "; //comma separated list
                     }
-                     ExpAction
+                      ExpAction
                     ;
 ExpAction           : /*** empty ***/
                     | Expression 
@@ -653,24 +689,27 @@ ExpAction           : /*** empty ***/
                         //is parsed. It triggers semantic actions and 
                         //elminates duplicate code that would otherwise be
                         //in both ExpList productions
-                         if (tracker.arraySecondFromTop()) {
+                        if (tracker.arraySecondFromTop()) {
                             //Print bounds offset 
-                            cout << tracker.arrayIndexOffset(exprCount);
-                            tracker.endArrayDimension(exprCount);
-
-                            //Increment the expression count
-                            exprCount++;
+                            int dimension = exprCount.front();
+                            bool last;
+                            tracker.arrayIndexOffset(dimension);                          
+                            exprCount.front() += tracker.endArrayDimension(dimension, &last);
                             
                             //Close array access
                             cout << "]";
+
+                            if(last)
+                                exprCount.pop_front();
+
                         }
-                        
-                        if (tracker.functionCallInProgress()) {
+
+                        if (tracker.functionCallInProgress() && !currIoFunc) {
                             //Inform the tracker that an expression has been parsed
-                            tracker.endParameter(exprCount);
+                            tracker.endParameter(exprCount.front());
 
                             //Increment the expression count
-                            exprCount++;
+                            exprCount.front() += 1;
                         }
                     }
                     ;                    
@@ -721,6 +760,7 @@ Term                : Factor
                             case yand:
                                 cout << " && ";
                                 break;
+
                             case ymultiply:
                                 cout << " * ";
                                 break;                            
@@ -741,7 +781,7 @@ Term                : Factor
                         //Type checking
                         tracker.event_MathOp($2);
                     
-                        $$.complex = CT_NONE;
+//                        $$.complex = CT_NONE;
 
                            //
                            //TODO: This was commented-out without explanation.
@@ -779,7 +819,7 @@ Term                : Factor
                                 // if ($1.base != BT_INTEGER || $4.base != BT_INTEGER)
                                     // cout << "***ERROR: div or mod expected integer\n";
                                 // $$.base = BT_INTEGER;
-                                // break;
+                                // break;Term
                             
                             // default:
                                 // cout << "***ERROR: Internal error, unhandled MultOperator\n";
@@ -792,8 +832,8 @@ Factor              : yinteger
                         //Push the type onto the tracker
                         tracker.push($1, symTable.lookupSIT(yinteger));
                         
-                        $$.complex = CT_NONE;
-                        $$.base = BT_INTEGER;
+//                        $$.complex = CT_NONE;
+//                        $$.base = BT_INTEGER;
                        
                        cout << $1;
                     }
@@ -802,8 +842,8 @@ Factor              : yinteger
                         //Push the type onto the tracker
                         tracker.push($1, symTable.lookupSIT(yreal));
                         
-                        $$.complex = BT_NONE;
-                        $$.base = BT_REAL;
+//                        $$.complex = BT_NONE;
+//                        $$.base = BT_REAL;
                         
                         cout << $1;
                     }
@@ -813,8 +853,8 @@ Factor              : yinteger
                         BaseType *type = symTable.lookupSIT(ynil);
                         tracker.push("", type);
 
-                        $$.complex = CT_POINTER;
-                        $$.base = BT_NONE;
+//                        $$.complex = CT_POINTER;
+//                        $$.base = BT_NONE;
                         
                         //Print "NULL"
                         type->generateCode("");
@@ -824,8 +864,9 @@ Factor              : yinteger
                         //Push the type onto the tracker
                         tracker.push($1, symTable.lookupSIT(ystring));
                     
-                        $$.complex = CT_NONE;
-                        $$.base = BT_CHARACTER;
+//                        $$.complex = CT_NONE;
+//                        $$.base = BT_CHARACTER;
+
                         cout << "\"" << $1 << "\"";
                     }
                     | Designator
@@ -841,7 +882,7 @@ Factor              : yinteger
                     {
                         cout << "!"; //TODO: typechecking -- must be bool
                     }
-                    Factor
+                      Factor
                     | Setvalue
                     | FunctionCall
                     ;
@@ -849,17 +890,20 @@ FunctionCall        : yident
                     {
                         //Add the function to the type tracker
                         tracker.push($1);
-                         
+                        
+                        AbstractType *type = tracker.peekType();
+                        if (!type->isFunction())
+                            cout << "***ERROR: expected " << $1 << " to be function\n";
+                        
                         //Validate that yident really was a function.
-                        tracker.event_FunctionCall();
+                        //tracker.event_FunctionCall();
 
-                        cout << $1;
+                        cout << $1 << flush;
                         free($1);
                         
                         //Reset the expression count because it is used to 
                         //determine which parameter is being parsed.
-                        exprCount = 0;
-                        
+                        exprCount.push_front(0);
                     }
                       ActualParameters
                     ;
@@ -895,7 +939,7 @@ FunctionDecl        : CreateFunc FunctionHeading ycolon yident ysemicolon
                         currFunction->setReturnType(returnType);
                         currFunction->generateDefinition("");
                     }
-                    Block
+                      Block
                     {
                         currFunction->endFunction();
                         symTable.endScope();
@@ -950,7 +994,6 @@ FormalParamFlag     : /*** nothing ***/
                         $$ = true;
                     }
                     ;
-
 /***************************  More Operators  ********************************/
 
 UnaryOperator       : yplus     { $$ = '+'; }

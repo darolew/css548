@@ -20,40 +20,22 @@ ArrayType::ArrayType(AbstractType *type, list<Range> ranges)
 }
 
 //Zero-based counting
-string ArrayType::offsetForDim(int dim)
+void ArrayType::offsetForDim(int dim)
 {
 //TODO: This needs to be tested for character array bounds
 //TODO: Refactor this mess.
     //Validate input.
     if (dim < 0 || dim > numDimensions()-1) {
+        if (type->getType()->isArrayType()) {
+            ArrayType *a = (ArrayType*)type->getType();
+            a->offsetForDim(dim - (numDimensions()-1));
+            return;
+        }
         cout << "***ERROR: invalid array access for dim " << dim << endl;
-        return "ERROR";
+        return;
     }
     
-    //Examples:
-    //  If the low bound is 5, return -(5)
-    //  If the low bound is -5, return -(-5)
-    //  If the low bound is +5, return -(+5)
-    //  If the low bound is 'a', return -(0)
-    Terminal low = ranges[dim].low;
-    string expr = "-(";
-    if (low.unaryOp)
-        expr += low.unaryOp; //Account for unary operator
-    
-    if (low.token == ystring) {
-        int lowBound = low.str[0] - 'a'; //Account for dimensions indexed by chars
-        //
-        //TODO: The below code is awkward. Fix this once character indices
-        //      are working and can be tested.
-        //
-        char str[256];
-        sprintf(str, "%d", lowBound);
-        expr += str;
-    } else {
-        expr += low.str;
-    }
-    expr += ")";
-    return expr;
+    cout << "-(" << ranges[dim].low << ")";
 }
 
 //TODO:
@@ -67,15 +49,7 @@ void ArrayType::generateCode(string ident)
     vector<Range>::iterator it = ranges.begin();
     for (; it != ranges.end(); it++) {
         Range r = *it;
-        if (r.low.token != yinteger || r.high.token != yinteger) {
-            cout << "***ERROR: unsupported array type" << endl;
-            return;
-        }
-        
-        int low, high, size;
-        low = atoi(r.low.str.c_str());
-        high = atoi(r.high.str.c_str());
-        size = (high - low + 1);
+        int size = (r.high - r.low + 1);
         cout << "[" << size << "]";
     }
 }

@@ -12,6 +12,7 @@
 #include <list>
 
 #include "SymTable.h"
+#include "Const.h"
 #include "PointerType.h"
 #include "ArrayType.h"
 #include "RecordType.h"
@@ -38,6 +39,7 @@ extern list<Range> rangeList;      // list of ranges, like for an array
 extern list<PointerType*> ptrList; // list of pointers that need types
 extern list<Variable> fieldList;   // list of fields to add to a record
 extern list<string*> dsgList;      // stack of designator strings
+extern list<int> exprCount;
 
 
 extern ArrayType* currArray;       // current array type 

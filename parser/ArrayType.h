@@ -29,7 +29,7 @@ public:
     virtual void generateCode(string);
     virtual void resolve();
     virtual bool isArrayType();
-    string offsetForDim(int);
+    void offsetForDim(int);
     int numDimensions();
 };
 

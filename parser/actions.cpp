@@ -7,6 +7,10 @@
 #include "actions.h"
 #include "y.tab.h"
 
+
+static int terminalToInteger(const Terminal*);
+
+
 //The type tracker is a global object for easy access
 Tracker tracker;
 
@@ -16,6 +20,7 @@ list<Range> rangeList;      // list of ranges, like for an array
 list<PointerType*> ptrList; // list of pointers that need types
 list<Variable> fieldList;   // list of fields to add to a record
 list<string*> dsgList;      // stack of designator strings
+list<int> exprCount;
 
 ArrayType* currArray;       // current array
 Function *currFunction;     // current function object
@@ -83,9 +88,33 @@ void insertArrayType()
 void addRange(const Terminal *low, const Terminal *high)
 {
     Range range;
-    range.low = *low;
-    range.high = *high;
+    range.low = terminalToInteger(low);
+    range.high = terminalToInteger(high); 
     rangeList.push_back(range);
+}
+
+static int terminalToInteger(const Terminal *t)
+{
+    if (t->token == yinteger)
+        return atoi(t->str.c_str());
+    
+    if (t->token == ystring) {
+        if (t->str.size() > 1)
+            return -1;
+        
+        return t->str[0];
+    }
+    
+    if (t->token == yident) {
+        Symbol *s = symTable.lookup(t->str);
+        Const *c = dynamic_cast<Const*>(s);
+        if (!c)
+            return -1;
+
+        return terminalToInteger(&c->term);
+    }
+    
+    return -1;
 }
 
 //Remove an identifer and turn it into a variable as part of a record's fields.
@@ -123,7 +152,9 @@ void addFormalParam(string typeName, bool varflag)
         string name = idList.front();
         AbstractType *formalType = symTable.lookupType(typeName);
         Parameter *formalParam = new Parameter(name, formalType, varflag);
+        Variable *var = new Variable(name, formalType);
         currFunction->addParam(formalParam);
+        var->insert();
         idList.pop_front();
     }
 }
@@ -139,7 +170,7 @@ void beginScope(const char *name)
 void initMathTable() 
 {
     //Zero out the table
-    bzero(mathTable, 64 * 64 * 64 * sizeof(int));
+    bzero(mathTable, sizeof mathTable);
 
     // Forward slash (/) is ydivide
     int yreal_ = yreal-offset;

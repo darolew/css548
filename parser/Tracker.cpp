@@ -39,26 +39,40 @@ void Tracker::push(string description, AbstractType *type)
     push(f);
 }
 
+AbstractType *Tracker::peekType()
+{
+    Frame f = peek();
+    return f.type->getType();
+}
+
 //===== PUBLIC GETTER METHODS =====
+
 //----------------------------------------------------------------------------
 bool Tracker::arrayOnTopOfStack() 
 {
+    if (typeStack.size() < 1)
+        return false;
+
     return peek().type->isArrayType();
 }
 
 //----------------------------------------------------------------------------
 bool Tracker::arraySecondFromTop() 
 {
+    if (typeStack.size() < 2)
+        return false;
+        
     return peek2().type->isArrayType();
 }
 
 //----------------------------------------------------------------------------
-string Tracker::arrayIndexOffset(int dim)
+void Tracker::arrayIndexOffset(int dim)
 {
     //TODO: In ArrayType, store array bounds and indexes as ints, not strings.
    
     //Integer must be at top of the stack because integers are the only 
     //valid index types. Pop the stack and validate integer type.
+//cout << "\narrayIndexOffset() pop" << endl;
     Frame f = pop();
     BaseType *type = dynamic_cast<BaseType*>(f.type);
 
@@ -76,12 +90,15 @@ string Tracker::arrayIndexOffset(int dim)
     
     //Get the bound offset for the C translation
     ArrayType *array = dynamic_cast<ArrayType*>(peek().type);
-    return array->offsetForDim(dim);
+    array->offsetForDim(dim);
 }
 
 //----------------------------------------------------------------------------
 bool Tracker::functionCallInProgress() 
 {
+    if (typeStack.size() <= 1)
+        return false;
+        
     Frame f = peek2();
     Function *func = dynamic_cast<Function*>(f.type);
    
@@ -90,6 +107,7 @@ bool Tracker::functionCallInProgress()
 }
 
 //===== PUBLIC METHODS RESPONDING TO PARSER EVENTS =====
+
 //----------------------------------------------------------------------------
  void Tracker::event_AccessRecordField(string ident)
  {
@@ -124,11 +142,13 @@ void Tracker::event_Assignment()
     //Pop B off the stack
     // Ensure A and B are assignment-compatible.
     Frame right = pop();
-    Frame left = peek();
-    
-    if (!left.type->compatible(right.type))
+    Frame left = pop();
+   
+    //TODO: Reusing relationCompatible() checks for assignment.
+    if (!left.type->relationCompatible(right.type)) {
         ERR(string("incompatible assignment of ") + right.type->dump() 
             + " to " + left.type->dump());
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -158,22 +178,31 @@ void Tracker::event_Deref()
 //----------------------------------------------------------------------------
 //If we have accessed the last dimension of the current array, pop the array
 //type off the stack and replace it with the type of whatever is stored
-//in the array (REMEMBER that dim is zero-based)
+//in the array (REMEMBER that dim is zero-based)AbstractType
 //Return true is there are more dimensions to access. Otherwise return false
-bool Tracker::endArrayDimension(int dim)
+int Tracker::endArrayDimension(int dim, bool *last)
 {
-    bool moreDims = false;
     Frame f = peek();
     ArrayType *array = dynamic_cast<ArrayType*>(f.type);
-
+    int delta = 1;
+    
+    *last = false;
+    
     if (dim == array->numDimensions()-1) {
-        moreDims = true;
+        *last = true;
         Frame f = pop();
-        f.type = f.type->type->getType();
-        push(f);
+        AbstractType *typeOfArray = f.type->type->getType();
+        Frame next;
+        next.str = "ARRAYTYPE";
+        next.type = typeOfArray;
+        if (f.type->isArrayType()) {
+            *last = false;
+            delta = dim * -1;
+        }
+        push(next);
     }
     
-    return moreDims;
+    return delta;
 }
 
 //----------------------------------------------------------------------------
@@ -195,7 +224,7 @@ void Tracker::endParameter(int index)
     Frame f = pop();
     AbstractType *actualParamType = f.type;
 
-    //Function shoudl be on the top of the stack.
+    //Function should be on the top of the stack.
     Function *func = dynamic_cast<Function*>(peek().type);
 
     //TODO: Validate bounds on the collection of parameters
@@ -249,8 +278,7 @@ void Tracker::event_MathOp(int opToken)
                 + l->dump() 
                 + " is not compatible with "
                 + r->dump());
-        }
-        else {
+        } else {
             //Push the result type onto the stack
             push("", result);
         }
@@ -259,7 +287,7 @@ void Tracker::event_MathOp(int opToken)
 
 //----------------------------------------------------------------------------
 void Tracker::event_RelationalOp()
-{
+{   
     //Permitted comparisons
     //   integers and reals can be compared
     //   chars and chars
@@ -270,7 +298,7 @@ void Tracker::event_RelationalOp()
     //After a reltional operations, the left and right operands are popped 
     //and the results, a boolean, is pushed.
     Frame right = pop();
-    Frame left = pop();
+    Frame left = peek();
             
     //Validate that the comparison was valid
     if (!left.type->relationCompatible(right.type)) {
@@ -280,6 +308,7 @@ void Tracker::event_RelationalOp()
 }
 
 //===== OTHER PUBLIC METHODS =====
+
 //----------------------------------------------------------------------------
 
 void Tracker::debugPrint(string msg) {
@@ -308,23 +337,25 @@ Frame Tracker::peek()
     return typeStack.front();
 }
 
+bool inpeek2;
+
 //----------------------------------------------------------------------------
 //Return the second-from-the top frame
 Frame Tracker::peek2() 
 {
+inpeek2 = true;
     Frame top = pop();
     Frame second = peek();
     push(top);
+inpeek2 = false;
     return second;
 }
 
 //----------------------------------------------------------------------------
-Frame Tracker::pop() 
+Frame Tracker::pop() //TODO: Move or wrap
 {   
     Frame f = peek();
     typeStack.pop_front();
-    //debugPrint("pop");
-        
     return f;    
 }
 
@@ -332,5 +363,4 @@ Frame Tracker::pop()
 void Tracker::push(Frame f) 
 {
     typeStack.push_front(f);
-    //debugPrint("push");
 }

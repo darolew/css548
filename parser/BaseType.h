@@ -25,6 +25,7 @@ public:
     virtual void generateCode(string);
     virtual bool compatible(BaseType*);
     bool isLegalArrayIndexType();
+    bool isStringType();
     virtual bool relationCompatible(AbstractType *);
 };
 

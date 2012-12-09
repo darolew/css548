@@ -13,11 +13,10 @@ using namespace std;
 
 class Const: public Symbol {
 
-private:
+public:
     //Constant's value
     Terminal term;
-
-public:
+    
     //Refer to the .cpp file for information about these methods.
     Const(string, Terminal);
     virtual void generateDefinition(string);

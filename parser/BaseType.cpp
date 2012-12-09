@@ -34,14 +34,20 @@ bool BaseType::compatible(BaseType *otherType)
 
 bool BaseType::isLegalArrayIndexType()
 {
-    //Only integers can be used as array indexes
-    return token == yinteger;
+    //Only integers and characters can be used as array indexes
+    return token == yinteger || token == ystring;
+}
+
+bool BaseType::isStringType()
+{
+    //Only integers and characters can be used as array indexes
+    return token == ystring;
 }
 
 bool BaseType::relationCompatible(AbstractType *otherType) 
-{
+{     
     //Pointers and null can be compared
-    if (token == ynil) 
+    if (token == ynil)
         return otherType->isPointer();
 
     BaseType *type = dynamic_cast<BaseType *>(otherType);
@@ -54,7 +60,7 @@ bool BaseType::relationCompatible(AbstractType *otherType)
         return true;
         
     //  booleans and booleans
-    bool left = identifier == "false"  || identifier == "true";
+    bool left = identifier == "false" || identifier == "true";
     bool right = type->identifier == "false" || type->identifier == "true";
     if (left && right)
         return true;

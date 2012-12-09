@@ -27,28 +27,30 @@ using namespace std;
 class Tracker {
 
 private:
-   list<Frame> typeStack;
-   Frame peek();
-   Frame peek2();
-   Frame pop();   
-   void push(Frame);
+    list<Frame> typeStack;
+    Frame peek();
+    Frame peek2();
+    void push(Frame);
 
 public:
     //Grow type stack
     void push(string, AbstractType*);
     void push(string);
 
+    Frame pop();
+    AbstractType *peekType();
+
     //Getters
     bool arrayOnTopOfStack();
     bool arraySecondFromTop();
-    string arrayIndexOffset(int);
+    void arrayIndexOffset(int);
     bool functionCallInProgress();
 
     //Respond to parser events
     void event_AccessRecordField(string);
     void event_Assignment();
     void event_Deref();
-    bool endArrayDimension(int);
+    int endArrayDimension(int, bool*);
     void event_FunctionCall();
     void endParameter(int);
     void event_MathOp(int);

@@ -3,21 +3,30 @@ Aaron Hoffer and Daniel Lewis
 Phase 4
 
 Section 1:
-First list all the "regular" Pascal programs that translate correctly. For example:
-    add.p - translates correctly
-Then list any of the "regular" Pascal programs that do NOT translate properly. If a part does not translate, describe precisely what is wrong. If you have not implemented something, e.g., the case statement, that is precise enough. For example:
-    case.p - case statement is not implemented
-If something mostly works, but does not work in some situations, describe that. If everything translates, say that.
+
+    simplest.p      - translates correctly
+    simplest2.p     - translates correctly
+    if.p            - translates correctly
+    add.p           - translates correctly
+    subscripts.p    - translates correctly
+    case.p          - translates correctly
+    pointer.p       - translates correctly
 
 Section 2:
-First list all the "medium" Pascal programs that translate correctly. For example:
-    array.p - translates correctly
-Then list any of the "medium" Pascal programs that do NOT translate properly. If a part does not translate, describe precisely, but briefly, what is wrong.
 
+    array.p         - translates correctly
+    array2.p        - translates correctly
+    list.p          - translates correctly
+    fact.p          - translates correctly
+    
 Section 3:
-As before, list all the "hard" Pascal programs that translate correctly. Then list the "hard" Pascal programs that do NOT translate properly. If a part does not translate, describe precisely what is wrong. Again, if you have not implemented something, e.g., nested procedures, that is precise enough. For example:
-    phase2.p - nested procedures are not implemented
-If none of these are implemented, say none.
+
+    set.p           - sets not implemented
+    nestedprocs.p   - nested procedures not implemented
+    sttest.p        - ?
+    sttest2.p       - ?
+    sttest3.p       - ?
+    list2.p         - translates correctly (except "count")
 
 Section 4:
 List any of the Pascal programs with "errors" that you do not display an appropriate error message. I.e., say which errors you do not detect.
@@ -93,7 +102,7 @@ Other type of nested expressions are not supported:
  3. any function call inside an array access.
 
 The original implementation of tracker includes a stack that stored
-the number of dimension of each array it encountered. The parser signalled
+the number of dimension of each array it encountered. The parser signaled
 the tracker every time a dimension was the array was accessed. These numbers
 would be tracked together in one stack frame. When the
 number of acesses == the number of dimension on the the stack, 

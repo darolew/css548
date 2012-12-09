@@ -23,8 +23,8 @@ typedef struct Terminal {
 //Represent a range, as used for arrays and sets. A range has a high value and
 //a low value.
 typedef struct Range {
-    Terminal low;
-    Terminal high;
+    int low;
+    int high;
 } Range;
 
 #endif

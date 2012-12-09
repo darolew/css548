@@ -20,6 +20,14 @@ Function::Function()
     returnType = NULL;
 }
 
+Function::Function(string id)
+{
+    //A NULL value indicates that there is no return type.
+    returnType = NULL;    
+    
+    identifier = id;
+}
+
 //TODO: Comment
 void Function::generateDefinition(string ident)
 {
@@ -31,12 +39,10 @@ void Function::generateDefinition(string ident)
     cout << " " << identifier << "(";
     
     //Parameters
-    vector<Parameter*>::iterator it = params.begin();
-    for (; it != params.end(); it++) {
-        if (it != params.begin())
+    for (int i = 0; i < params.size(); i++) {
+        if (i)
             cout << ", ";
-        Parameter *param = *it;
-        param->generateDefinition("");
+        params[i]->generateDefinition("");
     }
  
     cout 
@@ -75,7 +81,6 @@ bool Function::insert()
 void Function::addParam(Parameter *param)
 {
     params.push_back(param);
-    param->insert();
 }
 
 //Set the return type. A wrapper method to keep private object encapsulated.
@@ -141,7 +146,7 @@ void Function::push()
 
 int Function::numParams()
 {
-  return params.size();
+    return params.size();
 }
 
 Parameter *Function::getParam(int index)
@@ -168,5 +173,12 @@ void Function::event_Designator(string designator)
     } else {
         ERR(string("Cannot assign return value to a different function. Should be ") + identifier);
     }
+}
 
+bool Function::relationCompatible(AbstractType *otherType) 
+{
+    if (!returnType)
+        return false;
+    
+    return returnType->relationCompatible(otherType);
 }
