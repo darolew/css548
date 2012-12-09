@@ -26,21 +26,21 @@ public:
     int max;
 
 private:
-	bool *numbers;
+    bool *numbers;
     
 public:
     IntSet();
     virtual ~IntSet();
 
-	IntSet operator+(const IntSet&) const;
-	IntSet operator*(const IntSet&) const;
+    IntSet operator+(const IntSet&) const;
+    IntSet operator*(const IntSet&) const;
     IntSet operator-(const IntSet&) const;
     bool operator<=(const IntSet&) const;
-	IntSet &operator=(const IntSet&);
+    IntSet &operator=(const IntSet&);
     
     void insert(int);
     void clear();
-	bool isInSet(int) const;
+    bool isInSet(int) const;
     
     static IntSet makeLiteral(int firstval, ...);
     

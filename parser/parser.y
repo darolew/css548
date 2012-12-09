@@ -63,7 +63,6 @@ int yylex(); /* needed by g++ */
 %type <chr> UnaryOperator
 %type <tkn> WhichWay MultOperator AddOperator Relation
 %type <flag> FormalParamFlag
-//%type <type> Term Factor FunctionCall 
 
 //The union is used for two reasons. The first is to capture information about
 //lexemes from the scanner. The second is to define the data captured in parser
@@ -74,10 +73,6 @@ int yylex(); /* needed by g++ */
     int chr;
     int tkn;
     bool flag;
-//    struct {
-//        int complex;
-//        int base;
-//    } type;
 };
 
 %%
@@ -584,7 +579,7 @@ WhichWay            : yto
 MemoryStatement     : ynew yleftparen yident yrightparen  
                     {
                         //TODO: Make sure ident exists and is pointer.
-                        Variable *var = (Variable*) symTable.lookup($3);
+                        Variable *var = (Variable*)symTable.lookup($3);
                         var->generateNewStatement();
                     }
                     | ydispose yleftparen yident yrightparen
@@ -809,60 +804,12 @@ Term                : Factor
                     {
                         //Type checking
                         tracker.event_MathOp($2);
-                    
-//                        $$.complex = CT_NONE;
-
-                           //
-                           //TODO: This was commented-out without explanation.
-                           //      What was the reason?
-                           //
-                        // switch ($2) {
-                            // case yand:
-                                // if ($1.base != BT_BOOLEAN || $4.base != BT_BOOLEAN)
-                                    // cout << "***ERROR: && expected boolean\n";
-                                // $$.base = BT_BOOLEAN;
-                                // break;
-                            
-                            // case ymultiply:
-                                // if ($1.base == BT_INTEGER && $4.base == BT_INTEGER) {
-                                    // $$.base = BT_INTEGER;
-                                    // break;
-                                // }
- 
-                                // /* fall-through */
-                                
-                            // case ydivide:
-                                // if ($1.base != BT_INTEGER && $1.base != BT_REAL) {
-                                    // cout << "***ERROR: / or * expected number\n";
-                                    // break;
-                                // }
-                                // if ($4.base != BT_INTEGER && $4.base != BT_REAL) {
-                                    // cout << "***ERROR: / or * expected number\n";
-                                    // break;
-                                // }
-                                // $$.base = BT_REAL;
-                                // break;
-
-                            // case ydiv:
-                            // case ymod:
-                                // if ($1.base != BT_INTEGER || $4.base != BT_INTEGER)
-                                    // cout << "***ERROR: div or mod expected integer\n";
-                                // $$.base = BT_INTEGER;
-                                // break;Term
-                            
-                            // default:
-                                // cout << "***ERROR: Internal error, unhandled MultOperator\n";
-                                // break;
-                        // }
                     }
                     ;
 Factor              : yinteger
                     {
                         //Push the type onto the tracker
                         tracker.push($1, symTable.lookupSIT(yinteger));
-                        
-//                        $$.complex = CT_NONE;
-//                        $$.base = BT_INTEGER;
                        
                        cout << $1;
                     }
@@ -871,9 +818,6 @@ Factor              : yinteger
                         //Push the type onto the tracker
                         tracker.push($1, symTable.lookupSIT(yreal));
                         
-//                        $$.complex = BT_NONE;
-//                        $$.base = BT_REAL;
-                        
                         cout << $1;
                     }
                     | ynil
@@ -881,9 +825,6 @@ Factor              : yinteger
                         //Push the type onto the tracker
                         BaseType *type = symTable.lookupSIT(ynil);
                         tracker.push("", type);
-
-//                        $$.complex = CT_POINTER;
-//                        $$.base = BT_NONE;
                         
                         //Print "NULL"
                         type->generateCode("");
@@ -892,9 +833,6 @@ Factor              : yinteger
                     {
                         //Push the type onto the tracker
                         tracker.push($1, symTable.lookupSIT(ystring));
-                    
-//                        $$.complex = CT_NONE;
-//                        $$.base = BT_CHARACTER;
 
                         cout << "\"" << $1 << "\"";
                     }
@@ -913,8 +851,6 @@ Factor              : yinteger
                     }
                       Factor
                     | Setvalue
-                    {
-                    }
                     | FunctionCall
                     ;
 FunctionCall        : yident

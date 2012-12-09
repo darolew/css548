@@ -22,7 +22,6 @@
 #include "IoFunction.h"
 #include "Range.h"
 #include "Tracker.h"
-#include "IntSet.h"
 
 //Debug print macro
 #define ERR(X) (cout << "\n***ERROR: " << X << " | " << __FILE__ << " line " << __LINE__ << endl)

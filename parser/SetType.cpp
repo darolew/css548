@@ -3,9 +3,8 @@
 //
 // This file contains the method definitions of the SetType class.
 
-#include <list>
 #include "SetType.h"
-#include "main.h"
+#include "BaseType.h"
 #include "y.tab.h"
 
 //The constructor for the SetType class.
@@ -33,7 +32,8 @@ bool SetType::legalMathOp(int opToken)
     return opToken == yplus || opToken == yminus || opToken == ymultiply;
 }
 
-//Sets can be compared with other sets.
+//Sets can be compared with or assigned to other sets. The "in" operator is
+//legal with integers.
 bool SetType::relationCompatible(AbstractType *otherType, int opToken)
 {
     if (opToken == ylessequal || opToken == yassign)

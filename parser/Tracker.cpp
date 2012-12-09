@@ -350,17 +350,13 @@ Frame Tracker::peek()
     return typeStack.front();
 }
 
-bool inpeek2;
-
 //----------------------------------------------------------------------------
 //Return the second-from-the top frame
 Frame Tracker::peek2() 
 {
-inpeek2 = true;
     Frame top = pop();
     Frame second = peek();
     push(top);
-inpeek2 = false;
     return second;
 }
 

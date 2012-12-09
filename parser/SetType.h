@@ -6,12 +6,8 @@
 #ifndef SETTYPE_H
 #define SETTYPE_H
 
-#include <list>
-#include <sstream>
 #include "AbstractType.h"
-#include "BaseType.h"
 #include "Range.h"
-#include "main.h"
 using namespace std;
 
 class SetType : public AbstractType {

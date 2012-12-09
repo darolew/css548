@@ -21,24 +21,39 @@ Section 2:
     
 Section 3:
 
-    set.p           - sets not implemented
+    set.p           - translates correctly
     nestedprocs.p   - nested procedures not implemented
-    sttest.p        - ?
-    sttest2.p       - ?
-    sttest3.p       - ?
+    sttest.p        - nested procedures not implemented
+    sttest2.p       - nested procedures not implemented
+    sttest3.p       - nested procedures not implemented
     list2.p         - translates correctly (except "count")
 
 Section 4:
-List any of the Pascal programs with "errors" that you do not display an appropriate error message. I.e., say which errors you do not detect.
+
+    List any of the Pascal programs with "errors" that you do not display an
+    appropriate error message. I.e., say which errors you do not detect.
 
 Section 5:
-List things in Pascal that you have handled and are proud of that I do not test in my sample Pascal Programs. Feel free to be brief and point me to sample Pascal programs that you have submitted. If there is nothing, say none.
+
+    List things in Pascal that you have handled and are proud of that I do not
+    test in my sample Pascal Programs. Feel free to be brief and point me to
+    sample Pascal programs that you have submitted. If there is nothing, say
+    none.
 
 Section 6:
-Describe anything else you think I should know that will help me to assess what you have done. Describe anything that was way more challenging than you originally thought (and that you suspect I don't know the depth of the challenges).
+
+    Describe anything else you think I should know that will help me to assess
+    what you have done. Describe anything that was way more challenging than
+    you originally thought (and that you suspect I don't know the depth of the
+    challenges).
 
 Section 7:
-Tell me whether your pair/group would like to demonstrate your compiler to the class or would rather show me individually. This is not meant to be a big deal, not a formal presentation; you'll just "make" it and run it with sample code perhaps describing how you handled something or challenges you ran into. 
+
+    Tell me whether your pair/group would like to demonstrate your compiler to
+    the class or would rather show me individually. This is not meant to be a
+    big deal, not a formal presentation; you'll just "make" it and run it with
+    sample code perhaps describing how you handled something or challenges you
+    ran into. 
 
 
 

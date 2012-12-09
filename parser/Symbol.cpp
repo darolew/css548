@@ -48,16 +48,6 @@ bool Symbol::isType()
     return false;
 }
 
-COMPLEXTYPE Symbol::complexType()
-{
-    return CT_NONE;
-}
-
-BASETYPE Symbol::baseType()
-{
-    return BT_NONE;
-}
-
 bool Symbol::isFunction()
 {
     return false;
