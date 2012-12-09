@@ -175,10 +175,10 @@ void Function::event_Designator(string designator)
     }
 }
 
-bool Function::relationCompatible(AbstractType *otherType) 
+bool Function::relationCompatible(AbstractType *otherType, int opToken)
 {
     if (!returnType)
         return false;
     
-    return returnType->relationCompatible(otherType);
+    return returnType->relationCompatible(otherType, opToken);
 }

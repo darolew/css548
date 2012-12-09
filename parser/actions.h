@@ -22,6 +22,7 @@
 #include "IoFunction.h"
 #include "Range.h"
 #include "Tracker.h"
+#include "IntSet.h"
 
 //Debug print macro
 #define ERR(X) (cout << "\n***ERROR: " << X << " | " << __FILE__ << " line " << __LINE__ << endl)
@@ -41,11 +42,10 @@ extern list<Variable> fieldList;   // list of fields to add to a record
 extern list<string*> dsgList;      // stack of designator strings
 extern list<int> exprCount;
 
-
-extern ArrayType* currArray;       // current array type 
+extern ArrayType *currArray;       // current array type 
 extern Function *currFunction;     // current function object
-extern RecordType* currRecord;      //
-extern IoFunction *currIoFunc;     // current record type
+extern RecordType *currRecord;     // current record type
+extern IoFunction *currIoFunc;     // current I/O function
 extern AbstractType *currType;     // current type being constructed
 
 //Type operations

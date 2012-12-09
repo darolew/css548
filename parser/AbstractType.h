@@ -37,10 +37,10 @@ public:
     virtual bool isRecordType();
     virtual void generateCode(string);
     virtual void generateDefinition(string);
-    virtual AbstractType* getType();
+    virtual AbstractType *getType();
     virtual void push();
     virtual bool compatible(AbstractType *);
-    virtual bool relationCompatible(AbstractType *);
+    virtual bool relationCompatible(AbstractType*, int);
 };
 
 #endif

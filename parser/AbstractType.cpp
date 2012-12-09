@@ -130,7 +130,7 @@ bool AbstractType::compatible(AbstractType *otherType)
 }
 
 // <, >, <=, etcetera
-bool AbstractType::relationCompatible(AbstractType *otherType) 
+bool AbstractType::relationCompatible(AbstractType *otherType, int opToken) 
 {
     //In general, arbitrary types are not comparable
     return false;

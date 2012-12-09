@@ -54,7 +54,7 @@ public:
     void event_FunctionCall();
     void endParameter(int);
     void event_MathOp(int);
-    void event_RelationalOp();
+    void event_RelationalOp(int);
     
     //Other
     void debugPrint(string = "");    

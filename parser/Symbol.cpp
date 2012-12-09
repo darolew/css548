@@ -93,6 +93,11 @@ bool Symbol::isRecord()
     return false;
 }
 
+bool Symbol::isSet()
+{
+    return false;
+}
+
 //Return the name of this class. Used for printing debug information.
 string Symbol::className()
 {

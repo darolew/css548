@@ -10,3 +10,5 @@ vgrind
 .nfs*
 output.txt
 cloc.pl
+parser/test/IntSet.h
+parser/test/IntSet.cpp

@@ -27,10 +27,6 @@
 void yyerror(char const *);
 int yylex(); /* needed by g++ */
 
-//TODO: This does not work for nested array accesses. 
-//See readme file for design and the outline of solution.
-//int exprCount;
-
 %}
 
 /* Yacc definition section */
@@ -65,7 +61,7 @@ int yylex(); /* needed by g++ */
 //from which they were included.
 %type <term> ConstFactor ConstExpression
 %type <chr> UnaryOperator
-%type <tkn> WhichWay MultOperator AddOperator
+%type <tkn> WhichWay MultOperator AddOperator Relation
 %type <flag> FormalParamFlag
 //%type <type> Term Factor FunctionCall 
 
@@ -91,9 +87,14 @@ int yylex(); /* needed by g++ */
 
 CompilationUnit     :
                     {
+                        //Include standard C++ headers.
                         cout << "#include <iostream>" << endl;
                         cout << "#include <stdlib.h>" << endl;
                         cout << "using namespace std;" << endl;
+                        
+                        //Include C++ code used to translate sets.
+                        cout << "#include \"IntSet.cpp\"" << endl;
+                        
                         cout << endl << endl;
                     }
                       ProgramModule
@@ -544,7 +545,6 @@ ForStatement        : yfor yident yassign
                       Expression WhichWay
                     {
                         tracker.event_Assignment();
-                        //tracker.pop();
                         string comparator = ($6 == yto) ? " <=" : " >=";
                         cout << "; " << $2 << comparator << " ";
                     }
@@ -716,11 +716,37 @@ ExpAction           : /*** empty ***/
 
 /***************************  Expression Stuff  ******************************/
 Expression          : SimpleExpression
-                    | SimpleExpression Relation SimpleExpression
+                    | SimpleExpression Relation
+                    {
+                        switch ($2) {
+                            case yequal:
+                                cout << " == ";
+                                break;
+                            case ynotequal:
+                                cout << " != ";
+                                break;
+                            case yless:
+                                cout << " < ";
+                                break;
+                            case ygreater:
+                                cout << " > ";
+                                break;
+                            case ylessequal:
+                                cout << " <= ";
+                                break;
+                            case ygreaterequal:
+                                cout << " >= ";
+                                break;
+                            case yin:
+                                cout << " % ";  // Overloaded for sets
+                                break;
+                        }
+                    }
+                      SimpleExpression
                     {
                         //Validate that both expression are booleans and tell
                         //the tracker to update its state
-                        tracker.event_RelationalOp();
+                        tracker.event_RelationalOp($2);
                     }
                     ;
 SimpleExpression    : TermExpr
@@ -751,7 +777,10 @@ TermExpr            : Term
                                 break;
                         }
                     }
-                     Term { tracker.event_MathOp($2); }
+                      Term
+                    {
+                        tracker.event_MathOp($2);
+                    }
                     ;
 Term                : Factor
                     | Term MultOperator
@@ -884,6 +913,8 @@ Factor              : yinteger
                     }
                       Factor
                     | Setvalue
+                    {
+                    }
                     | FunctionCall
                     ;
 FunctionCall        : yident
@@ -907,14 +938,83 @@ FunctionCall        : yident
                     }
                       ActualParameters
                     ;
-Setvalue            : yleftbracket ElementList yrightbracket
+Setvalue            : yleftbracket
+                    {
+                        if (!tracker.peekType()->isSet())
+                            cout << "***ERROR: Assigning set value to non-set" << endl;
+
+                        //Generate code that will create a set literal.
+                        cout << "IntSet::makeLiteral(";
+                    }
+                      ElementList yrightbracket
+                    {
+                        cout << ", SETTERM)";
+                        tracker.push("SETLIT", tracker.peekType());
+                    }
                     | yleftbracket yrightbracket
+                    {
+                        if (!tracker.peekType()->isSet())
+                            cout << "***ERROR: Assigning set value to non-set" << endl;
+
+                        //Generate code that will create an empty set.
+                        cout << "IntSet::makeLiteral(SETTERM)";
+                        
+                        tracker.push("SETLIT", tracker.peekType());
+                    }
                     ;
 ElementList         : Element
-                    | ElementList ycomma Element
+                    | ElementList ycomma
+                    {
+                        cout << ", ";
+                    }
+                      Element
                     ;
 Element             : ConstExpression
+                    {
+                        Terminal *term = $1;
+                        
+                        //Literal integers are the only supported set value.
+                        if (term->token != yinteger)
+                            cout << "***ERROR: Set values must be integers" << endl;
+
+                        //Make sure this value is in-range for this set.
+                        const int val = atoi(term->str.c_str());
+                        SetType *set = (SetType*)tracker.peekType();
+                        if (!set->legalValue(val))
+                            cout << "***ERROR: Out-of-bounds set value" << endl;
+                        
+                        //Pass this value into IntSet::makeLiteral().
+                        cout << val;
+                        delete term;
+                    }
                     | ConstExpression ydotdot ConstExpression
+                    {
+                        Terminal *low = $1;
+                        Terminal *high = $3;
+                        
+                        //Literal integers are the only supported set ranges.
+                        if (low->token != yinteger || high->token != yinteger)
+                            cout << "***ERROR: Set ranges must be literal integers" << endl;
+
+                        //Make sure these values are in-range for this set.
+                        const int ilow = atoi(low->str.c_str());
+                        const int ihigh = atoi(high->str.c_str());
+                        SetType *set = (SetType*)tracker.peekType();
+                        if (!set->legalValue(ilow) || !set->legalValue(ihigh))
+                            cout << "***ERROR: Out-of-bounds set value" << endl;
+
+                        //Pass the whole range of values into IntSet::makeLiteral().
+                        //This will generate pretty ridiculous code for large
+                        //set ranges.
+                        for (int num = ilow; num <= ihigh; num++) {
+                            if (num > ilow)
+                                cout << ", ";
+                            cout << num;
+                        }
+                        
+                        delete low;
+                        delete high;
+                    }
                     ;
 
 /***************************  Subprogram Stuff  ******************************/
@@ -927,7 +1027,7 @@ ProcedureDecl       : CreateFunc ProcedureHeading ysemicolon
                     {
                         currFunction->generateDefinition("");
                     }
-                    Block
+                      Block
                     {
                         currFunction->endFunction();
                         symTable.endScope();
@@ -1009,13 +1109,13 @@ AddOperator         : yplus     { $$ = yplus; }
                     | yminus    { $$ = yminus; } 
                     | yor       { $$ = yor; }
                     ;
-Relation            : yequal        { cout << " == "; }
-                    | ynotequal     { cout << " != "; }
-                    | yless         { cout << " < ";  }
-                    | ygreater      { cout << " > ";  }
-                    | ylessequal    { cout << " <= "; }
-                    | ygreaterequal { cout << " >= "; }
-                    | yin
+Relation            : yequal        { $$ = yequal; }
+                    | ynotequal     { $$ = ynotequal; }
+                    | yless         { $$ = yless; }
+                    | ygreater      { $$ = ygreater; }
+                    | ylessequal    { $$ = ylessequal; }
+                    | ygreaterequal { $$ = ygreaterequal; }
+                    | yin           { $$ = yin; }
                     ;
 
 %%

@@ -145,7 +145,7 @@ void Tracker::event_Assignment()
     Frame left = pop();
    
     //TODO: Reusing relationCompatible() checks for assignment.
-    if (!left.type->relationCompatible(right.type)) {
+    if (!left.type->relationCompatible(right.type, yassign)) {
         ERR(string("incompatible assignment of ") + right.type->dump() 
             + " to " + left.type->dump());
     }
@@ -271,7 +271,7 @@ void Tracker::event_MathOp(int opToken)
         //The results of a boolean operation is a boolean
         push("", symTable.lookupSIT(yboolean));
         
-    } else {
+    } else if (r && l) {
         BaseType *result = BaseType::getMathType(l, r, opToken);
         if (!result) {
             ERR(string("invalid math operation - ")
@@ -282,11 +282,24 @@ void Tracker::event_MathOp(int opToken)
             //Push the result type onto the stack
             push("", result);
         }
+    } else {
+        //The operands are not base types; check if they are sets.
+        SetType *rs = dynamic_cast<SetType*>(right.type);
+        SetType *ls = dynamic_cast<SetType*>(left.type);
+        if (rs && ls) {
+            //If this is a legal operation for a set, push a set on the tpye
+            //stack.
+            if (rs->legalMathOp(opToken))
+                push(right.str, right.type);
+            else
+                ERR("Illegal math operation on set");
+        } else
+            ERR("Illegal math operation");
     }
 }
 
 //----------------------------------------------------------------------------
-void Tracker::event_RelationalOp()
+void Tracker::event_RelationalOp(int opToken)
 {   
     //Permitted comparisons
     //   integers and reals can be compared
@@ -301,7 +314,7 @@ void Tracker::event_RelationalOp()
     Frame left = peek();
             
     //Validate that the comparison was valid
-    if (!left.type->relationCompatible(right.type)) {
+    if (!left.type->relationCompatible(right.type, opToken)) {
         ERR(string("invalid relational operation ") + left.type->dump() 
             + " cannot be comparable to " + right.type->dump());
     }

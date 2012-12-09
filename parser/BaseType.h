@@ -26,7 +26,7 @@ public:
     virtual bool compatible(BaseType*);
     bool isLegalArrayIndexType();
     bool isStringType();
-    virtual bool relationCompatible(AbstractType *);
+    virtual bool relationCompatible(AbstractType*, int);
 };
 
 #endif

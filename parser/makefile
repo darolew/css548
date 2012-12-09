@@ -3,11 +3,11 @@
 # Generate parser using Yacc and compile it with g++.
 
 OBJ = y.tab.o lex.yy.o main.o AbstractType.o actions.o ArrayType.o \
-    BaseType.o Const.o Function.o Parameter.o PointerType.o RecordType.o \
-    SetType.o Symbol.o Tracker.o SymTable.o Variable.o
+    BaseType.o Const.o Function.o IntSet.o Parameter.o PointerType.o \
+    RecordType.o SetType.o Symbol.o Tracker.o SymTable.o Variable.o
 H = y.tab.h actions.h  AbstractType.h ArrayType.h BaseType.h Const.h \
-    Function.h IoFunction.h MemFunction.h Parameter.h PointerType.h Range.h \
-    RecordType.h SetType.h Symbol.h SymTable.h Tracker.h Variable.h
+    Function.h IntSet.h IoFunction.h MemFunction.h Parameter.h PointerType.h \
+    Range.h RecordType.h SetType.h Symbol.h SymTable.h Tracker.h Variable.h
 CC = g++
 
 all: all_quiet
@@ -42,6 +42,9 @@ lex.yy.o: $H lex.yy.c
 
 lex.yy.c: $H lexer.l
 	@flex lexer.l
+    
+IntSet.o: IntSet.h IntSet.cpp
+	@$(CC) -g -c IntSet.cpp
 
 Parameter.o: $H Parameter.cpp
 	@$(CC) -g -c Parameter.cpp

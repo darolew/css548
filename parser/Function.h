@@ -35,7 +35,7 @@ public:
     int numParams();
     Parameter *getParam(int);
     virtual void event_Designator(string);
-    virtual bool relationCompatible(AbstractType*);
+    virtual bool relationCompatible(AbstractType*, int);
     
     //TODO: Make this private
     AbstractType *returnType; // return type; left NULL for procedures

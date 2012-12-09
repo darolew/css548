@@ -11,7 +11,7 @@
 #include <string>
 using namespace std;
 
-typedef enum {
+typedef enum {  //TODO: delete
     CT_NONE,
     CT_POINTER,
     CT_ARRAY,
@@ -20,7 +20,7 @@ typedef enum {
     CT_RECORD
 } COMPLEXTYPE;
 
-typedef enum {
+typedef enum {  //TODO: delete
     BT_NONE,
     BT_INTEGER,
     BT_REAL,
@@ -52,6 +52,7 @@ public:
     virtual bool isProcedure();
     virtual bool isArray();
     virtual bool isRecord();
+    virtual bool isSet();
     virtual string className();
     virtual string dump();
     virtual void event_Designator(string);

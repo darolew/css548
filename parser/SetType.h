@@ -9,6 +9,7 @@
 #include <list>
 #include <sstream>
 #include "AbstractType.h"
+#include "BaseType.h"
 #include "Range.h"
 #include "main.h"
 using namespace std;
@@ -20,6 +21,11 @@ private:
 
 public:
     SetType(Range);
+    void generateCode(string);
+    bool legalValue(int);
+    bool legalMathOp(int);
+    virtual bool relationCompatible(AbstractType*, int);
+    virtual bool isSet();
 };
 
 #endif

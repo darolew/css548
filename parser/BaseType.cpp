@@ -44,11 +44,16 @@ bool BaseType::isStringType()
     return token == ystring;
 }
 
-bool BaseType::relationCompatible(AbstractType *otherType) 
+bool BaseType::relationCompatible(AbstractType *otherType, int opToken) 
 {     
     //Pointers and null can be compared
     if (token == ynil)
         return otherType->isPointer();
+        
+    if (opToken == yin) {
+        SetType *st = dynamic_cast<SetType*>(otherType);
+        return token == yinteger && st != NULL;
+    }
 
     BaseType *type = dynamic_cast<BaseType *>(otherType);
     if (!type)
@@ -77,7 +82,7 @@ BaseType *BaseType::getMathType(BaseType *left, BaseType *right, int op)
 {
     int l = left->token - offset;
     int r = right->token - offset;
-     
+
     int result = mathTable[l][r][op-offset];
     
     //Invalid operation

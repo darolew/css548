@@ -20,7 +20,7 @@ public:
     virtual void generateDefinition(string);
     string cPointeeName();
     virtual bool isPointer();
-    virtual bool relationCompatible(AbstractType *);
+    virtual bool relationCompatible(AbstractType*, int);
 };
 
 #endif
