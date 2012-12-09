@@ -2,7 +2,10 @@ CSS 548; Autumn 2012
 Aaron Hoffer and Daniel Lewis
 Phase 4
 
+
 Section 1:
+
+Correctly translating "regular" programs:
 
     simplest.p      - translates correctly
     simplest2.p     - translates correctly
@@ -12,26 +15,59 @@ Section 1:
     case.p          - translates correctly
     pointer.p       - translates correctly
 
+Incorrectly translating "regular" programs:
+
+    <none>
+
+
 Section 2:
+
+Correctly translating "medium" programs:
 
     array.p         - translates correctly
     array2.p        - translates correctly
     list.p          - translates correctly
     fact.p          - translates correctly
     
+Incorrectly translating "medium" programs:
+
+    <none>
+
+
 Section 3:
 
+Correctly translating "hard" programs:
+
     set.p           - translates correctly
-    nestedprocs.p   - nested procedures not implemented
-    sttest.p        - nested procedures not implemented
-    sttest2.p       - nested procedures not implemented
-    sttest3.p       - nested procedures not implemented
     list2.p         - translates correctly (except "count")
+    
+list2.p translates correctly, but it uses a global variable named "count" which
+conflicts with names used in the C++ library. If "count" is renamed, then it
+works fine.
+
+Incorrectly translating "hard" programs:
+
+    nestedprocs.p   - nested procedures not implemented
+    sttest.p        - nested procedures not implemented (segfaults)
+    sttest2.p       - nested procedures not implemented
+    sttest3.p       - nested procedures not implemented (segfaults)
+
 
 Section 4:
 
     List any of the Pascal programs with "errors" that you do not display an
     appropriate error message. I.e., say which errors you do not detect.
+
+    sterror.p       - nested procedures not implemented (segfaults)
+    funcerror.p     - misses errors, produces bogus errors
+    arrayerror.p    - misses typedef errors, produces correct for-loop error
+    errors.p        - catches the first few errors, then terminates
+    paramtypeerror.p - catches return error, first param error (segfaults)
+
+    simpleerror.p   - produces expected errors
+    sterror2.p      - produces expected errors
+    harderror.p     - produces expected errors
+
 
 Section 5:
 
@@ -40,12 +76,14 @@ Section 5:
     sample Pascal programs that you have submitted. If there is nothing, say
     none.
 
+
 Section 6:
 
     Describe anything else you think I should know that will help me to assess
     what you have done. Describe anything that was way more challenging than
     you originally thought (and that you suspect I don't know the depth of the
     challenges).
+
 
 Section 7:
 
@@ -54,7 +92,6 @@ Section 7:
     big deal, not a formal presentation; you'll just "make" it and run it with
     sample code perhaps describing how you handled something or challenges you
     ran into. 
-
 
 
 Design
@@ -108,6 +145,7 @@ Yacc's panic mode.
 
 -Nested function definitions are not implemented.
 
+[TODO: The below might not be true anymore.]
 -Nested array acesses such as:  a[i, b[ii, jj, kk], j] is not supported.
          a[i, b[ii, jj, kk], j]
 
