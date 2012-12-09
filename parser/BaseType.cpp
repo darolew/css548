@@ -65,9 +65,7 @@ bool BaseType::relationCompatible(AbstractType *otherType, int opToken)
         return true;
         
     //  booleans and booleans
-    bool left = identifier == "false" || identifier == "true";
-    bool right = type->identifier == "false" || type->identifier == "true";
-    if (left && right)
+    if (isBooleanType() && type->isBooleanType())
         return true;
 
     //  integers and integers
@@ -91,4 +89,10 @@ BaseType *BaseType::getMathType(BaseType *left, BaseType *right, int op)
 
     //Go find the correct instance of base type.
     return symTable.lookupSIT(result);
+}
+
+bool BaseType::isBooleanType()
+{
+	string id = identifier; // shorten line
+	return id == "boolean" || id == "true" || id == "false";
 }

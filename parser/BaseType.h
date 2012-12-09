@@ -27,6 +27,9 @@ public:
     bool isLegalArrayIndexType();
     bool isStringType();
     virtual bool relationCompatible(AbstractType*, int);
+    
+private:
+	bool isBooleanType();
 };
 
 #endif
