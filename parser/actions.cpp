@@ -30,7 +30,12 @@ AbstractType *currType;     // current type being constructed
 
 //Type operations
 int mathTable[64][64][64];
-const int offset = 258;
+const int yTokOffset = 258;
+
+
+//
+// ST-Related Actions
+//
 
 //This method iterates through the list of pointers declared in a just-parsed
 //typedef block; it is invoked when exiting the typedef block, and it assigns
@@ -184,20 +189,48 @@ void beginScope(const char *name)
     symTable.beginScope(name);
 }
 
+void declareVariable()
+{
+    //Variables must point to a known type. They can be resolved immediately.
+    //If a variable is declared with an unknown identifier, as in sterror.p:                                                                                       
+    //    aaa: undefinedType;                                                                                                       
+    //currType will be NULL and cannot be resolved                                                                                  
+    if (currType)                                                                                                                   
+        currType->resolve();    
+
+    //Walk the list of variable names being declared. For example, the
+    //declaration "a,b,c : interger;" includes a list of variables {a, b, c}
+    //and their type, integer. For each one, a new variable object is created,
+    //assigned a type, and entered into the symbol table. The list is emptied
+    //as the variables are inserted into the symbol table.
+    while (!idList.empty()) {
+        string name = idList.front();
+        Variable *var = new Variable(name, currType);
+        var->generateDefinition(name);
+        var->insert();
+        idList.pop_front();
+        cout << ";" << nlindent();
+    }
+}
+
+//
+// Code Generation Actions
+//
+
 void initMathTable() 
 {
     //Zero out the table
     bzero(mathTable, sizeof mathTable);
 
     // Forward slash (/) is ydivide
-    int yreal_ = yreal-offset;
-    int yinteger_ = yinteger-offset;
-    int yplus_ = yplus-offset;
-    int yminus_ = yminus-offset;
-    int ymultiply_ = ymultiply-offset;
-    int ydivide_ = ydivide-offset;
-    int ydiv_ = ydiv-offset;
-    int ymod_ = ymod-offset;
+    int yreal_      = yreal - yTokOffset;
+    int yinteger_   = yinteger - yTokOffset;
+    int yplus_      = yplus - yTokOffset;
+    int yminus_     = yminus - yTokOffset;
+    int ymultiply_  = ymultiply - yTokOffset;
+    int ydivide_    = ydivide - yTokOffset;
+    int ydiv_       = ydiv - yTokOffset;
+    int ymod_       = ymod - yTokOffset;
     
     mathTable[yreal_][yreal_][yplus_] = yreal;
     mathTable[yreal_][yinteger_][yplus_] = yreal;
@@ -207,7 +240,7 @@ void initMathTable()
     mathTable[yreal_][yreal_][yminus_] = yreal; 
     mathTable[yreal_][yinteger_][yminus_] = yreal;
     mathTable[yinteger_][yreal_][yminus_] = yreal;
-    mathTable[yinteger_][yinteger_][yminus_];
+    mathTable[yinteger_][yinteger_][yminus_] = yinteger;
 
     mathTable[yreal_][yreal_][ymultiply_] = yreal;
     mathTable[yreal_][yinteger_][ymultiply_] = yreal;
@@ -223,3 +256,264 @@ void initMathTable()
 
     mathTable[yinteger_][yinteger_][ymod_] = yinteger;
 }
+
+void procedureCallNoParam(string ident)
+{
+    Symbol *sym = symTable.lookup(ident);
+    if (!sym || !sym->isFunction())
+        cout << "***ERROR: " << ident << " is not a procedure" << endl;
+    else if (sym->isIoFunction()) {
+        IoFunction *iofunc = (IoFunction*)sym;
+        iofunc->generateInit();
+        iofunc->generateEnd();                                                        
+    } else {
+        currIoFunc = NULL;
+        cout << ident << "()";
+    }
+}
+
+void procedureCallStart(string ident)
+{
+    //Add the function to the type tracker
+    tracker.push(ident);
+
+    //TODO: These checks are partially redundant.
+    Symbol *sym = symTable.lookup(ident);
+    if (!sym || !sym->isFunction())
+        cout << "***ERROR: " << ident << " is not a function" << endl;
+    else if (sym->isIoFunction()) {
+        currIoFunc = (IoFunction*)sym;
+        currIoFunc->generateInit();
+        currIoFunc->generateSep();
+    } else
+        cout << ident;
+    
+    //Reset the expression count because it is used to 
+    //determine which parameter is being parsed.
+    exprCount.push_front(0);
+}
+
+void procedureCallEnd()
+{
+    if (currIoFunc) {
+        currIoFunc->generateEnd();
+        currIoFunc = NULL;
+        
+        //Since I/O functions have an indefinite number of
+        //parameters, they must be manually removed from
+        //the type stack.
+        tracker.pop();
+    }
+}
+
+void functionCallStart(string ident)
+{
+    //Add the function to the type tracker
+    tracker.push(ident);
+    
+    AbstractType *type = tracker.peekType();
+    if (!type->isFunction())
+        cout << "***ERROR: expected " << ident << " to be function\n";
+
+    cout << ident << flush;
+    
+    //Reset the expression count because it is used to determine which
+    //parameter is being parsed.
+    exprCount.push_front(0);
+}
+
+bool isStringType()
+{
+    AbstractType *type = tracker.peekType();
+    BaseType *bt = dynamic_cast<BaseType*>(type);
+    return bt && bt->isStringType();
+}
+
+void designatorBegin(string ident)
+{
+    cout << ident;
+
+    //Update the type stack
+    tracker.push(ident);
+
+    //If this identifier is being used as an array index
+    //and it is a string, access the first character.
+    if (tracker.arraySecondFromTop()) {
+        AbstractType *type = tracker.peekType();
+        BaseType *bt = dynamic_cast<BaseType*>(type);
+        if (bt && bt->isStringType())
+            cout << "[0]";
+    }
+
+    //Notify the object that is was just used as a 
+    //designator.
+    Symbol *sym = symTable.lookup(ident);
+    if (sym)
+        sym->event_Designator(ident);
+}
+
+void expressionAction()
+{
+    //Non-terminal ExpAction is trigged when an expression is parsed. It
+    //triggers semantic actions and elminates duplicate code that would
+    //otherwise be in both ExpList productions
+
+//tracker.debugPrint();
+//cout << "<a>" << flush;
+    
+    bool indexingArray = tracker.arraySecondFromTop();
+    if (indexingArray) {
+//cout << "<b>" << flush;
+        //Print bounds offset 
+        int dimension = exprCount.front();
+        bool last;
+        tracker.arrayIndexOffset(dimension);
+        exprCount.front() += tracker.endArrayDimension(dimension, &last);
+        
+        //Close array access
+        cout << "]";
+
+        if(last)
+            exprCount.pop_front();
+    }
+
+//cout << "<c>" << flush;
+    if (!indexingArray || !tracker.arrayOnTopOfStack()) {
+        if (tracker.functionCallInProgress()) {
+//cout << "<d>" << flush;
+            //Inform the tracker that an expression has been parsed
+            tracker.endParameter(exprCount.front());
+
+            //Increment the expression count. Do not do this
+            //for I/O functions, whose parameters are not
+            //pushed onto the type stack.
+            if (!currIoFunc)
+                exprCount.front() += 1;
+        }
+    }
+//cout << "<e>" << flush;
+}
+
+void printRelation(int opToken)
+{
+    switch (opToken) {
+        case yequal:
+            cout << " == ";
+            break;
+        case ynotequal:
+            cout << " != ";
+            break;
+        case yless:
+            cout << " < ";
+            break;
+        case ygreater:
+            cout << " > ";
+            break;
+        case ylessequal:
+            cout << " <= ";
+            break;
+        case ygreaterequal:
+            cout << " >= ";
+            break;
+        case yin:
+            cout << " % ";  // Overloaded for sets
+            break;
+        default:
+            cout << "***ERROR: unhandled opToken=" << opToken << " (internal)";
+            cout << endl;
+            break;
+    }
+}
+
+void printAddOperator(int opToken)
+{
+    switch (opToken) {
+        case yplus:
+            cout << " + ";
+            break;
+        case yminus:
+            cout << " - ";
+            break;                            
+        case yor:
+            cout << " || ";
+            break;                        
+        default:
+            cout << "***ERROR: unhandled opToken=" << opToken << " (internal)";
+            cout << endl;
+            break;
+    }
+}
+
+void printMultOperator(int opToken)
+{
+    switch (opToken) {
+        case yand:
+            cout << " && ";
+            break;
+        case ymultiply:
+            cout << " * ";
+            break;                            
+        case ydivide:
+        case ydiv:
+            cout << " / ";
+            break;
+        case ymod:
+            cout << " % ";
+            break;                        
+        default:
+            cout << "***ERROR: unhandled opToken=" << opToken << " (internal)";
+            cout << endl;
+            break;
+    }
+}
+
+void setLiteralAddValue(const Terminal *term)
+{
+    //Literal integers are the only supported set value.
+    if (term->token != yinteger)
+        cout << "***ERROR: Set values must be integers" << endl;
+
+    //Make sure this value is in-range for this set.
+    const int val = atoi(term->str.c_str());
+    SetType *set = (SetType*)tracker.peekType();
+    if (!set->legalValue(val))
+        cout << "***ERROR: Out-of-bounds set value" << endl;
+    
+    //Pass this value into IntSet::makeLiteral().
+    cout << val;
+}
+
+void setLiteralAddRange(const Terminal *low, const Terminal *high)
+{
+    //Literal integers are the only supported set ranges.
+    if (low->token != yinteger || high->token != yinteger)
+        cout << "***ERROR: Set ranges must be literal integers" << endl;
+
+    //Make sure these values are in-range for this set.
+    const int ilow = atoi(low->str.c_str());
+    const int ihigh = atoi(high->str.c_str());
+    SetType *set = (SetType*)tracker.peekType();
+    if (!set->legalValue(ilow) || !set->legalValue(ihigh))
+        cout << "***ERROR: Out-of-bounds set value" << endl;
+
+    //Pass the whole range of values into IntSet::makeLiteral().
+    //This will generate pretty ridiculous code for large
+    //set ranges.
+    for (int num = ilow; num <= ihigh; num++) {
+        if (num > ilow)
+            cout << ", ";
+        cout << num;
+    }
+}
+
+void endBlock()
+{
+    if (currFunction)
+        currFunction->endFunction();
+    else
+        cout << "***ERROR: Nested functions not supported\n";
+        
+    symTable.endScope();
+    currFunction = NULL;
+}
+

@@ -49,9 +49,11 @@ extern AbstractType *currType;     // current type being constructed
 
 //Type operations
 extern int mathTable[64][64][64];
-extern const int offset;
+extern const int yTokOffset;
 
-//Method prototypes. For details about each method, see comments in actions.cpp
+//
+// ST-Related Actions
+//
 void assignTypesToPointers();
 PointerType *addPointerToList(string, string);
 void insertArrayType();
@@ -62,6 +64,24 @@ void addField();
 void addFormalParam(string, bool);
 bool isDuplicateField(string);
 void beginScope(const char *);
+void declareVariable();
+
+//
+// Code Generation Actions
+//
 void initMathTable();
+void procedureCallNoParam(string);
+void procedureCallStart(string);
+void procedureCallEnd();
+void functionCallStart(string);
+bool isStringType();
+void designatorBegin(string);
+void expressionAction();
+void printRelation(int);
+void printAddOperator(int);
+void printMultOperator(int);
+void setLiteralAddValue(const Terminal*);
+void setLiteralAddRange(const Terminal*, const Terminal*);
+void endBlock();
 
 #endif

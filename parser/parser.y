@@ -217,30 +217,7 @@ PointerTypeDef      : yident yequal ycaret yident
                     ;
 VariableDecl        : IdentList ycolon Type
                     {
-                        //Variables must point to a known type. They can be 
-                        //resolved immediately.
-                        //If a variable is declared with                                                                          
-                        //an unknown identifier, as in sterror.p                                                                                        
-                        //    aaa: undefinedType;                                                                                                       
-                        //currType will be NULL and cannot be resolved                                                                                  
-                        if (currType)                                                                                                                   
-                            currType->resolve();    
-                    
-                        //Walk the list of variable names being declared. For
-                        //example, the declaration "a,b,c : interger;" includes
-                        //a list of variables {a, b, c} and their type, integer.
-                        //For each one, a new variable object is created, 
-                        //assigned a type, and entered into the symbol table. 
-                        //The list is emptied as the variables are inserted into
-                        //the symbol table.
-                        while (!idList.empty()) {
-                            string name = idList.front();
-                            Variable *var = new Variable(name, currType);
-                            var->generateDefinition(name);
-                            var->insert();
-                            idList.pop_front();
-                            cout << ";" << nlindent();
-                        }
+                        declareVariable();
                     }
                     ;
 
@@ -384,61 +361,24 @@ Assignment          : Designator yassign
                     {
                         cout << " = "; 
                     }
-                      Expression {tracker.event_Assignment();}
+                      Expression
+                    {
+                        tracker.event_Assignment();
+                    }
                     ;
 ProcedureCall       : yident
                     {
-                        Symbol *sym = symTable.lookup($1);
-                        if (!sym || !sym->isFunction())
-                            cout << "***ERROR: " << $1 << " is not a function" << endl;
-                        else if (sym->isIoFunction()) {
-                            IoFunction *iofunc = (IoFunction*)sym;
-                            iofunc->generateInit();
-                            iofunc->generateEnd();                                                        
-                        } else {
-                            currIoFunc = NULL;
-                            cout << $1 << "()";
-                        }
-                        
+                        procedureCallNoParam($1);
                         free($1);
                     }
                     | yident 
                     {
-                        //Add the function to the type tracker
-                        tracker.push($1);
-
-                        //Validate that yident really was a function.
-                        //tracker.event_FunctionCall();
-
-                        //TODO: These are partially redundant.
-                        Symbol *sym = symTable.lookup($1);
-                        if (!sym || !sym->isFunction())
-                            cout << "***ERROR: " << $1 << " is not a function" << endl;
-                        else if (sym->isIoFunction()) {
-                            currIoFunc = (IoFunction*)sym;
-                            currIoFunc->generateInit();
-                            currIoFunc->generateSep();
-                        } else
-                            cout << $1;
-
+                        procedureCallStart($1);
                         free($1);
-                        
-                        //Reset the expression count because it is used to 
-                        //determine which parameter is being parsed.
-                        exprCount.push_front(0);
                     }
                       ActualParameters
                     {
-                        if (currIoFunc) {
-                            currIoFunc->generateEnd();
-                            
-                            //Since I/O functions have an indefinite number of
-                            //parameters, they must be manually removed from
-                            //the type stack.
-                            tracker.pop();
-                        }
-                            
-                        currIoFunc = NULL;
+                        procedureCallEnd();
                     }
                     ;
 IfStatement         : yif
@@ -526,7 +466,6 @@ WhileStatement      : ywhile
                         indent--;
                         cout << unindent() << "}" << nlindent();
                     }
-
                     ;
 RepeatStatement     : yrepeat
                     {
@@ -535,12 +474,12 @@ RepeatStatement     : yrepeat
                     }
                       StatementSequence yuntil
                     {
-                        cout << unindent() << "} while (";
+                        cout << unindent() << "} while (!(";
                     }
                       Expression
                     {
                         indent--;
-                        cout << ");" << nlindent();
+                        cout << "));" << nlindent();
                     }
                     ;
 ForStatement        : yfor yident yassign
@@ -561,9 +500,7 @@ ForStatement        : yfor yident yassign
 
                         //Special handling for character indices: increment
                         //the string character.
-                        AbstractType *type = tracker.peekType();
-                        BaseType *bt = dynamic_cast<BaseType*>(type);
-                        if (bt && bt->isStringType())    
+                        if (isStringType())  
                             cout << "[0]";
     
                         string postfix = ($6 == yto) ? "++" : "--";
@@ -578,14 +515,8 @@ ForStatement        : yfor yident yassign
                         free($2);
                     }
                     ;
-WhichWay            : yto
-                    {
-                        $$ = yto; //TODO: Is the assignemnt $$ = yto redundant?
-                    }
-                    | ydownto
-                    {
-                        $$ = ydownto;
-                    }
+WhichWay            : yto       { $$ = yto;     }
+                    | ydownto   { $$ = ydownto; }
                     ;
 MemoryStatement     : ynew yleftparen yident yrightparen  
                     {
@@ -603,25 +534,8 @@ MemoryStatement     : ynew yleftparen yident yrightparen
 
 Designator          : yident 
                     {
-                        cout << $1;
-                        
-                        //Update the type stack
-                        tracker.push($1);
-
-                        //If this identifier is being used as an array index
-                        //and it is a string, access the first character.
-                        if (tracker.arraySecondFromTop()) {
-                            AbstractType *type = tracker.peekType();
-                            BaseType *bt = dynamic_cast<BaseType*>(type);
-                            if (bt && bt->isStringType())
-                                cout << "[0]";
-                        }
-
-                        //Notify the object that is was just used as a 
-                        //designator.
-                        Symbol *sym = symTable.lookup($1);
-                        if (sym)
-                            sym->event_Designator($1);
+                        designatorBegin($1);
+                        free($1);
                     }
                       DesignatorStuff
                     ;
@@ -630,7 +544,6 @@ DesignatorStuff     : /*** empty ***/
                     ;
 theDesignatorStuff  : ydot yident
                     {                 
-                        //ACCESS FIELD IN A RECORD
                         tracker.event_AccessRecordField($2);
                         
                         cout << "." << $2;
@@ -638,17 +551,13 @@ theDesignatorStuff  : ydot yident
                     } 
                     | yleftbracket 
                     {
-                        //ARRAY ACCESS
+                        //Open the array. It is closed in ExpList.
                         cout << "[";
                         
                         //Reset the array dimension index
                         exprCount.push_front(0);
                     }
                       ExpList yrightbracket
-                    {
-                        //This is now printed in expression/exp list
-                        //cout << "]";
-                    }
                     | ycaret
                     {
                         //Notify the tracker of the pointer dereference
@@ -691,34 +600,7 @@ ExpList             : ExpAction
 ExpAction           : /*** empty ***/
                     | Expression 
                     {
-                        //Non-terminal ExpAction is trigged when an expression
-                        //is parsed. It triggers semantic actions and 
-                        //elminates duplicate code that would otherwise be
-                        //in both ExpList productions
-                        if (tracker.arraySecondFromTop()) {
-                            //Print bounds offset 
-                            int dimension = exprCount.front();
-                            bool last;
-                            tracker.arrayIndexOffset(dimension);
-                            exprCount.front() += tracker.endArrayDimension(dimension, &last);
-                            
-                            //Close array access
-                            cout << "]";
-
-                            if(last)
-                                exprCount.pop_front();
-                        }
-
-                        if (!tracker.arrayOnTopOfStack() && tracker.functionCallInProgress()) {
-                            //Inform the tracker that an expression has been parsed
-                            tracker.endParameter(exprCount.front());
-
-                            //Increment the expression count. Do not do this
-                            //for I/O functions, whose parameters are not
-                            //pushed onto the type stack.
-                            if (!currIoFunc)
-                                exprCount.front() += 1;
-                        }
+                        expressionAction();
                     }
                     ;                    
 
@@ -726,29 +608,7 @@ ExpAction           : /*** empty ***/
 Expression          : SimpleExpression
                     | SimpleExpression Relation
                     {
-                        switch ($2) {
-                            case yequal:
-                                cout << " == ";
-                                break;
-                            case ynotequal:
-                                cout << " != ";
-                                break;
-                            case yless:
-                                cout << " < ";
-                                break;
-                            case ygreater:
-                                cout << " > ";
-                                break;
-                            case ylessequal:
-                                cout << " <= ";
-                                break;
-                            case ygreaterequal:
-                                cout << " >= ";
-                                break;
-                            case yin:
-                                cout << " % ";  // Overloaded for sets
-                                break;
-                        }
+                        printRelation($2);
                     }
                       SimpleExpression
                     {
@@ -767,23 +627,7 @@ SimpleExpression    : TermExpr
 TermExpr            : Term
                     | TermExpr AddOperator 
                     {
-                        switch ($2) {
-                            case yplus:
-                                cout << " + ";
-                                break;
-                            case yminus:
-                                cout << " - ";
-                                break;                            
-                            case yor:
-                                cout << " || ";
-                                break;                        
-                            default:
-                                cout 
-                                    << "***ERROR: internal error, unhandled AddOperator "
-                                    << $2
-                                    << endl;
-                                break;
-                        }
+                        printAddOperator($2);
                     }
                       Term
                     {
@@ -793,25 +637,7 @@ TermExpr            : Term
 Term                : Factor
                     | Term MultOperator
                     {
-                        switch ($2) {
-                            case yand:
-                                cout << " && ";
-                                break;
-
-                            case ymultiply:
-                                cout << " * ";
-                                break;                            
-                            case ydivide:
-                            case ydiv:
-                                cout << " / ";
-                                break;
-                            case ymod:
-                                cout << " % ";
-                                break;                        
-                            default:
-                                cout << "***ERROR: internal error, unhandled MultOperator\n";
-                                break;
-                        }
+                        printMultOperator($2);
                     }
                       Factor
                     {
@@ -868,22 +694,8 @@ Factor              : yinteger
                     ;
 FunctionCall        : yident
                     {
-                        //Add the function to the type tracker
-                        tracker.push($1);
-                        
-                        AbstractType *type = tracker.peekType();
-                        if (!type->isFunction())
-                            cout << "***ERROR: expected " << $1 << " to be function\n";
-                        
-                        //Validate that yident really was a function.
-                        //tracker.event_FunctionCall();
-
-                        cout << $1 << flush;
+                        functionCallStart($1);
                         free($1);
-                        
-                        //Reset the expression count because it is used to 
-                        //determine which parameter is being parsed.
-                        exprCount.push_front(0);
                     }
                       ActualParameters
                     ;
@@ -920,49 +732,14 @@ ElementList         : Element
                     ;
 Element             : ConstExpression
                     {
-                        Terminal *term = $1;
-                        
-                        //Literal integers are the only supported set value.
-                        if (term->token != yinteger)
-                            cout << "***ERROR: Set values must be integers" << endl;
-
-                        //Make sure this value is in-range for this set.
-                        const int val = atoi(term->str.c_str());
-                        SetType *set = (SetType*)tracker.peekType();
-                        if (!set->legalValue(val))
-                            cout << "***ERROR: Out-of-bounds set value" << endl;
-                        
-                        //Pass this value into IntSet::makeLiteral().
-                        cout << val;
-                        delete term;
+                        setLiteralAddValue($1);
+                        delete $1;
                     }
                     | ConstExpression ydotdot ConstExpression
                     {
-                        Terminal *low = $1;
-                        Terminal *high = $3;
-                        
-                        //Literal integers are the only supported set ranges.
-                        if (low->token != yinteger || high->token != yinteger)
-                            cout << "***ERROR: Set ranges must be literal integers" << endl;
-
-                        //Make sure these values are in-range for this set.
-                        const int ilow = atoi(low->str.c_str());
-                        const int ihigh = atoi(high->str.c_str());
-                        SetType *set = (SetType*)tracker.peekType();
-                        if (!set->legalValue(ilow) || !set->legalValue(ihigh))
-                            cout << "***ERROR: Out-of-bounds set value" << endl;
-
-                        //Pass the whole range of values into IntSet::makeLiteral().
-                        //This will generate pretty ridiculous code for large
-                        //set ranges.
-                        for (int num = ilow; num <= ihigh; num++) {
-                            if (num > ilow)
-                                cout << ", ";
-                            cout << num;
-                        }
-                        
-                        delete low;
-                        delete high;
+                        setLiteralAddRange($1, $3);
+                        delete $1;
+                        delete $3;
                     }
                     ;
 
@@ -978,13 +755,7 @@ ProcedureDecl       : CreateFunc ProcedureHeading ysemicolon
                     }
                       Block
                     {
-                    	if (currFunction)
-	                        currFunction->endFunction();
-	                    else
-	                    	cout << "***ERROR: Nested procedures not supported\n";
-
-                        symTable.endScope();
-                        currFunction = NULL;
+                        endBlock();
                     }
                     ;
 FunctionDecl        : CreateFunc FunctionHeading ycolon yident ysemicolon
@@ -995,13 +766,7 @@ FunctionDecl        : CreateFunc FunctionHeading ycolon yident ysemicolon
                     }
                       Block
                     {
-                    	if (currFunction)
-	                        currFunction->endFunction();
-	                    else
-	                    	cout << "***ERROR: Nested functions not supported\n";
-	                    	
-                        symTable.endScope();
-                        currFunction = NULL;
+                    	endBlock();
                     }
                     ;
 CreateFunc          : /*** empty ***/
@@ -1059,22 +824,22 @@ UnaryOperator       : yplus     { $$ = '+'; }
                     | yminus    { $$ = '-'; }
                     ;
 MultOperator        : ymultiply    { $$ = ymultiply; }
-                    | ydivide      { $$ = ydivide; }
-                    | ydiv         { $$ = ydiv; }
-                    | ymod         { $$ = ymod; }
-                    | yand         { $$ = yand; }
+                    | ydivide      { $$ = ydivide;   }
+                    | ydiv         { $$ = ydiv;      }
+                    | ymod         { $$ = ymod;      }
+                    | yand         { $$ = yand;      }
                     ;
-AddOperator         : yplus     { $$ = yplus; }
+AddOperator         : yplus     { $$ = yplus;  }
                     | yminus    { $$ = yminus; } 
-                    | yor       { $$ = yor; }
+                    | yor       { $$ = yor;    }
                     ;
-Relation            : yequal        { $$ = yequal; }
-                    | ynotequal     { $$ = ynotequal; }
-                    | yless         { $$ = yless; }
-                    | ygreater      { $$ = ygreater; }
-                    | ylessequal    { $$ = ylessequal; }
+Relation            : yequal        { $$ = yequal;        }
+                    | ynotequal     { $$ = ynotequal;     }
+                    | yless         { $$ = yless;         }
+                    | ygreater      { $$ = ygreater;      }
+                    | ylessequal    { $$ = ylessequal;    }
                     | ygreaterequal { $$ = ygreaterequal; }
-                    | yin           { $$ = yin; }
+                    | yin           { $$ = yin;           }
                     ;
 
 %%

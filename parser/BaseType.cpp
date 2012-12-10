@@ -71,10 +71,10 @@ bool BaseType::compatible(AbstractType *otherType, int opToken)
 
 BaseType *BaseType::getMathType(BaseType *left, BaseType *right, int op)
 {
-    int l = left->token - offset;
-    int r = right->token - offset;
+    int l = left->token - yTokOffset;
+    int r = right->token - yTokOffset;
 
-    int result = mathTable[l][r][op-offset];
+    int result = mathTable[l][r][op-yTokOffset];
     
     //Invalid operation
     if (!result)
