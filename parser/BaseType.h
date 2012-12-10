@@ -31,7 +31,7 @@ public:
     virtual bool compatible(AbstractType*, int);
     
 private:
-	bool isBooleanType();
+    bool isBooleanType();
 };
 
 #endif

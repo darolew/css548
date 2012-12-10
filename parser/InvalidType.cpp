@@ -15,5 +15,5 @@ InvalidType::InvalidType()
 //to push a type onto the type stack that is invalid for everything.
 bool InvalidType::compatible(AbstractType *type, int opToken)
 {
-	return false;
+    return false;
 }

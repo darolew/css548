@@ -783,7 +783,7 @@ FunctionDecl        : CreateFunc FunctionHeading ycolon yident ysemicolon
                     }
                       Block
                     {
-                    	endBlock();
+                        endBlock();
                     }
                     ;
 CreateFunc          : /*** empty ***/

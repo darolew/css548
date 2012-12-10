@@ -167,14 +167,14 @@ void Function::event_Designator(string designator)
 //operator.
 bool Function::compatible(AbstractType *otherType, int opToken)
 {
-	//Cannot compare or assign procedures.
+    //Cannot compare or assign procedures.
     if (!returnType)
         return false;
     
     //Cannot assign functions, unless we are setting the return type of the
     //current function.
     if (opToken == yassign && this != currFunction)
-    	return false;
+        return false;
     
     return returnType->compatible(otherType, opToken);
 }

@@ -251,17 +251,17 @@ void Tracker::endParameter(int index)
             + formalParamType->className() 
             + " but actual param is of type " 
             + actualParamType->className());
-	}
+    }
 
     //If this is the last parameter in the function call, 
     //pop the function off the stack
     if (index == func->numParams()-1) {
         pop();
         
-	    //If the function had a return type (i.e. it was not a procedure), 
-    	//push the return type onto the stack.
-	    if (func->isFunction() && !func->isProcedure())
-	        push("function return ", func->returnType->getType());
+        //If the function had a return type (i.e. it was not a procedure), 
+        //push the return type onto the stack.
+        if (func->isFunction() && !func->isProcedure())
+            push("function return ", func->returnType->getType());
     }
 }
 

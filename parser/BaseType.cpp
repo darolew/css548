@@ -94,6 +94,6 @@ BaseType *BaseType::getMathType(BaseType *left, BaseType *right, int op)
 //Returns whether this BaseType is a boolean.
 bool BaseType::isBooleanType()
 {
-	string id = identifier; // shorten line
-	return id == "boolean" || id == "true" || id == "false";
+    string id = identifier; // shorten line
+    return id == "boolean" || id == "true" || id == "false";
 }
