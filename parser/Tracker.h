@@ -2,7 +2,7 @@
 // Aaron Hoffer and Daniel Lewis
 //
 // This file contains the definition of the Tracker class. The tracker is used
-// to tracking types and perform type checking.
+// to track types and perform type checking.
 
 #ifndef TRACKER_H
 #define TRACKER_H
@@ -36,11 +36,10 @@ public:
     //Grow type stack
     void push(string, AbstractType*);
     void push(string);
-
     Frame pop();
-    AbstractType *peekType();
 
     //Getters
+    AbstractType *peekType();
     bool arrayOnTopOfStack();
     bool arraySecondFromTop();
     void arrayIndexOffset(int);

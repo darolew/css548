@@ -6,6 +6,9 @@
 //     - integer;
 //     - real;
 //     - char (used for strings).
+//
+// NOTE: As a convenience, this class has (somewhat improperly) been extended
+//       to contain other symbols, like "true" and "false".
 
 #ifndef BASETYPE_H
 #define BASETYPE_H
@@ -20,7 +23,7 @@ class BaseType : public AbstractType {
 
 public:
     BaseType(string, string, int);
-    static BaseType *getMathType(BaseType *, BaseType *, int op);
+    static BaseType *getMathType(BaseType*, BaseType*, int op);
     virtual string cTypeName();
     virtual void generateCode(string);
     bool isLegalArrayIndexType();

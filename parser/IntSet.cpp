@@ -294,4 +294,3 @@ int IntSet::size() const
 
     return max - min + 1;
 }
-

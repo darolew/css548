@@ -17,6 +17,7 @@ Const::Const(string id, Terminal term) : Symbol(id)
     this->term = term;    
 }
 
+//Generate a C++ equivalent definition of this constant.
 void Const::generateDefinition(string ident)
 {
     switch (term.token) {
@@ -51,12 +52,13 @@ void Const::generateDefinition(string ident)
 void Const::push() 
 {
     //
-    //TODO: This function defines the 'type' variable once, and the second
+    //TODO: This function defines the 'type' variable twice, and the second
     //      definition immediately goes out of scope. This is not right...
+    //      does this actually matter?
     //
 
-    //TODO: Maybe Const object should point to an instance BaseType.
-    //This would simplify some things.
+    //TODO: Maybe Const object should point to an instance of BaseType.
+    //      This would simplify some things.
 
     //Constants can only be base types. Look up the type in the SIT    
     BaseType *type = dynamic_cast<BaseType*>(symTable.lookupSIT(term.token));

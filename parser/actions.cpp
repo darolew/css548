@@ -8,7 +8,10 @@
 #include "y.tab.h"
 
 
+//Local function declarations
 static int terminalToInteger(const Terminal*);
+void validateTerminal(const Terminal*);
+void validateRange(Range);
 
 
 //The type tracker is a global object for easy access
@@ -28,7 +31,7 @@ RecordType *currRecord;     // current record type
 IoFunction *currIoFunc;     // current I/O function
 AbstractType *currType;     // current type being constructed
 
-//Type operations
+//Type operation globals
 int mathTable[64][64][64];
 const int yTokOffset = 258;
 
@@ -89,20 +92,6 @@ void insertArrayType()
     rangeList.erase(rangeList.begin(), rangeList.end());
 }
 
-void validateTerminal(const Terminal *term)
-{
-    //Array bounds must be single characters
-    if (term->token == ystring && term->str.size() > 1)
-        cout << endl << "***ERROR invalid character array bounds '" 
-            << term->str << "'" << endl;
-}    
-
-void validateRange(Range r) 
-{
-    if(r.low >= r.high)
-        cout << endl << "***ERROR: array bounds must ascending." << endl;
-}
-
 //Create a range object, set its members, and push it on a list.
 void addRange(const Terminal *low, const Terminal *high)
 {
@@ -115,6 +104,7 @@ void addRange(const Terminal *low, const Terminal *high)
     rangeList.push_back(range);
 }
 
+//Convert a terminal to an integer. Returns -1 on error.
 static int terminalToInteger(const Terminal *t)
 {
     if (t->token == yinteger)
@@ -137,6 +127,24 @@ static int terminalToInteger(const Terminal *t)
     }
     
     return -1;
+}
+
+//Prints an error if a character terminal is more than one character long,
+//rendering it illegal for ranges, sets, and array dimensions.
+void validateTerminal(const Terminal *term)
+{
+    //Array bounds must be single characters
+    if (term->token == ystring && term->str.size() > 1) {
+        cout << "\n***ERROR invalid character array bounds '" 
+            << term->str << "'" << endl;
+    }
+}    
+
+//Prints an error if a range does not encompass at least one value.
+void validateRange(Range r) 
+{
+    if(r.low >= r.high)
+        cout << "\n***ERROR: array bounds must be ascending" << endl;
 }
 
 //Remove an identifer and turn it into a variable as part of a record's fields.
@@ -217,6 +225,9 @@ void declareVariable()
 // Code Generation Actions
 //
 
+//Initializes a table that indicates the results of math operations. Given
+//the type of the operands and the operation, the mathTable returns the
+//resulting type.
 void initMathTable() 
 {
     //Zero out the table
@@ -257,30 +268,36 @@ void initMathTable()
     mathTable[yinteger_][yinteger_][ymod_] = yinteger;
 }
 
+//Generate code and perform error checking for a procedure call that takes no
+//parameters. Note this includes writeln(), read(), etc.
 void procedureCallNoParam(string ident)
 {
     Symbol *sym = symTable.lookup(ident);
     if (!sym || !sym->isFunction())
         cout << "***ERROR: " << ident << " is not a procedure" << endl;
     else if (sym->isIoFunction()) {
+        //Generate the I/O statement. Probably "cout << endl".
         IoFunction *iofunc = (IoFunction*)sym;
         iofunc->generateInit();
         iofunc->generateEnd();                                                        
     } else {
-        currIoFunc = NULL;
+        //Append parentheses to the name of the procedure.
         cout << ident << "()";
+        currIoFunc = NULL;
     }
 }
 
+//Generate code and perform error checking for the start of a procedure call.
+//Note this includes writeln(), read(), etc.
 void procedureCallStart(string ident)
 {
-    //Add the function to the type tracker
+    //Add the procedure to the type tracker
     tracker.push(ident);
 
     //TODO: These checks are partially redundant.
     Symbol *sym = symTable.lookup(ident);
     if (!sym || !sym->isFunction())
-        cout << "***ERROR: " << ident << " is not a function" << endl;
+        cout << "***ERROR: " << ident << " is not a procedure" << endl;
     else if (sym->isIoFunction()) {
         currIoFunc = (IoFunction*)sym;
         currIoFunc->generateInit();
@@ -293,24 +310,27 @@ void procedureCallStart(string ident)
     exprCount.push_front(0);
 }
 
+//Generate code and perform error checking for the end of a procedure call.
+//Note this includes writeln(), read(), etc.
 void procedureCallEnd()
 {
     if (currIoFunc) {
         currIoFunc->generateEnd();
         currIoFunc = NULL;
         
-        //Since I/O functions have an indefinite number of
-        //parameters, they must be manually removed from
-        //the type stack.
+        //Since I/O functions have an indefinite number of parameters, the
+        //function must be manually removed from the type stack.
         tracker.pop();
     }
 }
 
+//Generate code and perform error checking for the start of a function call.
 void functionCallStart(string ident)
 {
     //Add the function to the type tracker
     tracker.push(ident);
     
+    //Better be a function...
     AbstractType *type = tracker.peekType();
     if (!type->isFunction())
         cout << "***ERROR: expected " << ident << " to be function\n";
@@ -322,6 +342,8 @@ void functionCallStart(string ident)
     exprCount.push_front(0);
 }
 
+//Returns whether the type at the top of the type stack is a string (char)
+//type.
 bool isStringType()
 {
     AbstractType *type = tracker.peekType();
@@ -329,6 +351,38 @@ bool isStringType()
     return bt && bt->isStringType();
 }
 
+//Generate a new statement to dynamically allocate memory.
+void generateNew(string ident)
+{
+    Symbol *sym = symTable.lookup(ident);
+    Variable *var = dynamic_cast<Variable*>(sym);
+    if (!sym)
+        cout << "***ERROR: undefined identifier " << ident << endl;
+    else if (!var)
+        cout << "***ERROR: " << ident << " is not a variable" << endl;
+    else {
+        //generateNewStatement() checks whether the variable's type is a
+        //pointer.
+        var->generateNewStatement();
+    }
+}
+
+//Generate a delete statement to dynamically free memory.
+void generateDelete(string ident)
+{
+    Symbol *sym = symTable.lookup(ident);
+    Variable *var = dynamic_cast<Variable*>(sym);
+    if (!sym)
+        cout << "***ERROR: undefined identifier " << ident << endl;
+    else if (!var)
+        cout << "***ERROR: " << ident << " is not a variable" << endl;
+    else if (!var->getType()->isPointer())
+        cout << "***ERROR: " << ident << " is not a pointer" << endl;
+    
+    cout << "delete " << ident;
+}
+
+//Generate code for the start of a designator.
 void designatorBegin(string ident)
 {
     cout << ident;
@@ -336,64 +390,63 @@ void designatorBegin(string ident)
     //Update the type stack
     tracker.push(ident);
 
-    //If this identifier is being used as an array index
-    //and it is a string, access the first character.
-    if (tracker.arraySecondFromTop()) {
-        AbstractType *type = tracker.peekType();
-        BaseType *bt = dynamic_cast<BaseType*>(type);
-        if (bt && bt->isStringType())
-            cout << "[0]";
-    }
+    //If this identifier is being used as an array index and it is a string,
+    //access the first character.
+    if (tracker.arraySecondFromTop() && isStringType())
+        cout << "[0]";
 
-    //Notify the object that is was just used as a 
-    //designator.
+    //Notify the object that is was just used as a designator.
     Symbol *sym = symTable.lookup(ident);
     if (sym)
         sym->event_Designator(ident);
 }
 
+//Generate code for the end of an expression.
 void expressionAction()
 {
     //Non-terminal ExpAction is trigged when an expression is parsed. It
     //triggers semantic actions and elminates duplicate code that would
     //otherwise be in both ExpList productions
-
-//tracker.debugPrint();
-//cout << "<a>" << flush;
     
+    //If the expression is being used to index into an array...
     bool indexingArray = tracker.arraySecondFromTop();
     if (indexingArray) {
-//cout << "<b>" << flush;
-        //Print bounds offset 
+        //Print code to translate the index into a zero-based array.
         int dimension = exprCount.front();
-        bool last;
         tracker.arrayIndexOffset(dimension);
+        
+        //Update the expression count, i.e., the dimension index of the
+        //current array. This may be incremented, or it may be reset if
+        //the next dimension is another array.
+        bool last;
         exprCount.front() += tracker.endArrayDimension(dimension, &last);
         
         //Close array access
         cout << "]";
 
-        if(last)
+        //If this array index was the last dimension for the array, pop the
+        //expression count for the array dimensions off the stack.
+        if (last)
             exprCount.pop_front();
     }
 
-//cout << "<c>" << flush;
+    //If we were not indexing an array, or if a non-array type is on the top
+    //of the type stack...
     if (!indexingArray || !tracker.arrayOnTopOfStack()) {
+        //If a function call is in progress...
         if (tracker.functionCallInProgress()) {
-//cout << "<d>" << flush;
-            //Inform the tracker that an expression has been parsed
+            //Inform the tracker that a parameter expression has been parsed.
             tracker.endParameter(exprCount.front());
 
-            //Increment the expression count. Do not do this
-            //for I/O functions, whose parameters are not
-            //pushed onto the type stack.
+            //Increment the expression count. Do not do this for I/O functions,
+            //whose parameters are special.
             if (!currIoFunc)
                 exprCount.front() += 1;
         }
     }
-//cout << "<e>" << flush;
 }
 
+//Print the C++ equivalent of the given Pascal relation operator.
 void printRelation(int opToken)
 {
     switch (opToken) {
@@ -425,6 +478,7 @@ void printRelation(int opToken)
     }
 }
 
+//Print the C++ equivalent of the given Pascal "add" operator.
 void printAddOperator(int opToken)
 {
     switch (opToken) {
@@ -444,6 +498,7 @@ void printAddOperator(int opToken)
     }
 }
 
+//Print the C++ equivalent of the given Pascal "mult" operator.
 void printMultOperator(int opToken)
 {
     switch (opToken) {
@@ -467,6 +522,7 @@ void printMultOperator(int opToken)
     }
 }
 
+//Add an integer value to the current set literal.
 void setLiteralAddValue(const Terminal *term)
 {
     //Literal integers are the only supported set value.
@@ -483,6 +539,7 @@ void setLiteralAddValue(const Terminal *term)
     cout << val;
 }
 
+//Add a range of integer values to the current set literal.
 void setLiteralAddRange(const Terminal *low, const Terminal *high)
 {
     //Literal integers are the only supported set ranges.
@@ -496,9 +553,8 @@ void setLiteralAddRange(const Terminal *low, const Terminal *high)
     if (!set->legalValue(ilow) || !set->legalValue(ihigh))
         cout << "***ERROR: Out-of-bounds set value" << endl;
 
-    //Pass the whole range of values into IntSet::makeLiteral().
-    //This will generate pretty ridiculous code for large
-    //set ranges.
+    //Pass the whole range of values into IntSet::makeLiteral(). This will
+    //generate pretty ridiculous code for large set ranges.
     for (int num = ilow; num <= ihigh; num++) {
         if (num > ilow)
             cout << ", ";
@@ -506,8 +562,12 @@ void setLiteralAddRange(const Terminal *low, const Terminal *high)
     }
 }
 
+//Terminate a block.
 void endBlock()
 {
+    //If currFunction is NULL, then we terminated a function within this
+    //function, meaning there was a nested function. We do not support nested
+    //functions, so print an error.
     if (currFunction)
         currFunction->endFunction();
     else
@@ -516,4 +576,3 @@ void endBlock()
     symTable.endScope();
     currFunction = NULL;
 }
-

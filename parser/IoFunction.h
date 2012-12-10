@@ -2,7 +2,6 @@
 // Aaron Hoffer and Daniel Lewis
 //
 // Specialized class for IO functions (e.g., "read", "writeln").
-// Just a placeholder class for phase 3.
 
 #ifndef IOFUNCTION_H
 #define IOFUNCTION_H
@@ -10,19 +9,23 @@
 #include "Function.h"
 using namespace std;
 
-//TODO: Add methods for code generation
+//
+//TODO: Move the code into a *.cpp file.
+//
 class IoFunction : public Function {
 
 public:
     IoFunction(string id) : Function(id)
     {
     }
-       
+    
+    //This function is an I/O function.
     virtual bool isIoFunction()
     {
         return true;
     }
     
+    //Generate the initial code portion for this I/O function.
     void generateInit()
     {
         if (isWrite())
@@ -33,6 +36,8 @@ public:
             cout << "***ERROR: unsupported i/o function" << endl;
     }
     
+    //Generate a separator to be used between parameters to this I/O
+    //function.
     void generateSep()
     {
         if (isWrite())
@@ -41,6 +46,7 @@ public:
             cout << " >> ";
     }
     
+    //Generate the terminating code portion for this I/O function.
     void generateEnd()
     {
         if (identifier == "writeln") {
@@ -50,11 +56,13 @@ public:
     }
     
 private:
+    //Returns whether this I/O function is a write.
     bool isWrite()
     {
         return identifier == "write" || identifier == "writeln";
     }
     
+    //Returns whether this I/O function is a read.
     bool isRead()
     {
         return identifier == "read" || identifier == "readln";

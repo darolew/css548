@@ -50,10 +50,3 @@ string nlindent()
 {
     return "\n" + indentation();
 }
-
-//TODO: This idea did not work; remove remaining usages.
-string unindent()
-{
-    return "";
-}
-

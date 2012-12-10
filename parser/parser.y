@@ -1,10 +1,10 @@
 %{
 /*
- * PHASE 3: SYMBOL TABLE
+ * Phase 4: Code Generation
  * CSS 548; Autumn 2012
  * Aaron Hoffer and Daniel Lewis
  *
- * This is a Yacc/Bison input file. Yacc generates a parserin C code from this
+ * This is a Yacc/Bison input file. Yacc generates a parser in C code from this
  * definition.
  */
 #include <iostream>
@@ -23,13 +23,17 @@
 #include "SetType.h"
 #include "IoFunction.h"
 
-/* method declarations section */
+//
+// Method Declarations
+//
 void yyerror(char const *);
-int yylex(); /* needed by g++ */
+int yylex();    //Needed by g++
 
 %}
 
-/* Yacc definition section */
+//
+// Yacc Definitions
+//
 
 //Tell bison to expect 1 shift/reduce conflict.
 %expect 1
@@ -40,18 +44,18 @@ int yylex(); /* needed by g++ */
 %start  CompilationUnit
 
 %token  yand yarray yassign ybegin ycaret ycase ycolon ycomma yconst ydispose
-        ydiv ydivide ydo ydot ydotdot ydownto yelse yend yequal yfor
-        yfunction ygreater ygreaterequal yif yin yleftbracket yleftparen yless
-        ylessequal ymod ymultiply ynew ynil ynot ynotequal yof yor yprocedure
-        yprogram yrecord yrepeat yrightbracket yrightparen ysemicolon yset
-        ythen yto ytype yunknown yuntil yvar ywhile
+        ydiv ydivide ydo ydot ydotdot ydownto yelse yend yequal yfor yfunction
+        ygreater ygreaterequal yif yin yleftbracket yleftparen yless ylessequal
+        ymod ymultiply ynew ynil ynot ynotequal yof yor yprocedure yprogram
+        yrecord yrepeat yrightbracket yrightparen ysemicolon yset ythen yto
+        ytype yunknown yuntil yvar ywhile
 
 //This token is not used by the lexer or parser. It is used as a symbolic 
 //constant by the type checking routines.        
 %token yboolean;
 
-//Some tokens have lexemes that must be captured.
-//These tokens are declared to use the str field of the union.
+//Some tokens have lexemes that must be captured. These tokens are declared to
+//use the str field of the union.
 %token <str> yident yinteger yreal ystring
 
 //Some token values are be captured.
@@ -128,6 +132,8 @@ IdentList           :  yident
 
 Block               : Declarations
                     {
+                        //A "begin" at the global scope indicates the start
+                        //of main().
                         if (symTable.size() == 2) {
                             indent++;
                             cout << "int main()" << endl;
@@ -138,7 +144,7 @@ Block               : Declarations
                     {
                         if (symTable.size() == 2) {
                             indent--;
-                            cout << unindent() << "}" << endl;
+                            cout << "}" << endl;
                         }
                     }
                     ;
@@ -225,9 +231,6 @@ VariableDecl        : IdentList ycolon Type
 
 ConstExpression     : UnaryOperator ConstFactor
                     {
-                        //These are used for case statements, sets, and the 
-                        //definition of const values.
-                   
                         $$ = $2;
                         $$->unaryOp = $1;
                     }
@@ -294,9 +297,8 @@ Subrange            : ConstFactor ydotdot ConstFactor
                     }
                     | ystring ydotdot ystring
                     {
-                        Terminal low, high;
-                        low = initTerminal($1, ystring);
-                        high = initTerminal($3, ystring);
+                        Terminal low = initTerminal($1, ystring);
+                        Terminal high = initTerminal($3, ystring);
                         addRange(&low, &high);
                         free($1);
                         free($3);
@@ -318,7 +320,7 @@ PointerType         : ycaret yident
                     {
                         //Create a pointer instance -- we know the name of what
                         //it points at, but we do not know if that identifier
-                        //exists in the symbol table.
+                        //is a valid type.
                         currType = new PointerType("", $2);
                         free($2);
                     }
@@ -393,7 +395,7 @@ IfStatement         : yif
                       ythen Statement
                     {
                         indent--;
-                        cout << unindent() << "} " << nlindent();
+                        cout << "}" << nlindent();
                     }
                       ElsePart
                     ;
@@ -406,7 +408,7 @@ ElsePart            : /*** empty ***/
                       Statement
                     {
                         indent--;
-                        cout << unindent() << "} " << nlindent();
+                        cout << "}" << nlindent();
                     }
                     ;
 CaseStatement       : ycase
@@ -416,7 +418,7 @@ CaseStatement       : ycase
                       Expression yof
                     {
                         indent++;
-                        cout << ") { " << nlindent();
+                        cout << ") {" << nlindent();
                     }
                       CaseList yend
                     {
@@ -441,14 +443,18 @@ Case                : CaseLabelList ycolon
                     ;
 CaseLabelList       : ConstExpression
                     {
-                        if ($1->token != yinteger && $1->token != yident)
-                            cout << "***ERROR: Invalid constant value in case statement\n";
+                        if ($1->token != yinteger && $1->token != yident) {
+                            cout << "***ERROR: Invalid constant value in case ";
+                            cout << "statement" << endl;
+                        }
                         cout << "case " << $1->str << ":" << nlindent();
                     }
                     | CaseLabelList ycomma ConstExpression
                     {
-                        if ($3->token != yinteger && $3->token != yident)
-                            cout << "***ERROR: Invalid constant value in case statement\n";
+                        if ($3->token != yinteger && $3->token != yident) {
+                            cout << "***ERROR: Invalid constant value in case ";
+                            cout << "statement" << endl;
+                        }
                         cout << "case " << $3->str << ":" << nlindent();
                     }
                     ;
@@ -464,7 +470,7 @@ WhileStatement      : ywhile
                       Statement
                     {
                         indent--;
-                        cout << unindent() << "}" << nlindent();
+                        cout << "}" << nlindent();
                     }
                     ;
 RepeatStatement     : yrepeat
@@ -474,7 +480,7 @@ RepeatStatement     : yrepeat
                     }
                       StatementSequence yuntil
                     {
-                        cout << unindent() << "} while (!(";
+                        cout << "} while (!(";
                     }
                       Expression
                     {
@@ -511,7 +517,7 @@ ForStatement        : yfor yident yassign
                       Statement
                     {
                         indent--;
-                        cout << unindent() << "}" << nlindent();
+                        cout << "}" << nlindent();
                         free($2);
                     }
                     ;
@@ -520,13 +526,13 @@ WhichWay            : yto       { $$ = yto;     }
                     ;
 MemoryStatement     : ynew yleftparen yident yrightparen  
                     {
-                        //TODO: Make sure ident exists and is pointer.
-                        Variable *var = (Variable*)symTable.lookup($3);
-                        var->generateNewStatement();
+                        generateNew($3);
+                        free($3);
                     }
                     | ydispose yleftparen yident yrightparen
                     {
-                        cout << "delete " << $3;
+                        generateDelete($3);
+                        free($3);
                     }
                     ;
                    
@@ -587,7 +593,8 @@ ActualParameters    : yleftparen
 ExpList             : ExpAction
                     | ExpList ycomma
                     {
-                        //Do not print comma
+                        //Special cases for arrays and I/O functions, which
+                        //do not separate expressions with commas.
                         if (tracker.arrayOnTopOfStack())
                             cout << "[";
                         else if (currIoFunc)
@@ -612,8 +619,8 @@ Expression          : SimpleExpression
                     }
                       SimpleExpression
                     {
-                        //Validate that both expression are booleans and tell
-                        //the tracker to update its state
+                        //Do type-checking for the relational operator and push
+                        //the resulting type (a boolean) onto the type stack.
                         tracker.event_RelationalOp($2);
                     }
                     ;
@@ -631,6 +638,8 @@ TermExpr            : Term
                     }
                       Term
                     {
+                        //Do type-checking for the math operator and push the
+                        //resulting type onto the type stack.
                         tracker.event_MathOp($2);
                     }
                     ;
@@ -641,7 +650,8 @@ Term                : Factor
                     }
                       Factor
                     {
-                        //Type checking
+                        //Do type-checking for the math operator and push the
+                        //resulting type onto the type stack.
                         tracker.event_MathOp($2);
                     }
                     ;
@@ -661,7 +671,9 @@ Factor              : yinteger
                     }
                     | ynil
                     {
-                        //Push the type onto the tracker
+                        //Push the type onto the tracker. This is a bit bogus,
+                        //since nil is not a type, and (being a keyword), it
+                        //does not belong in the symbol table.
                         BaseType *type = symTable.lookupSIT(ynil);
                         tracker.push("", type);
                         
@@ -686,7 +698,8 @@ Factor              : yinteger
                     }
                     | ynot 
                     {
-                        cout << "!"; //TODO: typechecking -- must be bool
+                        //TODO: Check that Factor is a boolean
+                        cout << "!";
                     }
                       Factor
                     | Setvalue
@@ -701,8 +714,10 @@ FunctionCall        : yident
                     ;
 Setvalue            : yleftbracket
                     {
-                        if (!tracker.peekType()->isSet())
-                            cout << "***ERROR: Assigning set value to non-set" << endl;
+                        if (!tracker.peekType()->isSet()) {
+                            cout << "***ERROR: Assigning set value ";
+                            cout << "to non-set" << endl;
+                        }
 
                         //Generate code that will create a set literal.
                         cout << "IntSet::makeLiteral(";
@@ -714,8 +729,10 @@ Setvalue            : yleftbracket
                     }
                     | yleftbracket yrightbracket
                     {
-                        if (!tracker.peekType()->isSet())
-                            cout << "***ERROR: Assigning set value to non-set" << endl;
+                        if (!tracker.peekType()->isSet()) {
+                            cout << "***ERROR: Assigning set value ";
+                            cout << "to non-set" << endl;
+                        }
 
                         //Generate code that will create an empty set.
                         cout << "IntSet::makeLiteral(SETTERM)";

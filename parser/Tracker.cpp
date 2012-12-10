@@ -1,3 +1,8 @@
+// CSS 548; Autumn 2012
+// Aaron Hoffer and Daniel Lewis
+//
+// This file contains the method definitions of the Tracker class.
+
 #include <typeinfo>
 #include "Tracker.h"
 #include "Parameter.h"
@@ -7,15 +12,14 @@
 
 
 //===== PUBLIC METHOD TO GROW THE TYPE STACK =====
-//----------------------------------------------------------------------------
 
+//----------------------------------------------------------------------------
 //Push a designator's type onto the stack.
 void Tracker::push(string ident)
 {
-    //This method is processing varibles, paramters, const, booleans,
-    //and function/procedure calls. 
-    //Boolean are the only odd ball. They get in here because "true"
-    //and "false" are scanned as yident
+    //This method is processing varibles, paramters, const, booleans, and
+    //function/procedure calls. Boolean are the only odd ball. They get in
+    //here because "true" and "false" are scanned as yident
     
     //Look up the yident in the symbol table.
     Symbol *sym = symTable.lookup(ident);
@@ -25,8 +29,8 @@ void Tracker::push(string ident)
         ERR(string("undefined identifier ") + ident);
 }
 
-//Push type and its description directly onto the stack 
 //----------------------------------------------------------------------------
+//Push type and its description directly onto the stack 
 void Tracker::push(string description, AbstractType *type)
 {
     if (!type) {
@@ -40,15 +44,18 @@ void Tracker::push(string description, AbstractType *type)
     push(f);
 }
 
+//===== PUBLIC GETTER METHODS =====
+
+//----------------------------------------------------------------------------
+//Returns the type at the top of the type stack.
 AbstractType *Tracker::peekType()
 {
     Frame f = peek();
     return f.type->getType();
 }
 
-//===== PUBLIC GETTER METHODS =====
-
 //----------------------------------------------------------------------------
+//Returns whether the type at the top of the type stack is an array.
 bool Tracker::arrayOnTopOfStack() 
 {
     if (typeStack.size() < 1)
@@ -58,6 +65,7 @@ bool Tracker::arrayOnTopOfStack()
 }
 
 //----------------------------------------------------------------------------
+//Returns whether the type just beneath the top of the type stack is an array.
 bool Tracker::arraySecondFromTop() 
 {
     if (typeStack.size() < 2)
@@ -67,13 +75,11 @@ bool Tracker::arraySecondFromTop()
 }
 
 //----------------------------------------------------------------------------
+//Index into an array.
 void Tracker::arrayIndexOffset(int dim)
 {
-    //TODO: In ArrayType, store array bounds and indexes as ints, not strings.
-   
     //Integer must be at top of the stack because integers are the only 
     //valid index types. Pop the stack and validate integer type.
-//cout << "\narrayIndexOffset() pop" << endl;
     Frame f = pop();
     BaseType *type = dynamic_cast<BaseType*>(f.type);
 
@@ -95,6 +101,7 @@ void Tracker::arrayIndexOffset(int dim)
 }
 
 //----------------------------------------------------------------------------
+//Returns whether a function call is in progress.
 bool Tracker::functionCallInProgress() 
 {
     if (typeStack.size() <= 1)
@@ -110,6 +117,7 @@ bool Tracker::functionCallInProgress()
 //===== PUBLIC METHODS RESPONDING TO PARSER EVENTS =====
 
 //----------------------------------------------------------------------------
+//Event: A record field has been accessed, a la ".ident".
  void Tracker::event_AccessRecordField(string ident)
  {
      //If identifier is not in the symbol table, it might be a field
@@ -137,6 +145,7 @@ bool Tracker::functionCallInProgress()
 }
 
 //----------------------------------------------------------------------------
+//Event: Assignment, a la "A = B".
 void Tracker::event_Assignment() 
 {
     // A = B
@@ -145,7 +154,6 @@ void Tracker::event_Assignment()
     Frame right = pop();
     Frame left = pop();
    
-    //TODO: Reusing relationCompatible() checks for assignment.
     if (!left.type->compatible(right.type, yassign)) {
         ERR(string("incompatible assignment of ") + right.type->dump() 
             + " to " + left.type->dump());
@@ -153,7 +161,7 @@ void Tracker::event_Assignment()
 }
 
 //----------------------------------------------------------------------------
-//Deference a pointer type
+//Event: Deference a pointer type, a la "ident^"
 void Tracker::event_Deref()
 {    
     Frame f = pop();
@@ -179,8 +187,8 @@ void Tracker::event_Deref()
 //----------------------------------------------------------------------------
 //If we have accessed the last dimension of the current array, pop the array
 //type off the stack and replace it with the type of whatever is stored
-//in the array (REMEMBER that dim is zero-based)AbstractType
-//Return true is there are more dimensions to access. Otherwise return false
+//in the array (remember that dim is zero-based).
+//Returns a delta with which to update the 'dim' value.
 int Tracker::endArrayDimension(int dim, bool *last)
 {
     Frame f = peek();
@@ -207,6 +215,7 @@ int Tracker::endArrayDimension(int dim, bool *last)
 }
 
 //----------------------------------------------------------------------------
+//Event: function call.
 void Tracker::event_FunctionCall()
 {
     //A function should now be on the top of the stack. Validate that rule.
@@ -217,13 +226,14 @@ void Tracker::event_FunctionCall()
 //----------------------------------------------------------------------------
 //This method is called after the parser has parsed an expression for an actual
 //parameter. The integer index is the zero-based index of which parameter was
-//parsed. The left-most parameter is index 0;
+//parsed. The left-most parameter is index 0.
 void Tracker::endParameter(int index)
 {
     //The top of the stack should be the actual parameter of a function call.
     //Verify that the actual parameter type matches the formal parameter type.
     Frame actualParam = pop();
     
+    //Skip parameter type-checking for I/O functions like writeln.
     if (currIoFunc)
         return;
 
@@ -256,6 +266,7 @@ void Tracker::endParameter(int index)
 }
 
 //----------------------------------------------------------------------------
+//Event: A math operator, like "A + B" or "A / B".
 void Tracker::event_MathOp(int opToken)
 {
     //A (binary) math operation has just ocurred. Remove the operands and 
@@ -272,7 +283,6 @@ void Tracker::event_MathOp(int opToken)
         
         //The results of a boolean operation is a boolean
         push("", symTable.lookupSIT(yboolean));
-        
     } else if (r && l) {
         BaseType *result = BaseType::getMathType(l, r, opToken);
         if (!result) {
@@ -301,6 +311,7 @@ void Tracker::event_MathOp(int opToken)
 }
 
 //----------------------------------------------------------------------------
+//Event: Relational operator, like "<=" or "<>".
 void Tracker::event_RelationalOp(int opToken)
 {   
     //Permitted comparisons
@@ -325,7 +336,7 @@ void Tracker::event_RelationalOp(int opToken)
 //===== OTHER PUBLIC METHODS =====
 
 //----------------------------------------------------------------------------
-
+//Dump the type stack to stdout.
 void Tracker::debugPrint(string msg) {
 
     cout << "\n--" << msg << "-------- TRACKER (top) ----------\n";
@@ -342,6 +353,7 @@ void Tracker::debugPrint(string msg) {
 /////////////////////// PRIVATE METHODS //////////////////////////
 
 //----------------------------------------------------------------------------
+//Return the top of the type stack.
 Frame Tracker::peek()
 {
     if (typeStack.empty()) {
@@ -366,7 +378,10 @@ Frame Tracker::peek2()
 }
 
 //----------------------------------------------------------------------------
-Frame Tracker::pop() //TODO: Move or wrap
+//Return and remove the top of the type stack.
+//
+//TODO: This is not private in the class. Should be moved up in the file.
+Frame Tracker::pop()
 {   
     Frame f = peek();
     typeStack.pop_front();
@@ -374,6 +389,7 @@ Frame Tracker::pop() //TODO: Move or wrap
 }
 
 //----------------------------------------------------------------------------
+//Push a new frame onto the type stack.
 void Tracker::push(Frame f) 
 {
     typeStack.push_front(f);

@@ -13,6 +13,5 @@ using namespace std;
 extern unsigned indent;
 string indentation();
 string nlindent();
-string unindent();
 
 #endif

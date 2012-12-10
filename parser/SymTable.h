@@ -6,7 +6,6 @@
 #ifndef SYMTABLE_H
 #define SYMTABLE_H
 
-#include <map>
 #include <string>
 #include <list>
 #include "Symbol.h"
@@ -14,8 +13,6 @@
 #include "BaseType.h"
 #include "Variable.h"
 using namespace std;
-
-//#define PRINTST
 
 class SymTable {
 
@@ -35,9 +32,9 @@ public:
     virtual ~SymTable();
     void beginScope(string="Unnamed");
     void endScope();
-    bool insert(Symbol *);
+    bool insert(Symbol*);
     Symbol *lookup(string key);
-    Symbol *lookup(Table *, string);
+    Symbol *lookup(Table*, string);
     BaseType* lookupSIT(int);
     AbstractType *lookupType(string);
     Table *front();
@@ -49,7 +46,7 @@ private:
     void printST();
     void printLine(string);
     void delTopScope();
-    void delTable(Table *);
+    void delTable(Table*);
     bool empty();
     void assertStack();
 };

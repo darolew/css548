@@ -8,7 +8,7 @@
 #define ACTIONS_H
 
 #include <iostream>
-#include <stdio.h>
+#include <cstdio>
 #include <list>
 
 #include "SymTable.h"
@@ -24,7 +24,14 @@
 #include "Tracker.h"
 
 //Debug print macro
-#define ERR(X) (cout << "\n***ERROR: " << X << " | " << __FILE__ << " line " << __LINE__ << endl)
+#define ERR(X)              \
+    (cout << "\n***ERROR: " \
+          << (X)            \
+          << " | "          \
+          << __FILE__       \
+          << " line "       \
+          << __LINE__       \
+          << endl)
 
 //The symbol table is a global object declared in main.cpp.
 extern SymTable symTable;
@@ -39,7 +46,7 @@ extern list<Range> rangeList;      // list of ranges, like for an array
 extern list<PointerType*> ptrList; // list of pointers that need types
 extern list<Variable> fieldList;   // list of fields to add to a record
 extern list<string*> dsgList;      // stack of designator strings
-extern list<int> exprCount;
+extern list<int> exprCount;        // stack of expression counts
 
 extern ArrayType *currArray;       // current array type 
 extern Function *currFunction;     // current function object
@@ -47,7 +54,7 @@ extern RecordType *currRecord;     // current record type
 extern IoFunction *currIoFunc;     // current I/O function
 extern AbstractType *currType;     // current type being constructed
 
-//Type operations
+//Type operations globals
 extern int mathTable[64][64][64];
 extern const int yTokOffset;
 
@@ -75,6 +82,8 @@ void procedureCallStart(string);
 void procedureCallEnd();
 void functionCallStart(string);
 bool isStringType();
+void generateNew(string);
+void generateDelete(string);
 void designatorBegin(string);
 void expressionAction();
 void printRelation(int);

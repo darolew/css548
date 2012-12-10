@@ -38,55 +38,25 @@ bool Symbol::insert()
     return true;
 }
 
+//Resolve a type. Do nothing, since symbols have no type. Overridable.
+//
+//TODO: Why is this even here? Shouldn't the overridable method start in
+//      AbstractType?
+//
 void Symbol::resolve()
 {
 }
 
-//By default, a symbol is not a type. Overridable.
-bool Symbol::isType()
-{
-    return false;
-}
-
-bool Symbol::isFunction()
-{
-    return false;
-}
-
-bool Symbol::isIoFunction()
-{
-    return false;
-}
-
-bool Symbol::isMemFunction()
-{
-    return false;
-}
-
-bool Symbol::isPointer()
-{
-    return false;
-}
-
-bool Symbol::isProcedure()
-{
-    return false;
-}
-
-bool Symbol::isArray()
-{
-    return false;
-}
-
-bool Symbol::isRecord()
-{
-    return false;
-}
-
-bool Symbol::isSet()
-{
-    return false;
-}
+//There are a number of overridable methods that query the attributes of a
+//symbol. By default, a Symbol is none of these things.
+bool Symbol::isType()       { return false; }
+bool Symbol::isFunction()   { return false; }
+bool Symbol::isIoFunction() { return false; }
+bool Symbol::isPointer()    { return false; }
+bool Symbol::isProcedure()  { return false; }
+bool Symbol::isArray()      { return false; }
+bool Symbol::isRecord()     { return false; }
+bool Symbol::isSet()        { return false; }
 
 //Return the name of this class. Used for printing debug information.
 string Symbol::className()
@@ -105,6 +75,12 @@ string Symbol::className()
     return string(cstr);
 }
 
+//Push a symbol onto the type stack. This prints an error, since a Symbol has
+//no type, and push() should only be used on objects that override this method.
+//
+//TODO: Refactor to eliminate this. It is dumb for Symbol to define type stack
+//      methods.
+//
 void Symbol::push()
 {
     cout 
@@ -123,9 +99,8 @@ string Symbol::dump()
     return className() + ":" + (identifier.empty() ? "NO_NAME" : identifier);
 }
 
-
-//Only functions and procedures need to do something special
-//when a designator is parsed.
+//Only functions and procedures need to do something special when a designator
+//is parsed.
 void Symbol::event_Designator(string designator) 
 {
     //Do nothing

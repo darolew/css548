@@ -14,7 +14,6 @@ public:
     bool isReference;
 
     Parameter(string, AbstractType*, bool);
-//    virtual void generateCode(string);
     virtual void generateDefinition(string);
 };
 

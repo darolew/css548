@@ -10,7 +10,6 @@
 #include "AbstractType.h"
 #include "BaseType.h"
 #include "Function.h"
-#include "MemFunction.h"
 #include "IoFunction.h"
 #include "main.h"
 #include "y.tab.h"
@@ -35,14 +34,15 @@ SymTable::SymTable()
     //Base types
     insert(new BaseType("integer", "int", yinteger));
     insert(new BaseType("real", "double", yreal));
-    insert(new BaseType("char", "string", ystring)); //TODO: Using char as an array index.
+    insert(new BaseType("char", "string", ystring));
 
     //Tracking booleans by token is convenient
     insert(new BaseType("boolean", "bool", yboolean));
-    //insert(new BaseType("boolean", "bool", yident);
     
     //None of these are types. They are in the symbol table purely for
     //convenience -- it is a kluge to store them in the BaseType class.
+    //It is also fairly dubious to put nil in the symbol table at all,
+    //since it is a keyword, not really a symbol.
     insert(new BaseType("true", "true", yident));
     insert(new BaseType("false", "false", yident));
     insert(new BaseType("nil", "NULL", ynil));
@@ -52,9 +52,6 @@ SymTable::SymTable()
     insert(new IoFunction("writeln"));
     insert(new IoFunction("read"));
     insert(new IoFunction("readln"));
-
-    insert(new MemFunction("new"));
-    insert(new MemFunction("dispose"));
 }
 
 //Destructor for the symbol table.
@@ -87,7 +84,6 @@ void SymTable::beginScope(string name)
     scopeNames.push_front(name);
 }
 
-//Pop and discard the current scope.
 //Pop and discard the current scope.
 void SymTable::endScope()
 {
@@ -158,14 +154,15 @@ Table *SymTable::front()
     return scopes.front();
 }
 
-//
+//Return the Standard Identifier Table; the first scope.
 Table *SymTable::SIT()
 {
     assertStack();
     return scopes.back();
 }
 
-//TODO:comment
+//Return the depth of the symbol table stack, including the SIT and the global
+//scope.
 int SymTable::size()
 {
     return (int)scopes.size();
@@ -219,11 +216,11 @@ void SymTable::assertStack()
 //Lookup a base type in the SIT
 BaseType *SymTable::lookupSIT(int token) 
 {
-    //This is a little kludgy
+    //This is a little kludgey
     string id;
     //
-    //TODO: Make this less brittle. If new base types are 
-    //added into the SIT, this method must be modified.
+    //TODO: Make this less brittle. If new base types are added to the
+    //      SIT, this method must be modified.
     //
     if (token == yinteger)
         id = "integer";

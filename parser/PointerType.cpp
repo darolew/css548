@@ -24,11 +24,14 @@ bool PointerType::insert()
     return Symbol::insert();
 }
 
+//We have the name of the pointee saved, and now it is time to look the name
+//up and see to what it resolves.
 void PointerType::resolve()
 {
     type = symTable.lookupType(pointeeName);
 }
 
+//Generate code for this PointerType.
 void PointerType::generateCode(string varName)
 {
     //If this is typdef whose type is a pointer, like "cellptr", print the type
@@ -64,35 +67,13 @@ void PointerType::generateCode(string varName)
     cout << "*" << varName;
 }
 
+//Generate code for a record pointer.
 void PointerType::generateDefinition(string ident)
 {
-//TODO: This code does not appear to be used
-/*
-    AbstractType *pt = type; // initialize to class's type
-    
-    //If the pointer does not yet have a known pointee type, check the
-    //current scope for the pointee type name. This tells us whether
-    //the type is a foward reference.
-    if (!pt)
-        pt = (AbstractType*)symTable.lookup(symTable.front(), pointeeName);
-    
-    //If the type is known, this is not a forward reference; simply
-    //print the pointee name. If the type is not known, this is a
-    //foward reference, and the only forward references we support
-    //are for records, so output the "struct" keyword.
-    if (pt) {
-    //TODO: we are not hitting this branch in our test case
-        pt->generateCode("");
-        cout << " *" << ident; 
-    } else
-        cout << "struct " << pointeeName << " *" << ident;
-*/
-    
-    //Only the last line of the commented-out section (above) was being used.
-    //Here it is:
     cout << "struct " << pointeeName << " *" << ident;
 }
 
+//A PointerType is a pointer.
 bool PointerType::isPointer()
 {
     return true;
@@ -120,9 +101,17 @@ string PointerType::cPointeeName()
     }
 }
 
+//Type-checking for pointers.
 bool PointerType::compatible(AbstractType *otherType, int opToken) 
 {
     //pointer to pointer comparison
+    //
+    //TODO: This type-checking is incomplete. Arbitrary pointers are not
+    //      necessarily compatible; they must have the same pointed-to
+    //      type. Also, some operators (like <=) do not make sense for
+    //      pointers, and should result in a false return. We have all
+    //      we need here to implement this, except the time to test it.
+    //
     bool pointerToPointer = otherType->isPointer();
     if (pointerToPointer)
         return true;

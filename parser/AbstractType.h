@@ -3,7 +3,7 @@
 //
 // This file contains the definition of the AbstractType class.
 //
-// AbstractType is a sublcass of Symbol and the base class of other type
+// AbstractType is a subclass of Symbol and the base class of other type
 // classes. The most imporant difference between this class and its parent class
 // is that any AbstractType can be associated with another AbstractType. For
 // example, an array type be an integer array, pointer type must be associated

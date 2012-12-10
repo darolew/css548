@@ -9,34 +9,40 @@
 
 using namespace std;
 
+//Construct a BaseType.
 BaseType::BaseType(string id, string cName, int token) : AbstractType(id)
 {
     this->cName = cName;
     this->token = token; 
 }
 
+//Return the C++ equivalent name of the base type.
 string BaseType::cTypeName() 
 {
     return cName;
 }
 
+//Generate code (like a variable declaration) for this type.
 void BaseType::generateCode(string ident)
 {
     cout << cName << " " << ident;
 }
 
+//Returns whether this BaseType could legally be used to index an array.
 bool BaseType::isLegalArrayIndexType()
 {
     //Only integers and characters can be used as array indexes
     return token == yinteger || token == ystring;
 }
 
+//Returns whether this BaseType is a string.
 bool BaseType::isStringType()
 {
     //Only integers and characters can be used as array indexes
     return token == ystring;
 }
 
+//Type checking for BaseType.
 bool BaseType::compatible(AbstractType *otherType, int opToken) 
 {
     //Pointers and null can be compared
@@ -69,6 +75,7 @@ bool BaseType::compatible(AbstractType *otherType, int opToken)
     return number1 && number2;
 }
 
+//Returns the resulting type from a math operation on the given operands.
 BaseType *BaseType::getMathType(BaseType *left, BaseType *right, int op)
 {
     int l = left->token - yTokOffset;
@@ -84,6 +91,7 @@ BaseType *BaseType::getMathType(BaseType *left, BaseType *right, int op)
     return symTable.lookupSIT(result);
 }
 
+//Returns whether this BaseType is a boolean.
 bool BaseType::isBooleanType()
 {
 	string id = identifier; // shorten line

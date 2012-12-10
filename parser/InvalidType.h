@@ -1,7 +1,7 @@
 // CSS 548; Autumn 2012
 // Aaron Hoffer and Daniel Lewis
 //
-// ...
+// This class represents a type that is invalid.
 
 #ifndef INVALIDTYPE_H
 #define INVALIDTYPE_H

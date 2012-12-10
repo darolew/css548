@@ -29,7 +29,7 @@ Function::Function(string id)
     identifier = id;
 }
 
-//TODO: Comment
+//Generate a C++ equivalent function declaration.
 void Function::generateDefinition(string ident)
 {
     if(returnType)
@@ -90,18 +90,24 @@ void Function::setReturnType(AbstractType *rt)
     returnType = rt;
 }
 
-//TODO: Change the name of isFunction to something more generic like 
-//isSubRoutine
+//Returns whether this is a subroutine (a function or procedure).
+//
+//TODO: Give this a more generic name, like isSubroutine(), to avoid giving
+//      the impression that this function returns false for procedures.
+//
 bool Function::isFunction()
 {
     return true;
 }
 
+//Returns whether this subroutines is specifically a procedure.
 bool Function::isProcedure()
 {
     return !returnType;
 }
 
+//Close the function declaration, returning if applicable, and printing the
+//closing brace.
 void Function::endFunction() 
 {
     if (returnType)
@@ -110,16 +116,19 @@ void Function::endFunction()
     cout << "\n}\n\n";
 }
 
+//Push this function onto the type stack.
 void Function::push() 
 {
     AbstractType::push();
 }
 
+//Returns the number of parameters this function takes.
 int Function::numParams()
 {
     return params.size();
 }
 
+//Returns the parameter at the given parameter index.
 Parameter *Function::getParam(int index)
 {
     if (index < 0 || index > numParams()-1) {
@@ -131,21 +140,31 @@ Parameter *Function::getParam(int index)
     return params[index];
 }
 
+//Tell the function it is being used as a designator.
 void Function::event_Designator(string designator)
 {
     if (isProcedure()) {
         ERR("procedures cannot be assigned a return value");
         return;
     }
+    
     //At this point, we know it is a function and not a procedure
     if (identifier == designator) {
-        //Print an underscore after the variable name to avoid name clash with function
+        //Print an underscore after the variable name to avoid name clash with
+        //function
         cout << "_";
     } else {
-        ERR(string("Cannot assign return value to a different function. Should be ") + identifier);
+        //
+        //TODO: This same check is done in compitable(), and this error message
+        //      is never printed.
+        //
+        ERR(string("Cannot assign return value to a different function. "
+                   "Should be ") + identifier);
     }
 }
 
+//Determine whether this function can is compatible with the given type and
+//operator.
 bool Function::compatible(AbstractType *otherType, int opToken)
 {
 	//Cannot compare or assign procedures.

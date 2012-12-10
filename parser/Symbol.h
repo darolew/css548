@@ -12,7 +12,7 @@
 using namespace std;
 
 class Symbol;
-typedef list<Symbol*> Table;
+typedef list<Symbol*> Table; //TODO: Why is this here and not in SymTable.h?
 class SymTable;
 
 class Symbol {
@@ -28,7 +28,6 @@ public:
     virtual bool isType();
     virtual bool isFunction();
     virtual bool isIoFunction();
-    virtual bool isMemFunction();
     virtual bool isPointer();
     virtual bool isProcedure();
     virtual bool isArray();

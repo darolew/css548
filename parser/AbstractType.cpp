@@ -44,7 +44,7 @@ AbstractType::~AbstractType()
 {
     //If the type has no name, it is not in the symbol table and
     //will not be freed by it.
-    //TODO: Seg fault going on here
+    //TODO: Segmentation fault going on here
     //if (type && type->identifier == "")
     //    delete type;
 }
@@ -58,6 +58,8 @@ string AbstractType::cTypeName()
     return identifier;
 }
 
+//Generate code for this abstract type, e.g., for a typedef definition or a
+//variable declaration.
 void AbstractType::generateCode(string ident)
 {
     //Example 1. typedef
@@ -68,6 +70,7 @@ void AbstractType::generateCode(string ident)
     cout << cTypeName() << " " << ident;
 }
 
+//Generate a definition of this type.
 void AbstractType::generateDefinition(string ident)
 {
     generateCode(ident);
@@ -79,6 +82,8 @@ bool AbstractType::isType()
     return true;
 }
 
+//If this AbstractType is a typedef, the type it points to might be an array.
+//Otherwise, this is not an array.
 bool AbstractType::isArrayType() 
 {
     if (type)
@@ -87,6 +92,7 @@ bool AbstractType::isArrayType()
     return false;
 }
 
+//An AbstractType is not a record type, even if it is a typedef.
 bool AbstractType::isRecordType() 
 {
     return false;
@@ -103,9 +109,14 @@ bool AbstractType::isNamedType()
     return identifier != "";
 }
 
+//Return the underlying type of this type. Thus, if this AbstractType is
+//actually an integer BaseType, return that; but if this AbstractType is a
+//typedef that refers to an integer BaseType, still return integer BaseType.
 AbstractType *AbstractType::getType()
 {
-    //TODO: Add a class for typedefs.
+    //TODO: It might make sense to add a separate class for typedefs. There
+    //      was one originally, but it was deleted for being "unnecessary".
+
     //If this is typedef, we want to return the type which it aliases.
     if (className() == "AbstractType")
         return type->getType();
@@ -113,14 +124,15 @@ AbstractType *AbstractType::getType()
     return this;
 }
 
+//Push this type onto the type stack.
 void AbstractType::push() 
 {
     tracker.push(identifier, this);
 }
 
-// <, >, <=, etcetera
+// <, >, <=, =, et cetera.
 bool AbstractType::compatible(AbstractType *otherType, int opToken) 
 {
-    //In general, arbitrary types are not comparable
+    //In general, arbitrary types are not compatible.
     return false;
 }

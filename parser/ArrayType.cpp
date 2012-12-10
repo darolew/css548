@@ -19,11 +19,10 @@ ArrayType::ArrayType(AbstractType *type, list<Range> ranges)
         this->ranges.push_back(*it);
 }
 
-//Zero-based counting
+//Print an offset that will convert the array index into a zero-based index.
+//For example, if the array starts at one, substract one from all indices.
 void ArrayType::offsetForDim(int dim)
 {
-//TODO: This needs to be tested for character array bounds
-//TODO: Refactor this mess.
     //Validate input.
     if (dim < 0 || dim > numDimensions()-1) {
         if (type->getType()->isArrayType()) {
@@ -38,11 +37,8 @@ void ArrayType::offsetForDim(int dim)
     cout << "-(" << ranges[dim].low << ")";
 }
 
-//TODO:
-//  - Support character ranges
-//  - Support constant ranges
-//  - Make sure both ranges are the same type
-//  - Make sure low <= high
+//Generate the definition of an array. The ranges used by Pascal are converted
+//into a raw size, for the array will be zero-based.
 void ArrayType::generateCode(string ident)
 {
     type->generateCode(ident);
@@ -54,28 +50,37 @@ void ArrayType::generateCode(string ident)
     }
 }
 
+//An ArrayType is an array.
 bool ArrayType::isArrayType() 
 {
     return true;
 }
 
+//We have the element type in an incomplete form (the ID is known, but whether
+//that is a valid type is not), so do a lookup and resolve it.
 void ArrayType::resolve()
 {
     type->resolve();
 }
 
+//Returns the number of dimensions in this array.
 int ArrayType::numDimensions() 
 {
     return ranges.size();
 }
 
+//Check that two array types are compatible. This is mostly used for parameter
+//type checking.
 bool ArrayType::compatible(AbstractType *otherType, int opToken) 
 {
-    //TODO: Check dimensions and ranges.
-    //NOTE: Arrays are (probably) not assignment compatible in Pascal.
-    //This method will return true, so it should not be used to assignment
-    //compatiblity.
-    
-    return className() == className();
+    //This implementation is cute, but it hardly counts as real type checking
+    //for arrays.
+    //
+    //TODO:
+    //  - This does not check that the element type is the same!
+    //  - This does not check that the dimensions/ranges are the same!
+    //  - This does not return false for operators that are illegal for
+    //    arrays, like '<='!
+    return className() == otherType->className();
     //&&  getType()->compatible(otherType->getType(), opToken);
 }

@@ -3,7 +3,6 @@
 //
 // This file contains the method definitions of the RecordType class.
 
-#include <sstream>
 #include "RecordType.h"
 #include "main.h"
 
@@ -18,6 +17,7 @@ RecordType::RecordType(list<Variable> fields) : AbstractType()
         this->fields.push_front(*it);
 }
 
+//Generate the equivalent C++ code for this record.
 void RecordType::generateCode(string ident)
 {
     cout << "struct " << ident << " {" << endl;
@@ -30,11 +30,13 @@ void RecordType::generateCode(string ident)
     cout << "} " << ident;
 }
 
+//A RecordType is a record.
 bool RecordType::isRecordType() 
 {
     return true;
 }
 
+//Check if an identifier is a field in this record.
 Variable *RecordType::lookup(string ident) 
 {
     list<Variable>::iterator it = fields.begin();

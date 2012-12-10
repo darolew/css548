@@ -25,7 +25,7 @@ public:
     //A lit of the array ranges, e.g., 1..5, 'a'..'z', etc.
     vector<Range> ranges;
 
-    ArrayType(AbstractType *, list<Range>);
+    ArrayType(AbstractType*, list<Range>);
     virtual void generateCode(string);
     virtual void resolve();
     virtual bool isArrayType();
