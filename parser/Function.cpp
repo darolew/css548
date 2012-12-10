@@ -155,7 +155,7 @@ void Function::event_Designator(string designator)
         cout << "_";
     } else {
         //
-        //TODO: This same check is done in compitable(), and this error message
+        //TODO: This same check is done in compatible(), and this error message
         //      is never printed.
         //
         ERR(string("Cannot assign return value to a different function. "

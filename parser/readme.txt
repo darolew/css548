@@ -61,7 +61,9 @@ Error programs that are not entirely correct:
     funcerror.p     - finds errors, then terminates with syntax error
 
 sterror.p produces all the correct symbol table errors, but it has other errors
-also since we do not support nested procedures.
+also since we do not support nested procedures. funcerror.p does produce some
+of the expected errors, but compilation terminates with a syntax error before
+it reaches the end.
 
 All of these error programs produce the expected errors:
 
@@ -77,36 +79,55 @@ Section 5:
 
 The sample Pascal programs test these, but we are still proud of them:
 
-    -Sets
-    -Array subscripts
-    -Pointers
-    -Return values from functions
-    -Type checking for math and relational operators
+    - Sets
+    - Array subscripts
+    - Pointers
+    - Return values from functions
+    - Type checking for math and relational operators
 
 
 Section 6:
 
--This is a one pass, print-as-you-go translator.
+* Compiling and Output
 
--Type checking is implemented using a stack of types which are pushed, 
+Our compiler supports Pascal sets via the IntSet class, which is placed in the
+generated code via an include directive. For this reason, in order to compile
+the generated C++ programs, IntSet.cpp and IntSet.h must be placed in the same
+directory as the generated C++ source files.
+
+We tried to make our C++ code print with the correct indentation in order to
+be more readable. However, there are some quirks; most notably, the closing
+brace is usually indended an extra level.
+
+* Design
+
+This is a one pass, print-as-you-go translator.
+
+* Type Checking
+
+Type checking is implemented using a stack of types which are pushed, 
 compared, and popped as required.
 
--Pointers and arrays were especially difficult. Pascal pointers are dereferenced
-after the identifier (ident^). C++ pointers are dereferenced before 
-the identifier (*ident). Printing-as-you-go means that by the time you 
-discover the dereference in Pascal, the identifier has already been printed.
-The problem was solved by dereferencing by using C's array access notation 
-to dereference pointers. That is, in C these two statement are equivalent:
+* Pointers
+
+Pointers were tricky. Pascal pointers are dereferenced after the identifier
+(ident^). C++ pointers are dereferenced before the identifier (*ident).
+Printing-as-you-go means that by the time you discover the dereference in
+Pascal, the identifier has already been printed. The problem was solved by
+dereferencing pointers via C's array access notation. That is, in C, these two
+statement are equivalent:
+
     *ident
     ident[0]
 
-The translator appends the string "[0]" to pointer identifiers 
-to dereference them.    
-    
--Arrays were more challenging. Pascal array are indexed with an
-expression list inside of a single set of the terminals "[" and "]". 
-C arrays are dereferenced with a single expression inside multiple sets of
-"[" and "]" terminals. 
+The compiler appends the string "[0]" to pointer identifiers to dereference
+them. This looks a bit odd, and is poor C++ style, but it works.
+
+* Arrays
+
+Arrays were challenging. Pascal array are indexed with an expression list
+inside of a single set of the terminals "[" and "]". C arrays are dereferenced
+with a single expression inside multiple sets of "[" and "]" terminals. 
 
 The solution was to use the type-checking stack. The parser can query the 
 type-checking stack (called the "tracker") to determine whether an array type
@@ -115,13 +136,13 @@ translation each time an expression is parsed. A similar mechanism is used for
 functions. 
 
 A more advanced solution would be to use a stack to track all symbols and use
-the syntax actions as events which trigger print C++ code for items which are 
+the syntax actions as events which trigger C++ print code for items which are 
 deeper in the stack.
 
--Sets
+* Sets
 
-There were a couple of tricky problems. The first was handling set literals. 
-For example, take the Pascal code:
+There were a couple of tricky problems with sets. The first was handling set
+literals. For example, take the Pascal code:
 
     stuff := [2, 4, 6, 8];
 
@@ -132,26 +153,32 @@ this:
 
 makeLiteral() is a static function in IntSet; it takes a variable number of
 arguments (terminated by SETTERM) and creates and returns an object. The
-second hard problem was the in operator. For example, take the Pascal code:
+second hard problem was the 'in' operator. For example, take the Pascal code:
 
     if 3 in stuff then
 
 Note how the 3 precedes stuff in the grammar. Therefore, it was not possible
-to generate a function call, like stuff.isInSet(3). I was able to work-around
-this by overloading an arbitrary operator in a non-member function. No
-operator really made sense, so I just overloaded modulus:
+to generate a function call, like stuff.isInSet(3). We worked around this by
+overloading an arbitrary operator in a non-member function. No operator really
+made sense, so we just overloaded modulus:
 
     if (3 % stuff) {
+    
+Also, note that the IntSet class has no notion of set bounds; it grows as
+necessary to hold any set of values. All bounds-checking is performed at
+compile time.
 
--Used C++ RTTI to identify types. Not really a bug, but not recommended 
+* Issues
+
+Used C++ RTTI to identify types. Not really a bug, but not recommended 
 OO style. Future work includes improving style.
 
--Implementing the functionalty took priority over finding and fixing memory
+Implementing functionality took priority over finding and fixing memory
 leaks.
 
--Pascal's divide operation returns a real when dividing two integer. C's
+Pascal's divide operation returns a real when dividing two integer. C's
 divide operation returns an integer under the same circumstances. Our 
-compiler should have one of the integer operands to float or double so the
+compiler should cast one of the integer operands to float or double so the
 C program would have the same behavior as the Pascal program. It does not.
 
 

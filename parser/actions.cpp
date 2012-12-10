@@ -10,8 +10,8 @@
 
 //Local function declarations
 static int terminalToInteger(const Terminal*);
-void validateTerminal(const Terminal*);
-void validateRange(Range);
+static void validateTerminal(const Terminal*);
+static void validateRange(Range);
 
 
 //The type tracker is a global object for easy access
@@ -131,7 +131,7 @@ static int terminalToInteger(const Terminal *t)
 
 //Prints an error if a character terminal is more than one character long,
 //rendering it illegal for ranges, sets, and array dimensions.
-void validateTerminal(const Terminal *term)
+static void validateTerminal(const Terminal *term)
 {
     //Array bounds must be single characters
     if (term->token == ystring && term->str.size() > 1) {
@@ -141,7 +141,7 @@ void validateTerminal(const Terminal *term)
 }    
 
 //Prints an error if a range does not encompass at least one value.
-void validateRange(Range r) 
+static void validateRange(Range r) 
 {
     if(r.low >= r.high)
         cout << "\n***ERROR: array bounds must be ascending" << endl;
